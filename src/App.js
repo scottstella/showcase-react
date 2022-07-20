@@ -7,7 +7,7 @@ import Header from "./components/Header/Header";
 
 function App() {
   return (
-    <div>
+    <div className="grid-container">
       <Header />
       <Nav />
       <Article />

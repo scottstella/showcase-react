@@ -2,25 +2,25 @@ import React from "react";
 
 export default function Aside() {
   return (
-    <div class="aside">
+    <div className="aside">
       <ul>
         <li>
           <p>
-            <strong>Published on:</strong>
+            <strong>Developed:</strong>
           </p>
-          <p>May 15th 2022</p>
+          <p>July 2022</p>
         </li>
         <li>
           <p>
-            <strong>In the category:</strong>
+            <strong>Showcasing</strong>
           </p>
-          <p>Games & Consoles</p>
+          <p>React, Javascript, CSS</p>
         </li>
         <li>
           <p>
-            <strong>Writted by:</strong>
+            <strong>Developed by:</strong>
           </p>
-          <p>Mario</p>
+          <p>Scott Stella</p>
         </li>
       </ul>
     </div>

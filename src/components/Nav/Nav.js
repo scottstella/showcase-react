@@ -2,14 +2,14 @@ import React from "react";
 
 export default function Nav() {
   return (
-    <div class="nav">
-      <p>Categories</p>
-      <li>Film & Cinema</li>
-      <li>Books & Reading</li>
-      <li>Games & Consoles</li>
-      <li>Food & Drink</li>
-      <li>World News</li>
-      <li>Outdoor Living</li>
+    <div className="nav">
+      <p>Links</p>
+      <li>Link1</li>
+      <li>Link2</li>
+      <li>Link3</li>
+      <li>Link4</li>
+      <li>Link5</li>
+      <li>Link6</li>
 
       <div>Other content</div>
     </div>

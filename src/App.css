@@ -15,38 +15,38 @@ li {
   grid-template-columns: 1fr 3fr 1fr;
   column-gap: 30px;
 }
-header {
+.header {
   grid-column: span 3;
   text-align: center;
   border-bottom: 1px solid #ddd;
 }
-nav {
+.nav {
   padding: 30px;
   border-right: 1px solid #ddd;
 }
-nav li {
+.nav li {
   text-decoration: underline;
 }
-article {
+.article {
   padding: 30px;
 }
-article h2 {
+.article h2 {
   font-size: 3.5em;
   max-width: 800px;
 }
-article img {
+.article img {
   width: 100%;
 }
-article p {
+.article p {
   margin-top: 30px;
   line-height: 2em;
   color: #777;
 }
-aside {
+.aside {
   padding: 30px;
   border-left: 1px solid #ddd;
 }
-footer {
+.footer {
   grid-column: span 3;
   text-align: center;
   border-top: 1px solid #ddd;
@@ -55,34 +55,34 @@ footer {
 
 /* responsive */
 @media screen and (max-width: 1200px) {
-  nav {
+  .nav {
     grid-column: span 3;
     border-right: 0;
     border-bottom: 1px solid #ddd;
   }
-  nav li {
+  .nav li {
     display: inline-block;
     margin-right: 10px;
   }
-  article {
+  .article {
     grid-column: span 2;
   }
-  aside {
+  .aside {
     padding: 16px;
   }
 }
 
 @media screen and (max-width: 980px) {
-  nav,
-  article,
-  aside {
+  .nav,
+  .article,
+  .aside {
     grid-column: span 3;
   }
-  aside {
+  .aside {
     border-left: 0;
     border-top: 1px solid #ddd;
   }
-  article h2 {
+  .article h2 {
     font-size: 2.5em;
   }
 }

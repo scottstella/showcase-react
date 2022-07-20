@@ -2,8 +2,8 @@ import React from "react";
 
 export default function Article() {
   return (
-    <div class="article">
-      <h2>The Best 5 Open World Adventure Games</h2>
+    <div className="article">
+      <h2>Main Article</h2>
 
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Et voluptas
