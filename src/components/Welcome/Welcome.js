@@ -1,9 +1,9 @@
 import React from "react";
 
-export default function Article() {
+export default function Welcome() {
   return (
-    <div className="article">
-      <h2>Main Article</h2>
+    <div className="main-section">
+      <h2>Welcome</h2>
 
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Et voluptas

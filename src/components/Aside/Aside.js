@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Aside() {
   return (
-    <div className="aside">
+    <div className="aside-section">
       <ul>
         <li>
           <p>
