@@ -1,8 +1,9 @@
 import React from "react";
+import "./Aside.css";
 
 export default function Aside() {
   return (
-    <div>
+    <div className="aside">
       <ul>
         <li>
           <p>

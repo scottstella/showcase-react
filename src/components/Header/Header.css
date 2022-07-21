@@ -1,0 +1,14 @@
+.header {
+  width: 100%;
+  background-color: #7d94b5;
+  display: flex;
+}
+
+.header h1 {
+  align-self: center;
+}
+
+.header-logo {
+  width: 232px;
+  height: 107.5px;
+}

@@ -3,6 +3,7 @@
 body {
   margin: 0;
   font-family: "Poppins";
+  background-color: #b4b3a8;
 }
 ul,
 li {
@@ -17,12 +18,11 @@ li {
 }
 .header-section {
   grid-column: span 3;
-  text-align: center;
   border-bottom: 1px solid #ddd;
 }
 .nav-section {
-  padding: 30px;
   border-right: 1px solid #ddd;
+  display: flex;
 }
 .nav-section li {
   text-decoration: underline;
@@ -43,8 +43,8 @@ li {
   color: #777;
 }
 .aside-section {
-  padding: 30px;
   border-left: 1px solid #ddd;
+  display: flex;
 }
 .footer-section {
   grid-column: span 3;

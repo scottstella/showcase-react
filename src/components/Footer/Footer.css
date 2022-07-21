@@ -1,6 +1,9 @@
 .footer {
-  text-align: center;
-  vertical-align: top;
-  background-color: #777;
+  background-color: #703f37;
   width: 100%;
+}
+
+.footer p {
+  text-align: center;
+  font-style: italic;
 }
