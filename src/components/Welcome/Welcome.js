@@ -1,10 +1,15 @@
 import React from "react";
+import "./Welcome.css";
+import hearthstoneIcon from "../../assets/images/hearthstone-icon.png";
 
 export default function Welcome() {
   return (
-    <div>
-      <h2>Welcome</h2>
+    <div className="welcome">
 
+     <div className="welcome-header-section">
+      <img className="welcome-logo" src={hearthstoneIcon} alt="Hearthstone Icon"/>
+      <h2>Welcome</h2>
+      </div> 
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Et voluptas
         eligendi maiores beatae eius, odit aperiam, pariatur tenetur sequi quis

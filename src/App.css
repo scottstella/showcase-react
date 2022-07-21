@@ -30,18 +30,7 @@ li {
 .main-section {
   padding: 30px;
 }
-.main-section h2 {
-  font-size: 3.5em;
-  max-width: 800px;
-}
-.main-section img {
-  width: 100%;
-}
-.main-section p {
-  margin-top: 30px;
-  line-height: 2em;
-  color: #777;
-}
+
 .aside-section {
   border-left: 1px solid #ddd;
   display: flex;
@@ -65,9 +54,7 @@ li {
   .main-section {
     grid-column: span 2;
   }
-  .aside-section {
-    padding: 16px;
-  }
+
 }
 
 @media screen and (max-width: 980px) {
