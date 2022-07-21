@@ -9,15 +9,29 @@ import Header from "./components/Header/Header";
 function App() {
   return (
     <div className="grid-container">
-      <Header />
-      <Nav />
-      <Router>
-        <Routes>
-          <Route path="/" element={<Welcome />} />
-        </Routes>
-      </Router>
-      <Aside />
-      <Footer />
+      <div className="header-section">
+        <Header />
+      </div>
+
+      <div className="nav-section">
+        <Nav />
+      </div>
+
+      <div className="main-section">
+        <Router>
+          <Routes>
+            <Route path="/" element={<Welcome />} />
+          </Routes>
+        </Router>
+      </div>
+
+      <div className="aside-section">
+        <Aside />
+      </div>
+
+      <div className="footer-section">
+        <Footer />
+      </div>
     </div>
   );
 }

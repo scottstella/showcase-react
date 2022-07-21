@@ -48,9 +48,7 @@ li {
 }
 .footer-section {
   grid-column: span 3;
-  text-align: center;
-  background-color: #777;
-  padding: 30px;
+  display: flex;
 }
 
 /* responsive */

@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Nav() {
   return (
-    <div className="nav-section">
+    <div>
       <p>Admin</p>
       <li>Manage Sets</li>
       <li>Manage Cards</li>
