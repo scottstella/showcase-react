@@ -10,6 +10,10 @@ export default function Nav() {
 
       <p>Decks</p>
       <li>Maintain</li>
+
+      <p>Admin</p>
+      <li>Manage Meta-Data</li>
+      <li>Manage Cards</li>
     </div>
   );
 }

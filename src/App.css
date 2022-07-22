@@ -16,25 +16,24 @@ li {
   grid-template-columns: 1fr 3fr 1fr;
   column-gap: 30px;
 }
+
 .header-section {
   grid-column: span 3;
   border-bottom: 1px solid #ddd;
 }
+
 .nav-section {
   border-right: 1px solid #ddd;
-  display: flex;
 }
-.nav-section li {
-  text-decoration: underline;
-}
+
 .main-section {
   padding: 30px;
 }
 
 .aside-section {
   border-left: 1px solid #ddd;
-  display: flex;
 }
+
 .footer-section {
   grid-column: span 3;
   display: flex;
@@ -47,14 +46,9 @@ li {
     border-right: 0;
     border-bottom: 1px solid #ddd;
   }
-  .nav-section li {
-    display: inline-block;
-    margin-right: 10px;
-  }
   .main-section {
     grid-column: span 2;
   }
-
 }
 
 @media screen and (max-width: 980px) {
@@ -66,8 +60,5 @@ li {
   .aside-section {
     border-left: 0;
     border-top: 1px solid #ddd;
-  }
-  .main-section h2 {
-    font-size: 2.5em;
   }
 }
