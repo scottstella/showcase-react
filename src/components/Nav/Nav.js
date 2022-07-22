@@ -5,7 +5,7 @@ export default function Nav() {
   return (
     <div className="nav">
       <p>Admin</p>
-      <li>Manage Meta-Data</li>
+      <li><a href="/ManageMetaData">Manage Meta-Data</a></li>
       <li>Manage Cards</li>
 
       <p>Decks</p>

@@ -5,6 +5,7 @@ import Welcome from "./components/Welcome/Welcome";
 import Aside from "./components/Aside/Aside";
 import Footer from "./components/Footer/Footer";
 import Header from "./components/Header/Header";
+import MetaData from "./components/meta-data/MetaData";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Welcome />} />
+            <Route path="/manageMetaData" element={<MetaData />} />
           </Routes>
         </Router>
       </div>
