@@ -30,6 +30,7 @@ li {
 
 .main-section {
   padding: 30px;
+  min-height: 800px;
 }
 
 .aside-section {
@@ -60,6 +61,9 @@ li {
   .main-section,
   .aside-section {
     grid-column: span 3;
+  }
+  .main-section {
+    min-height: 200px;
   }
   .aside-section {
     border-left: 0;
