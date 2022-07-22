@@ -1,7 +1,7 @@
 .nav {
-  background-color: #b6c199;
   padding: 30px;
   /*min-height: 100%; this causes aside to bleed into nave at 1200px*/
+
   max-width: 100%;
   display: flex;
   flex-direction: column;
