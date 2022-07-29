@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Nav.css";
+import { NavLink } from "react-router-dom";
 
 export default function Nav() {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -20,7 +21,7 @@ export default function Nav() {
       </div>
       <div class={`${isCollapsed ? "nav-group-collapsed" : ""}`}>
         <li>
-          <a href="/ManageMetaData">Manage Meta-Data</a>
+          <NavLink to="/ManageMetaData">Manage Meta-Data</NavLink>
         </li>
         <li>Manage Cards</li>
       </div>

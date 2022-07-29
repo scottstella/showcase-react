@@ -13,20 +13,18 @@ function App() {
       <div className="header-section">
         <Header />
       </div>
+      <Router>
+        <div className="nav-section">
+          <Nav />
+        </div>
 
-      <div className="nav-section">
-        <Nav />
-      </div>
-
-      <div className="main-section">
-        <Router>
+        <div className="main-section">
           <Routes>
             <Route path="/" element={<Welcome />} />
             <Route path="/manageMetaData" element={<MetaData />} />
           </Routes>
-        </Router>
-      </div>
-
+        </div>
+      </Router>
       <div className="aside-section">
         <Aside />
       </div>
