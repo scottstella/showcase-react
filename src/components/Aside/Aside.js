@@ -15,7 +15,7 @@ export default function Aside() {
           <p>
             <strong>Showcasing</strong>
           </p>
-          <p>React, Javascript, CSS</p>
+          <p>React, Javascript, CSS, Supabase</p>
         </li>
         <li>
           <p>
