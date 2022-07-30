@@ -10,10 +10,11 @@ import MetaData from "./components/meta-data/MetaData";
 function App() {
   return (
     <div className="grid-container">
-      <div className="header-section">
-        <Header />
-      </div>
       <Router>
+        <div className="header-section">
+          <Header />
+        </div>
+
         <div className="nav-section">
           <Nav />
         </div>
@@ -24,14 +25,15 @@ function App() {
             <Route path="/manageMetaData" element={<MetaData />} />
           </Routes>
         </div>
-      </Router>
-      <div className="aside-section">
-        <Aside />
-      </div>
 
-      <div className="footer-section">
-        <Footer />
-      </div>
+        <div className="aside-section">
+          <Aside />
+        </div>
+
+        <div className="footer-section">
+          <Footer />
+        </div>
+      </Router>
     </div>
   );
 }
