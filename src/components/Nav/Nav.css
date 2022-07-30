@@ -6,13 +6,28 @@
   flex-direction: column;
 }
 
-.nav-item {
+.nav h2 {
+  font-size: 1.5em;
+}
+
+.nav-collapsable {
   display: flex;
   flex-direction: row;
   gap: 10px;
   align-items: baseline;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .nav-group-collapsed {
   display: none;
+}
+.nav-group-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nav-link {
+  text-decoration: none;
+  margin-left: 30px;
 }

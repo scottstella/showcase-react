@@ -3,29 +3,65 @@ import "./Nav.css";
 import { NavLink } from "react-router-dom";
 
 export default function Nav() {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isAdminCollapsed, setIsAdminCollapsed] = useState(true);
+  const [isDecksCollapsed, setIsDecksCollapsed] = useState(true);
 
   const clickAdmin = () => {
-    setIsCollapsed(!isCollapsed);
+    setIsAdminCollapsed(!isAdminCollapsed);
+  };
+  const clickDecks = () => {
+    setIsDecksCollapsed(!isDecksCollapsed);
   };
 
   return (
     <div className="nav">
-      <div className="nav-item">
+      <h2>Menu</h2>
+      <div className="nav-collapsable">
         <i
           class={`${
-            isCollapsed ? "fa-solid fa-angle-right" : "fa-solid fa-angle-down"
+            isAdminCollapsed
+              ? "fa-solid fa-angle-right"
+              : "fa-solid fa-angle-down"
           }`}
-        ></i>
+        />
         <div onClick={clickAdmin}>Admin</div>
       </div>
-      <div class={`${isCollapsed ? "nav-group-collapsed" : ""}`}>
-        <li>
-          <NavLink to="/ManageMetaData">Manage Meta-Data</NavLink>
-        </li>
-        <li>Manage Cards</li>
+      <div
+        class={`${
+          isAdminCollapsed ? "nav-group-collapsed" : "nav-group-expanded"
+        }`}
+      >
+        <NavLink to="/ManageMetaData" className="nav-link">
+          Manage Meta-Data
+        </NavLink>
+
+        <NavLink to="/ManageMetaData" className="nav-link">
+          Manage Cards
+        </NavLink>
       </div>
-      <p>Decks</p>
+      <div className="nav-collapsable">
+        <i
+          class={`${
+            isDecksCollapsed
+              ? "fa-solid fa-angle-right"
+              : "fa-solid fa-angle-down"
+          }`}
+        />
+        <div onClick={clickDecks}>Decks</div>
+      </div>
+      <div
+        class={`${
+          isDecksCollapsed ? "nav-group-collapsed" : "nav-group-expanded"
+        }`}
+      >
+        <NavLink to="/ManageMetaData" className="nav-link">
+          Link 1
+        </NavLink>
+
+        <NavLink to="/ManageMetaData" className="nav-link">
+          Link 2
+        </NavLink>
+      </div>
     </div>
   );
 }
