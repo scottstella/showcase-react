@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../../supabase/Client";
 import "../../common/input-group.css";
 import "../../common/table.css";
+import { toast } from "react-toastify";
 
 export default function MaintainClasses() {
+  
   const [heroClasses, setHeroClasses] = useState([]);
   const [heroClass, setHeroClass] = useState({ name: "" });
   const { name } = heroClass;
@@ -20,9 +22,14 @@ export default function MaintainClasses() {
 
   async function addHeroClass() {
     await supabase.from("hero_class").insert([{ name }]).single();
+
     setHeroClass({ name: "" });
     fetchHeroClasses();
   }
+
+  const testToast = () => {
+    toast.info("adding record");
+  };
   return (
     <div>
       <div class="input-group">
@@ -32,6 +39,7 @@ export default function MaintainClasses() {
           onChange={(e) => setHeroClass({ ...heroClass, name: e.target.value })}
         />
         <button onClick={addHeroClass}>Add Hero Class</button>
+        <button onClick={testToast}>Test Toast</button>
       </div>
       <table>
         <thead>

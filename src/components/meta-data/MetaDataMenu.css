@@ -1,6 +1,7 @@
 .meta-data-menu {
   display: flex;
   gap: 30px;
+  cursor: pointer;
 }
 
 .meta-data-menu__selected {
