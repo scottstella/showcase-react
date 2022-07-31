@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../supabase/Client";
+import "../../common/input-group.css";
+import "../../common/table.css";
 
 export default function MaintainClasses() {
   const [heroClasses, setHeroClasses] = useState([]);
@@ -23,17 +25,30 @@ export default function MaintainClasses() {
   }
   return (
     <div>
-      <input
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setHeroClass({ ...heroClass, name: e.target.value })}
-      />
-      <button onClick={addHeroClass}>Add Hero Class</button>
-      {heroClasses.map((heroClass) => (
-        <div key={heroClass.id}>
-          <p>{heroClass.name}</p>
-        </div>
-      ))}
+      <div class="input-group">
+        <input
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setHeroClass({ ...heroClass, name: e.target.value })}
+        />
+        <button onClick={addHeroClass}>Add Hero Class</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {heroClasses.map((heroClass) => (
+            <tr>
+              <td>{heroClass.id}</td>
+              <td>{heroClass.name}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
