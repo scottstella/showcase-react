@@ -3,6 +3,10 @@
   gap: 30px;
 }
 
+.meta-data-menu__selected {
+  font-weight: bold;
+}
+
 hr {
   margin-bottom: 30px;
 }
