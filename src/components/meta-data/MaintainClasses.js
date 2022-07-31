@@ -36,6 +36,7 @@ export default function MaintainClasses() {
       <table>
         <thead>
           <tr>
+            <th>Action</th>
             <th>ID</th>
             <th>Name</th>
           </tr>
@@ -43,7 +44,10 @@ export default function MaintainClasses() {
         <tbody>
           {heroClasses.map((heroClass) => (
             <tr>
-              <td>{heroClass.id}</td>
+              <td style={{ width: "75px" }}>
+                <i class="fa-solid fa-trash-can"></i>
+              </td>
+              <td style={{ width: "75px" }}>{heroClass.id}</td>
               <td>{heroClass.name}</td>
             </tr>
           ))}
