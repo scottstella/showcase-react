@@ -5,7 +5,6 @@ import "../../common/table.css";
 import { toast } from "react-toastify";
 
 export default function MaintainClasses() {
-  
   const [heroClasses, setHeroClasses] = useState([]);
   const [heroClass, setHeroClass] = useState({ name: "" });
   const { name } = heroClass;
@@ -15,9 +14,17 @@ export default function MaintainClasses() {
   }, []);
 
   async function fetchHeroClasses() {
-    const { data } = await supabase.from("hero_class").select();
-    setHeroClasses(data);
-    console.log("data: ", data);
+    console.log("fetching data");
+    const { data, error } = await supabase.from("hero_class2").select();
+
+    if (error !== null) {
+      const errorString =
+        "Error fetching data: (" + error.code + ") - " + error.message;
+      toast.error(errorString);
+    } else {
+      toast.info("Successfully fetched data");
+      setHeroClasses(data);
+    }
   }
 
   async function addHeroClass() {
