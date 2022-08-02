@@ -9,46 +9,75 @@ export default function MaintainClasses() {
   const [heroClass, setHeroClass] = useState({ name: "" });
   const { name } = heroClass;
 
-  const toastId = useRef(null);
+  const fetchToastId = useRef(null);
+  const addToastId = useRef(null);
+  const deleteToastId = useRef(null);
 
   useEffect(() => {
     fetchHeroClasses();
   }, []);
 
-  async function fetchHeroClasses() {
-
-    toastId.current = toast("Loading");
-
-    const { data, error } = await supabase.from("hero_class").select();
-
+  const updateToast = (toastId, error, showSuccess) => {
     if (error !== null) {
       const errorString =
-        "Error fetching data: (" + error.code + ") " + error.message;
+        "Error: [" + error.code + "] " + error.details + ", " + error.message;
       toast.update(toastId.current, {
         render: errorString,
         type: toast.TYPE.ERROR,
         autoClose: 5000,
       });
     } else {
-      toast.update(toastId.current, {
-        render: "Success!",
-        type: toast.TYPE.INFO,
-        autoClose: 500,
-      });
+      if (showSuccess) {
+        toast.update(toastId.current, {
+          render: "Success",
+          type: toast.TYPE.INFO,
+          autoClose: 1500,
+        });
+      }
+    }
+  };
+
+  async function fetchHeroClasses() {
+    fetchToastId.current = toast("Getting Hero Classes...");
+
+    const { data, error } = await supabase.from("hero_class").select();
+
+    updateToast(fetchToastId, error, false);
+
+    if (error === null) {
       setHeroClasses(data);
+      toast.dismiss(fetchToastId.current);
     }
   }
 
   async function addHeroClass() {
-    await supabase.from("hero_class").insert([{ name }]).single();
+    addToastId.current = toast("Adding record...");
 
-    setHeroClass({ name: "" });
-    fetchHeroClasses();
+    const { data, error } = await supabase
+      .from("hero_class")
+      .insert([{ name }])
+      .single();
+
+    updateToast(addToastId, error, true);
+
+    if (error === null) {
+      setHeroClass({ name: "" });
+      fetchHeroClasses();
+    }
   }
 
   async function deleteHeroClass(e) {
-    await supabase.from("hero_class").delete().eq("id", e.currentTarget.id);
-    fetchHeroClasses();
+    deleteToastId.current = toast("Deleting record...");
+    const { data, error } = await supabase
+      .from("hero_class")
+      .delete()
+      .eq("id", e.currentTarget.id);
+
+    updateToast(deleteToastId, error, true);
+
+    if (error === null) {
+      fetchHeroClasses();
+    }
   }
 
   return (
@@ -60,7 +89,9 @@ export default function MaintainClasses() {
           value={name}
           onChange={(e) => setHeroClass({ ...heroClass, name: e.target.value })}
         />
-        <button onClick={addHeroClass}><i class="fa-regular fa-square-plus"></i> Add Hero Class</button>
+        <button onClick={addHeroClass}>
+          <i class="fa-regular fa-square-plus"></i> Add Hero Class
+        </button>
       </div>
       <table>
         <thead>
