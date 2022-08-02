@@ -15,7 +15,7 @@ export default function MaintainClasses() {
 
   async function fetchHeroClasses() {
     console.log("fetching data");
-    const { data, error } = await supabase.from("hero_class2").select();
+    const { data, error } = await supabase.from("hero_class").select();
 
     if (error !== null) {
       const errorString =
@@ -34,9 +34,11 @@ export default function MaintainClasses() {
     fetchHeroClasses();
   }
 
-  const testToast = () => {
-    toast.info("adding record");
-  };
+  async function deleteHeroClass(e) {
+    await supabase.from('hero_class').delete().eq('id', e.currentTarget.id);
+    fetchHeroClasses();
+  }
+
   return (
     <div>
       <div class="input-group">
@@ -46,7 +48,7 @@ export default function MaintainClasses() {
           onChange={(e) => setHeroClass({ ...heroClass, name: e.target.value })}
         />
         <button onClick={addHeroClass}>Add Hero Class</button>
-        <button onClick={testToast}>Test Toast</button>
+        <button onClick={deleteHeroClass}>Delete Record</button>
       </div>
       <table>
         <thead>
@@ -60,7 +62,7 @@ export default function MaintainClasses() {
           {heroClasses.map((heroClass) => (
             <tr>
               <td style={{ width: "75px" }}>
-                <i class="fa-solid fa-trash-can"></i>
+                <i class="fa-solid fa-trash-can" id={heroClass.id} onClick={deleteHeroClass}></i>
               </td>
               <td style={{ width: "75px" }}>{heroClass.id}</td>
               <td>{heroClass.name}</td>
