@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../../supabase/Client";
 import "../../common/input-group.css";
 import "../../common/table.css";
@@ -9,20 +9,32 @@ export default function MaintainClasses() {
   const [heroClass, setHeroClass] = useState({ name: "" });
   const { name } = heroClass;
 
+  const toastId = useRef(null);
+
   useEffect(() => {
     fetchHeroClasses();
   }, []);
 
   async function fetchHeroClasses() {
-    console.log("fetching data");
+
+    toastId.current = toast("Loading");
+
     const { data, error } = await supabase.from("hero_class").select();
 
     if (error !== null) {
       const errorString =
-        "Error fetching data: (" + error.code + ") - " + error.message;
-      toast.error(errorString);
+        "Error fetching data: (" + error.code + ") " + error.message;
+      toast.update(toastId.current, {
+        render: errorString,
+        type: toast.TYPE.ERROR,
+        autoClose: 3000,
+      });
     } else {
-      toast.info("Successfully fetched data");
+      toast.update(toastId.current, {
+        render: "Success!",
+        type: toast.TYPE.INFO,
+        autoClose: 500,
+      });
       setHeroClasses(data);
     }
   }
@@ -35,7 +47,7 @@ export default function MaintainClasses() {
   }
 
   async function deleteHeroClass(e) {
-    await supabase.from('hero_class').delete().eq('id', e.currentTarget.id);
+    await supabase.from("hero_class").delete().eq("id", e.currentTarget.id);
     fetchHeroClasses();
   }
 
@@ -62,7 +74,11 @@ export default function MaintainClasses() {
           {heroClasses.map((heroClass) => (
             <tr>
               <td style={{ width: "75px" }}>
-                <i class="fa-solid fa-trash-can" id={heroClass.id} onClick={deleteHeroClass}></i>
+                <i
+                  class="fa-solid fa-trash-can"
+                  id={heroClass.id}
+                  onClick={deleteHeroClass}
+                ></i>
               </td>
               <td style={{ width: "75px" }}>{heroClass.id}</td>
               <td>{heroClass.name}</td>
