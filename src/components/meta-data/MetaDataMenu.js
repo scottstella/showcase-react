@@ -28,7 +28,7 @@ export default function MetaDataMenu(props) {
             menuSelection === "classes" ? "meta-data-menu__selected" : ""
           }`}
         >
-          Classes
+          Hero Classes
         </div>
         <div
           id="tribes"

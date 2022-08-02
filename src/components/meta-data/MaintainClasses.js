@@ -27,7 +27,7 @@ export default function MaintainClasses() {
       toast.update(toastId.current, {
         render: errorString,
         type: toast.TYPE.ERROR,
-        autoClose: 3000,
+        autoClose: 5000,
       });
     } else {
       toast.update(toastId.current, {
@@ -56,11 +56,11 @@ export default function MaintainClasses() {
       <div class="input-group">
         <input
           placeholder="Name"
+          type="text"
           value={name}
           onChange={(e) => setHeroClass({ ...heroClass, name: e.target.value })}
         />
-        <button onClick={addHeroClass}>Add Hero Class</button>
-        <button onClick={deleteHeroClass}>Delete Record</button>
+        <button onClick={addHeroClass}><i class="fa-regular fa-square-plus"></i> Add Hero Class</button>
       </div>
       <table>
         <thead>
