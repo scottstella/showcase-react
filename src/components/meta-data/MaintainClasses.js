@@ -3,10 +3,12 @@ import { supabase } from "../../supabase/Client";
 import "../../common/input-group.css";
 import "../../common/table.css";
 import { toast } from "react-toastify";
+import Refreshed from "../../common/Refreshed";
 
 export default function MaintainClasses() {
   const [heroClasses, setHeroClasses] = useState([]);
   const [heroClass, setHeroClass] = useState({ name: "" });
+  const [isLoading, setIsLoading] = useState(true);
   const { name } = heroClass;
 
   const fetchToastId = useRef(null);
@@ -38,15 +40,13 @@ export default function MaintainClasses() {
   };
 
   async function fetchHeroClasses() {
-    fetchToastId.current = toast("Getting Hero Classes...");
-
     const { data, error } = await supabase.from("hero_class").select();
 
     updateToast(fetchToastId, error, false);
 
     if (error === null) {
       setHeroClasses(data);
-      toast.dismiss(fetchToastId.current);
+      setIsLoading(false);
     }
   }
 
@@ -93,7 +93,11 @@ export default function MaintainClasses() {
           <i class="fa-regular fa-square-plus"></i> Add Hero Class
         </button>
       </div>
+
       <table>
+        <caption>
+          <Refreshed loading={isLoading} />
+        </caption>
         <thead>
           <tr>
             <th>Action</th>
