@@ -11,9 +11,9 @@ export default function MaintainClasses() {
   const [isLoading, setIsLoading] = useState(true);
   const { name } = heroClass;
 
-  const fetchToastId = useRef(null);
-  const addToastId = useRef(null);
-  const deleteToastId = useRef(null);
+  const fetchToastRef = useRef(null);
+  const addToastRef = useRef(null);
+  const deleteToastRef = useRef(null);
 
   useEffect(() => {
     fetchHeroClasses();
@@ -42,7 +42,7 @@ export default function MaintainClasses() {
   async function fetchHeroClasses() {
     const { data, error } = await supabase.from("hero_class").select();
 
-    updateToast(fetchToastId, error, false);
+    updateToast(fetchToastRef, error, false);
 
     if (error === null) {
       setHeroClasses(data);
@@ -51,14 +51,14 @@ export default function MaintainClasses() {
   }
 
   async function addHeroClass() {
-    addToastId.current = toast("Adding record...");
+    addToastRef.current = toast("Adding record...");
 
     const { data, error } = await supabase
       .from("hero_class")
       .insert([{ name }])
       .single();
 
-    updateToast(addToastId, error, true);
+    updateToast(addToastRef, error, true);
 
     if (error === null) {
       setHeroClass({ name: "" });
@@ -67,13 +67,13 @@ export default function MaintainClasses() {
   }
 
   async function deleteHeroClass(e) {
-    deleteToastId.current = toast("Deleting record...");
+    deleteToastRef.current = toast("Deleting record...");
     const { data, error } = await supabase
       .from("hero_class")
       .delete()
       .eq("id", e.currentTarget.id);
 
-    updateToast(deleteToastId, error, true);
+    updateToast(deleteToastRef, error, true);
 
     if (error === null) {
       fetchHeroClasses();
