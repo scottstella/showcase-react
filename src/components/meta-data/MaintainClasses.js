@@ -4,6 +4,7 @@ import "../../common/input-group.css";
 import "../../common/table.css";
 import { toast } from "react-toastify";
 import Refreshed from "../../common/Refreshed";
+import { updateToast } from "../../common/toastHelpers.js";
 
 export default function MaintainClasses() {
   const [heroClasses, setHeroClasses] = useState([]);
@@ -17,29 +18,11 @@ export default function MaintainClasses() {
 
   useEffect(() => {
     fetchHeroClasses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateToast = (toastId, error, showSuccess) => {
-    if (error !== null) {
-      const errorString =
-        "Error: [" + error.code + "] " + error.details + ", " + error.message;
-      toast.update(toastId.current, {
-        render: errorString,
-        type: toast.TYPE.ERROR,
-        autoClose: 5000,
-      });
-    } else {
-      if (showSuccess) {
-        toast.update(toastId.current, {
-          render: "Success",
-          type: toast.TYPE.INFO,
-          autoClose: 1500,
-        });
-      }
-    }
-  };
-
   async function fetchHeroClasses() {
+    setIsLoading(true);
     const { data, error } = await supabase.from("hero_class").select();
 
     updateToast(fetchToastRef, error, false);
@@ -53,7 +36,7 @@ export default function MaintainClasses() {
   async function addHeroClass() {
     addToastRef.current = toast("Adding record...");
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("hero_class")
       .insert([{ name }])
       .single();
@@ -68,7 +51,7 @@ export default function MaintainClasses() {
 
   async function deleteHeroClass(e) {
     deleteToastRef.current = toast("Deleting record...");
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("hero_class")
       .delete()
       .eq("id", e.currentTarget.id);
@@ -103,6 +86,7 @@ export default function MaintainClasses() {
             <th>Action</th>
             <th>ID</th>
             <th>Name</th>
+            <th>Last Updated</th>
           </tr>
         </thead>
         <tbody>
@@ -117,6 +101,7 @@ export default function MaintainClasses() {
               </td>
               <td style={{ width: "75px" }}>{heroClass.id}</td>
               <td>{heroClass.name}</td>
+              <td>{heroClass.created_at}</td>
             </tr>
           ))}
         </tbody>

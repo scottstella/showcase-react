@@ -19,7 +19,7 @@ export default function Refreshed(props) {
   };
   return (
     <div>
-      {props.loading ? "Loading..." : "Last updated on " + getCurrentDateTime()}
+      {props.loading ? "Loading..." : "Data refreshed on " + getCurrentDateTime()}
     </div>
   );
 }
