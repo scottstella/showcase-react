@@ -1,0 +1,12 @@
+Immediate
+
+Bug:  after adding record, the success toast does not auto close and page does not refresh with new record## How to test it
+Bug: after delete record, the success toast does not auto close and page does not refresh
+Format Last Updated to shorter date
+Pass client into CardService?
+Write unit tests for CardService
+Write unit tests for MaintainClasses
+
+Longer term
+
+Paging
