@@ -26,12 +26,10 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
   }, []);
 
   async function fetchHeroClasses() {
-    console.log("function fetchHeroClasses");
     setIsLoading(true);
     const { data, error } = await cardServiceImpl.fetchHeroClasses();
 
     if (error == null) {
-      console.log("  * error is null");
       setHeroClasses(data);
       setIsLoading(false);
     } else {
@@ -40,17 +38,13 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
   }
 
   async function addHeroClass() {
-    console.log("function addHeroClass");
-    console.log("  * addToastRef display adding record msg");
     addToastRef.current = toast("Adding record...");
 
-    const response = await cardServiceImpl.addHeroClass(heroClass);
+    const { error } = await cardServiceImpl.addHeroClass(heroClass);
 
-    console.log(response);
+    updateToast(addToastRef, error, true);
 
-    updateToast(addToastRef, response.error, true);
-
-    if (response.error == null) {
+    if (error == null) {
       setHeroClass({ name: "" });
       fetchHeroClasses();
     }
@@ -58,11 +52,10 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
 
   async function deleteHeroClass(e) {
     deleteToastRef.current = toast("Deleting record...");
-    const response = await cardServiceImpl.deleteHeroClass(e.currentTarget.id);
-    console.log(response);
-    updateToast(deleteToastRef, response.error, true);
+    const { error } = await cardServiceImpl.deleteHeroClass(e.currentTarget.id);
+    updateToast(deleteToastRef, error, true);
 
-    if (response.error == null) {
+    if (error == null) {
       fetchHeroClasses();
     }
   }
