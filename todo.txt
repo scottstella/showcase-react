@@ -1,6 +1,5 @@
 Immediate
 
-Format Last Updated to shorter date
 Pass client into CardService?
 Write unit tests for CardService
 Write unit tests for MaintainClasses

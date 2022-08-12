@@ -1,5 +1,6 @@
 import React from "react";
 import Refreshed from "../../../common/Refreshed";
+import { getLastUpdatedString } from "../../../common/utils.js";
 
 export default function MaintainClassesResults(props) {
   return (
@@ -27,7 +28,7 @@ export default function MaintainClassesResults(props) {
             </td>
             <td style={{ width: "75px" }}>{heroClass.id}</td>
             <td>{heroClass.name}</td>
-            <td>{heroClass.created_at}</td>
+            <td>{getLastUpdatedString(heroClass.created_at)}</td>
           </tr>
         ))}
       </tbody>
