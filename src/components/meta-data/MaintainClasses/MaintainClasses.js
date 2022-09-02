@@ -9,21 +9,34 @@ import {
   updateToast,
 } from "../../../common/toastHelpers.js";
 import cardServiceImpl from "../../../services/CardService";
+import { useFormik } from "formik";
+import { heroClassSchema } from "../../../schemas";
 
 export default function MaintainClasses({ cardService = cardServiceImpl }) {
   const [heroClasses, setHeroClasses] = useState([]);
-  const [heroClass, setHeroClass] = useState({ name: "" });
   const [isLoading, setIsLoading] = useState(true);
-  const { name } = heroClass;
 
   const addToastRef = useRef(null);
   const deleteToastRef = useRef(null);
+
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
+    useFormik({
+      initialValues: {
+        name: "",
+      },
+      validationSchema: heroClassSchema,
+      onSubmit,
+    });
 
   useEffect(() => {
     fetchHeroClasses();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function onSubmit(values, actions) {
+    addHeroClass(values, actions);
+  }
 
   async function fetchHeroClasses() {
     setIsLoading(true);
@@ -37,15 +50,15 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
     }
   }
 
-  async function addHeroClass() {
+  async function addHeroClass(values, actions) {
     addToastRef.current = toast("Adding record...");
 
-    const { error } = await cardServiceImpl.addHeroClass(heroClass);
+    const { error } = await cardServiceImpl.addHeroClass(values);
 
     updateToast(addToastRef, error, true);
 
     if (error == null) {
-      setHeroClass({ name: "" });
+      actions.resetForm();
       fetchHeroClasses();
     }
   }
@@ -62,17 +75,21 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
 
   return (
     <div>
-      <div class="input-group">
+      <form onSubmit={handleSubmit} className="input-group">
         <input
           placeholder="Name"
           type="text"
-          value={name}
-          onChange={(e) => setHeroClass({ ...heroClass, name: e.target.value })}
+          id="name"
+          value={values.name}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className={errors.name && touched.name ? "error" : ""}
         />
-        <button onClick={addHeroClass}>
-          <i class="fa-regular fa-square-plus"></i> Add Hero Class
-        </button>
-      </div>
+        {errors.name && touched.name && (
+          <div className="error-msg">{errors.name}</div>
+        )}
+        <input type="submit" />
+      </form>
 
       <MaintainClassesResults
         isLoading={isLoading}
