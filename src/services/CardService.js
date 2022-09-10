@@ -1,12 +1,11 @@
 import { supabase as supabaseImpl } from "../supabase/Client";
 
 export class CardService {
-
   constructor(supabase) {
     this.supabase = supabase;
   }
   async fetchHeroClasses() {
-    return await this.supabase.from("hero_class").select();
+    return await this.supabase.from("hero_class").select().order("name");
   }
 
   async deleteHeroClass(id) {
