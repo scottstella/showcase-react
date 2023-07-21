@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MaintainClasses from "./MaintainClasses/MaintainClasses";
 import MaintainSets from "./MaintainSets";
-import MaintainTribes from "./MaintainTribes";
+import MaintainTribes from "./MaintainTribes/MaintainTribes";
 import MetaDataMenu from "./MetaDataMenu";
 
 export default function MetaData() {
