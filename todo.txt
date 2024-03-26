@@ -8,3 +8,5 @@ Longer term
 
 Paging
 ui.shadcn.com or mui.com
+
+Dockerization
