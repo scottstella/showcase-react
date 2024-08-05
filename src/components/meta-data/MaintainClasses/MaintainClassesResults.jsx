@@ -1,6 +1,8 @@
 import React from "react";
-import Refreshed from "../../../common/Refreshed";
-import { getLastUpdatedString } from "../../../common/utils.js";
+import Refreshed from "../../../common/Refreshed.jsx";
+import { getLastUpdatedString } from "../../../common/utils.jsx";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import '../../../assets/fontAwesome';
 
 export default function MaintainClassesResults(props) {
   return (
@@ -20,11 +22,11 @@ export default function MaintainClassesResults(props) {
         {props.heroClasses.map((heroClass) => (
           <tr key={heroClass.id}>
             <td style={{ width: "75px" }}>
-              <i
-                class="fa-solid fa-trash-can"
-                id={heroClass.id}
-                onClick={props.deleteHeroClass}
-              ></i>
+            <FontAwesomeIcon
+              icon="trash-can"
+              id={heroClass.id}
+              onClick={props.deleteHeroClass}
+            />
             </td>
             <td style={{ width: "75px" }}>{heroClass.id}</td>
             <td>{heroClass.name}</td>

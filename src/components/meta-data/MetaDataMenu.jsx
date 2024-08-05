@@ -15,7 +15,7 @@ export default function MetaDataMenu(props) {
         <div
           id="sets"
           onClick={makeMenuSelection}
-          class={`${
+          className={`${
             menuSelection === "sets" ? "meta-data-menu__selected" : ""
           }`}
         >
@@ -24,7 +24,7 @@ export default function MetaDataMenu(props) {
         <div
           id="classes"
           onClick={makeMenuSelection}
-          class={`${
+          className={`${
             menuSelection === "classes" ? "meta-data-menu__selected" : ""
           }`}
         >
@@ -33,7 +33,7 @@ export default function MetaDataMenu(props) {
         <div
           id="tribes"
           onClick={makeMenuSelection}
-          class={`${
+          className={`${
             menuSelection === "tribes" ? "meta-data-menu__selected" : ""
           }`}
         >

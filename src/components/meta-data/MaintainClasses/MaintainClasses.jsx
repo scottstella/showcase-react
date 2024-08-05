@@ -2,15 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import "../../../common/input-group.css";
 import "../../../common/table.css";
 import { toast } from "react-toastify";
-import MaintainClassesResults from "./MaintainClassesResults";
+import MaintainClassesResults from "./MaintainClassesResults.jsx";
 
 import {
   displayErrorToast,
   updateToast,
-} from "../../../common/toastHelpers.js";
-import cardServiceImpl from "../../../services/CardService";
+} from "../../../common/toastHelpers.jsx";
+import cardServiceImpl from "../../../services/CardService.jsx";
 import { useFormik } from "formik";
-import { heroClassSchema } from "../../../schemas";
+import { heroClassSchema } from "../../../schemas/index.jsx";
 
 export default function MaintainClasses({ cardService = cardServiceImpl }) {
   const [heroClasses, setHeroClasses] = useState([]);
@@ -64,6 +64,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
   }
 
   async function deleteHeroClass(e) {
+    alert("delete function called");
     deleteToastRef.current = toast("Deleting record...");
     const { error } = await cardServiceImpl.deleteHeroClass(e.currentTarget.id);
     updateToast(deleteToastRef, error, true);

@@ -1,5 +1,5 @@
 import React from "react";
-import { getDateAndTimeString } from "./utils.js";
+import { getDateAndTimeString } from "./utils.jsx";
 
 export default function Refreshed(props) {
   const getCurrentDateTime = () => {

@@ -18,7 +18,7 @@ export default function Nav() {
       <h2>Menu</h2>
       <div className="nav-collapsable">
         <i
-          class={`${
+          className={`${
             isAdminCollapsed
               ? "fa-solid fa-angle-right"
               : "fa-solid fa-angle-down"
@@ -27,7 +27,7 @@ export default function Nav() {
         <div onClick={clickAdmin}>Admin</div>
       </div>
       <div
-        class={`${
+        className={`${
           isAdminCollapsed ? "nav-group-collapsed" : "nav-group-expanded"
         }`}
       >
@@ -41,7 +41,7 @@ export default function Nav() {
       </div>
       <div className="nav-collapsable">
         <i
-          class={`${
+          className={`${
             isDecksCollapsed
               ? "fa-solid fa-angle-right"
               : "fa-solid fa-angle-down"
@@ -50,7 +50,7 @@ export default function Nav() {
         <div onClick={clickDecks}>Decks</div>
       </div>
       <div
-        class={`${
+        className={`${
           isDecksCollapsed ? "nav-group-collapsed" : "nav-group-expanded"
         }`}
       >
