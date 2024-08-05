@@ -2,15 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import "../../../common/input-group.css";
 import "../../../common/table.css";
 import { toast } from "react-toastify";
-import MaintainTribesResults from "./MaintainTribesResults";
+import MaintainTribesResults from "./MaintainTribesResults.jsx";
 
 import {
   displayErrorToast,
   updateToast,
-} from "../../../common/toastHelpers.js";
-import cardServiceImpl from "../../../services/CardService";
+} from "../../../common/toastHelpers.jsx";
+import cardServiceImpl from "../../../services/CardService.jsx";
 import { useFormik } from "formik";
-import { tribeSchema } from "../../../schemas";
+import { tribeSchema } from "../../../schemas/index.jsx";
 
 export default function MaintainTribes({ cardService = cardServiceImpl }) {
   const [tribes, setTribes] = useState([]);

@@ -1,6 +1,7 @@
 import React from "react";
-import Refreshed from "../../../common/Refreshed";
-import { getLastUpdatedString } from "../../../common/utils.js";
+import Refreshed from "../../../common/Refreshed.jsx";
+import { getLastUpdatedString } from "../../../common/utils.jsx";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function MaintainTribesResults(props) {
   return (
@@ -20,11 +21,11 @@ export default function MaintainTribesResults(props) {
         {props.tribes.map((tribe) => (
           <tr key={tribe.id}>
             <td style={{ width: "75px" }}>
-              <i
-                class="fa-solid fa-trash-can"
-                id={tribe.id}
-                onClick={props.deleteTribe}
-              ></i>
+              <FontAwesomeIcon
+              icon="trash-can"
+              id={tribe.id}
+              onClick={props.deleteTribe}
+            />
             </td>
             <td style={{ width: "75px" }}>{tribe.id}</td>
             <td>{tribe.name}</td>
