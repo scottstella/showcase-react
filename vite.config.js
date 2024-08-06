@@ -7,8 +7,5 @@ export default defineConfig(() => {
       outDir: 'build',
     },
     plugins: [react()],
-    server: {
-        port: 3000, // Optional: Specify the port if you want to use the same port as CRA
-      },
   };
 });

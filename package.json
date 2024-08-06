@@ -18,9 +18,10 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "vite",
+    "start": "vite --host",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "dev": "vite"
   },
   "eslintConfig": {
     "extends": [
