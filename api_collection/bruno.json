@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "HDT Supabase",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
