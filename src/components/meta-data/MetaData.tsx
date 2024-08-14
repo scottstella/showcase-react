@@ -5,9 +5,9 @@ import MaintainTribes from "./MaintainTribes/MaintainTribes";
 import MetaDataMenu from "./MetaDataMenu";
 
 export default function MetaData() {
-  const [selection, setSelection] = useState("");
+  const [selection, setSelection] = useState<string>("");
 
-  const metaDataSelection = (metaData) => {
+  const metaDataSelection = (metaData: string) => {
     setSelection(metaData);
   };
 

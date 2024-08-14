@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import "./MetaDataMenu.css";
 
-export default function MetaDataMenu(props) {
-  const [menuSelection, setMenuSelection] = useState("");
+interface MetaDataMenuProps {
+  onSelectMetaData: (id: string) => void;
+}
 
-  const makeMenuSelection = (e) => {
-    setMenuSelection(e.target.id);
-    props.onSelectMetaData(e.target.id);
+export default function MetaDataMenu({ onSelectMetaData }: MetaDataMenuProps) {
+  const [menuSelection, setMenuSelection] = useState<string>("");
+
+  const makeMenuSelection = (e: React.MouseEvent<HTMLDivElement>) => {
+    const id = e.currentTarget.id;
+    setMenuSelection(id);
+    onSelectMetaData(id);
   };
 
   return (
