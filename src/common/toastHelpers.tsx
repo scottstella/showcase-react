@@ -1,6 +1,12 @@
-import { toast } from "react-toastify";
+import { toast, ToastId } from "react-toastify";
 
-export const updateToast = (toastRef, error, showSuccess) => {
+interface ErrorObject {
+  code: string;
+  details: string;
+  message: string;
+}
+
+export const updateToast = (toastRef: React.MutableRefObject<ToastId | null>, error: ErrorObject | null | undefined, showSuccess: boolean): void => {
   //Not using !== because check fails for undefined
   if (error != null) {
     const errorString = formatErrorMessage(error);
@@ -20,10 +26,10 @@ export const updateToast = (toastRef, error, showSuccess) => {
   }
 };
 
-export const displayErrorToast = (error) => {
+export const displayErrorToast = (error: ErrorObject): string => {
   toast.error(formatErrorMessage(error), { autoClose: 5000 });
 };
 
-export const formatErrorMessage = (error) => {
-  return "Error: [" + error.code + "] " + error.details + ", " + error.message;
+export const formatErrorMessage = (error: ErrorObject): string => {
+  return `Error: [${error.code}] ${error.details}, ${error.message}`;
 };

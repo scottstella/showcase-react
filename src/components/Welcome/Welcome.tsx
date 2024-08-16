@@ -2,7 +2,7 @@ import React from "react";
 import "./Welcome.css";
 import hearthstoneIcon from "../../assets/images/hearthstone-icon.png";
 
-export default function Welcome() {
+export default function Welcome(): JSX.Element {
   return (
     <div className="welcome">
 

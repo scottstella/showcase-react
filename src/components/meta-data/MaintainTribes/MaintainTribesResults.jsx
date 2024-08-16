@@ -1,6 +1,6 @@
 import React from "react";
-import Refreshed from "../../../common/Refreshed.jsx";
-import { getLastUpdatedString } from "../../../common/utils.jsx";
+import Refreshed from "../../../common/Refreshed.tsx";
+import { getLastUpdatedString } from "../../../common/utils.tsx";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function MaintainTribesResults(props) {

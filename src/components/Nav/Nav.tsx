@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import "./Nav.css";
 import { NavLink } from "react-router-dom";
 
-export default function Nav() {
+export default function Nav(): JSX.Element {
   const [isAdminCollapsed, setIsAdminCollapsed] = useState(true);
   const [isDecksCollapsed, setIsDecksCollapsed] = useState(true);
 
-  const clickAdmin = () => {
+  const clickAdmin = (): void => {
     setIsAdminCollapsed(!isAdminCollapsed);
   };
-  const clickDecks = () => {
+  const clickDecks = (): void => {
     setIsDecksCollapsed(!isDecksCollapsed);
   };
 

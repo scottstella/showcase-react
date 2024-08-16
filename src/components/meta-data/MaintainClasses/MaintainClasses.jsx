@@ -7,7 +7,7 @@ import MaintainClassesResults from "./MaintainClassesResults.jsx";
 import {
   displayErrorToast,
   updateToast,
-} from "../../../common/toastHelpers.jsx";
+} from "../../../common/toastHelpers.tsx";
 import cardServiceImpl from "../../../services/CardService.jsx";
 import { useFormik } from "formik";
 import { heroClassSchema } from "../../../schemas/index.jsx";

@@ -7,7 +7,7 @@ import MaintainTribesResults from "./MaintainTribesResults.jsx";
 import {
   displayErrorToast,
   updateToast,
-} from "../../../common/toastHelpers.jsx";
+} from "../../../common/toastHelpers.tsx";
 import cardServiceImpl from "../../../services/CardService.jsx";
 import { useFormik } from "formik";
 import { tribeSchema } from "../../../schemas/index.jsx";
