@@ -5,11 +5,14 @@ import hearthstoneIcon from "../../assets/images/hearthstone-icon.png";
 export default function Welcome(): JSX.Element {
   return (
     <div className="welcome">
-
-     <div className="welcome-header-section">
-      <img className="welcome-logo" src={hearthstoneIcon} alt="Hearthstone Icon"/>
-      <h2>Welcome</h2>
-      </div> 
+      <div className="welcome-header-section">
+        <img
+          className="welcome-logo"
+          src={hearthstoneIcon}
+          alt="Hearthstone Icon"
+        />
+        <h2>Welcome</h2>
+      </div>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Et voluptas
         eligendi maiores beatae eius, odit aperiam, pariatur tenetur sequi quis
@@ -20,7 +23,7 @@ export default function Welcome(): JSX.Element {
         aliquid fuga iure dicta nisi ex sequi. Porro ipsum laborum ut velit
         nulla fugit officiis omnis, eos repudiandae saepe veniam molestiae. Enim
         officia aut nemo voluptatum ratione sapiente ipsa obcaecati cum, quas
-        veritatis debitis quis odit quasi minus explicabo incidunt!
+        veritatis debitis quis odit quasi minus explicabo incidunt.
       </p>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Et voluptas
