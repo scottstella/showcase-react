@@ -1,5 +1,7 @@
 import React from "react";
 
-export default function MaintainSets() {
+const MaintainSets: React.FC = () => {
   return <div>MaintainSets</div>;
-}
+};
+
+export default MaintainSets;

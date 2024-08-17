@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import hearthstoneBanner from "../../assets/images/hearthstone-banner.png";
 import "./Header.css";
 
-export default function Header() {
+const Header: React.FC = () => {
   return (
     <div className="header">
       <NavLink to="/">
@@ -13,7 +13,9 @@ export default function Header() {
           alt="hearthstone-banner"
         />
       </NavLink>
-      <h1> Deck Tracker</h1>
+      <h1>Deck Tracker</h1>
     </div>
   );
-}
+};
+
+export default Header;

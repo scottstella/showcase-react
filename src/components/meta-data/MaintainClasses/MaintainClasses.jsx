@@ -8,7 +8,7 @@ import {
   displayErrorToast,
   updateToast,
 } from "../../../common/toastHelpers.tsx";
-import cardServiceImpl from "../../../services/CardService.jsx";
+import cardServiceImpl from "../../../services/CardService.tsx";
 import { useFormik } from "formik";
 import { heroClassSchema } from "../../../schemas/index.jsx";
 
@@ -64,7 +64,6 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
   }
 
   async function deleteHeroClass(e) {
-
     deleteToastRef.current = toast("Deleting record...");
     const { error } = await cardServiceImpl.deleteHeroClass(e.currentTarget.id);
     updateToast(deleteToastRef, error, true);

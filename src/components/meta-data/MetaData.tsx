@@ -4,11 +4,11 @@ import MaintainSets from "./MaintainSets";
 import MaintainTribes from "./MaintainTribes/MaintainTribes";
 import MetaDataMenu from "./MetaDataMenu";
 
-export default function MetaData() {
+const MetaData: React.FC = () => {
   const [selection, setSelection] = useState<string>("");
 
-  const metaDataSelection = (metaData: string) => {
-    setSelection(metaData);
+  const metaDataSelection = (selection: string) => {
+    setSelection(selection);
   };
 
   return (
@@ -20,4 +20,6 @@ export default function MetaData() {
       {selection === "tribes" && <MaintainTribes />}
     </div>
   );
-}
+};
+
+export default MetaData;

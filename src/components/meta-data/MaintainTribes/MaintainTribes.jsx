@@ -8,7 +8,7 @@ import {
   displayErrorToast,
   updateToast,
 } from "../../../common/toastHelpers.tsx";
-import cardServiceImpl from "../../../services/CardService.jsx";
+import cardServiceImpl from "../../../services/CardService.tsx";
 import { useFormik } from "formik";
 import { tribeSchema } from "../../../schemas/index.jsx";
 

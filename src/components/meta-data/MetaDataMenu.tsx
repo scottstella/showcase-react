@@ -5,7 +5,9 @@ interface MetaDataMenuProps {
   onSelectMetaData: (id: string) => void;
 }
 
-export default function MetaDataMenu({ onSelectMetaData }: MetaDataMenuProps) {
+const MetaDataMenu: React.FC<MetaDataMenuProps> = ({
+  onSelectMetaData,
+}: MetaDataMenuProps) => {
   const [menuSelection, setMenuSelection] = useState<string>("");
 
   const makeMenuSelection = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -48,4 +50,6 @@ export default function MetaDataMenu({ onSelectMetaData }: MetaDataMenuProps) {
       <hr />
     </div>
   );
-}
+};
+
+export default MetaDataMenu;
