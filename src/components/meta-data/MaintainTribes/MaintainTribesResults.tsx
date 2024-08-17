@@ -1,9 +1,17 @@
 import React from "react";
-import Refreshed from "../../../common/Refreshed.tsx";
-import { getLastUpdatedString } from "../../../common/utils.tsx";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Refreshed from "../../../common/Refreshed";
+import { getLastUpdatedString } from "../../../common/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Tribe } from "../../../dto/Tribe";
 
-export default function MaintainTribesResults(props) {
+// Define the type for props
+interface MaintainTribesResultsProps {
+  isLoading: boolean;
+  tribes: Tribe[];
+  deleteTribe: (event: React.MouseEvent<HTMLElement>) => void;
+}
+
+const MaintainTribesResults: React.FC<MaintainTribesResultsProps> = (props) => {
   return (
     <table>
       <caption>
@@ -22,10 +30,10 @@ export default function MaintainTribesResults(props) {
           <tr key={tribe.id}>
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
-              icon="trash-can"
-              id={tribe.id}
-              onClick={props.deleteTribe}
-            />
+                icon="trash-can"
+                id={tribe.id}
+                onClick={props.deleteTribe}
+              />
             </td>
             <td style={{ width: "75px" }}>{tribe.id}</td>
             <td>{tribe.name}</td>
@@ -35,4 +43,6 @@ export default function MaintainTribesResults(props) {
       </tbody>
     </table>
   );
-}
+};
+
+export default MaintainTribesResults;

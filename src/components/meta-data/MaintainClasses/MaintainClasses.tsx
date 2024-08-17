@@ -2,15 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import "../../../common/input-group.css";
 import "../../../common/table.css";
 import { toast } from "react-toastify";
-import MaintainClassesResults from "./MaintainClassesResults.jsx";
+import MaintainClassesResults from "./MaintainClassesResults.js";
 
-import {
-  displayErrorToast,
-  updateToast,
-} from "../../../common/toastHelpers.tsx";
-import cardServiceImpl from "../../../services/CardService.tsx";
+import { displayErrorToast, updateToast } from "../../../common/toastHelpers";
+import cardServiceImpl from "../../../services/CardService";
 import { useFormik } from "formik";
-import { heroClassSchema } from "../../../schemas/index.jsx";
+import { heroClassSchema } from "../../../schemas/index.js";
 
 export default function MaintainClasses({ cardService = cardServiceImpl }) {
   const [heroClasses, setHeroClasses] = useState([]);
