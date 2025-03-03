@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Header > matches snapshot 1`] = `
+<div
+  class="header"
+>
+  <a
+    aria-current="page"
+    class="active"
+    href="/"
+  >
+    <img
+      alt="hearthstone-banner"
+      class="header-logo"
+      src="/src/assets/images/hearthstone-banner.png"
+    />
+  </a>
+  <h1>
+    Deck Tracker
+  </h1>
+</div>
+`;
