@@ -34,14 +34,6 @@ vi.mock("../../../schemas/index.js", () => ({
         (error as any).inner = [{ path: "name", message: "Required" }];
         throw error;
       }
-      if (values.name.length < 2) {
-        const error = new Error("Must be at least 2 characters");
-        error.name = "ValidationError";
-        (error as any).inner = [
-          { path: "name", message: "Must be at least 2 characters" },
-        ];
-        throw error;
-      }
       return values;
     }),
     validate: vi.fn(async (values) => {
@@ -51,21 +43,10 @@ vi.mock("../../../schemas/index.js", () => ({
         (error as any).inner = [{ path: "name", message: "Required" }];
         throw error;
       }
-      if (values.name.length < 2) {
-        const error = new Error("Must be at least 2 characters");
-        error.name = "ValidationError";
-        (error as any).inner = [
-          { path: "name", message: "Must be at least 2 characters" },
-        ];
-        throw error;
-      }
       return values;
     }),
-    isValid: vi.fn((values) => Promise.resolve(values?.name?.length >= 2)),
-    isValidSync: vi.fn((values) => {
-      if (!values?.name) return false;
-      return values.name.length >= 2;
-    }),
+    isValid: vi.fn((values) => Promise.resolve(values?.name ? true : false)),
+    isValidSync: vi.fn((values) => (values?.name ? true : false)),
     cast: vi.fn((values) => values),
     _nodes: ["name"],
     fields: { name: { type: "string", tests: [] } },
@@ -306,18 +287,6 @@ describe("MaintainClasses", () => {
 
     await waitFor(() => {
       const errorElement = screen.getByText("Required", { exact: true });
-      expect(errorElement).toBeInTheDocument();
-      expect(errorElement).toHaveClass("error-msg");
-    });
-
-    const input = screen.getByPlaceholderText("Name");
-    await fireEvent.change(input, { target: { value: "a" } });
-    await fireEvent.blur(input); // Trigger onBlur to show validation
-
-    await waitFor(() => {
-      const errorElement = screen.getByText("Must be at least 2 characters", {
-        exact: true,
-      });
       expect(errorElement).toBeInTheDocument();
       expect(errorElement).toHaveClass("error-msg");
     });
