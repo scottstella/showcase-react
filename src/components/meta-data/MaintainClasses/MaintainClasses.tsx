@@ -42,7 +42,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
 
   async function fetchHeroClasses() {
     setIsLoading(true);
-    const { data, error } = await cardServiceImpl.fetchHeroClasses();
+    const { data, error } = await cardService.fetchHeroClasses();
 
     if (error == null) {
       setHeroClasses(data as HeroClass[]);
@@ -58,7 +58,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
   ) {
     addToastRef.current = toast("Adding record...");
 
-    const { error } = await cardServiceImpl.addHeroClass({
+    const { error } = await cardService.addHeroClass({
       ...values,
       id: 0, // temporary id, will be replaced by server
       created_at: new Date().toISOString(),
@@ -74,7 +74,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
 
   async function deleteHeroClass(e: React.MouseEvent<SVGSVGElement>) {
     deleteToastRef.current = toast("Deleting record...");
-    const { error } = await cardServiceImpl.deleteHeroClass(
+    const { error } = await cardService.deleteHeroClass(
       Number(e.currentTarget.id)
     );
     updateToast(deleteToastRef, error, true);
@@ -86,11 +86,12 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="input-group">
+      <form onSubmit={handleSubmit} className="input-group" role="form">
         <input
           placeholder="Name"
           type="text"
           id="name"
+          name="name"
           value={values.name}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -99,7 +100,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
         {errors.name && touched.name && (
           <div className="error-msg">{errors.name}</div>
         )}
-        <input type="submit" />
+        <input type="submit" value="Submit" />
       </form>
 
       <MaintainClassesResults
