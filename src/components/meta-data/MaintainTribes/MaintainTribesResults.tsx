@@ -2,13 +2,14 @@ import React from "react";
 import Refreshed from "../../../common/Refreshed";
 import { getLastUpdatedString } from "../../../common/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Tribe } from "../../../dto/Tribe";
+import "../../../assets/fontAwesome";
+import type { Tribe } from "../../../dto/Tribe";
 
 // Define the type for props
 interface MaintainTribesResultsProps {
   isLoading: boolean;
   tribes: Tribe[];
-  deleteTribe: (event: React.MouseEvent<HTMLElement>) => void;
+  deleteTribe: (event: React.MouseEvent<SVGSVGElement>) => void;
 }
 
 const MaintainTribesResults: React.FC<MaintainTribesResultsProps> = (props) => {
@@ -31,7 +32,7 @@ const MaintainTribesResults: React.FC<MaintainTribesResultsProps> = (props) => {
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
                 icon="trash-can"
-                id={tribe.id}
+                id={String(tribe.id)}
                 onClick={props.deleteTribe}
               />
             </td>

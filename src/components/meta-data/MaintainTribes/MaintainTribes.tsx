@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../../../common/input-group.css";
 import "../../../common/table.css";
-import { toast } from "react-toastify";
+import { toast, Id } from "react-toastify";
 import MaintainTribesResults from "./MaintainTribesResults";
 import { displayErrorToast, updateToast } from "../../../common/toastHelpers";
 import cardServiceImpl from "../../../services/CardService";
 import { useFormik, FormikHelpers } from "formik";
 import { tribeSchema } from "../../../schemas/index";
-import { Tribe } from "../../../dto/Tribe";
+import type { Tribe } from "../../../dto/Tribe";
 
 interface FormValues {
   name: string;
@@ -19,10 +19,10 @@ export default function MaintainTribes({
   cardService?: typeof cardServiceImpl;
 }) {
   const [tribes, setTribes] = useState<Tribe[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addToastRef = useRef<null | ToastId>(null);
-  const deleteToastRef = useRef<null | ToastId>(null);
+  const addToastRef = useRef<Id | null>(null);
+  const deleteToastRef = useRef<Id | null>(null);
 
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
     useFormik<FormValues>({
@@ -35,14 +35,10 @@ export default function MaintainTribes({
 
   useEffect(() => {
     fetchTribes();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function onSubmit(
-    values: FormValues,
-    actions: FormikHelpers<FormValues>
-  ) {
+  function onSubmit(values: FormValues, actions: FormikHelpers<FormValues>) {
     addTribe(values, actions);
   }
 
@@ -51,7 +47,7 @@ export default function MaintainTribes({
     const { data, error } = await cardService.fetchTribes();
 
     if (error == null) {
-      setTribes(data);
+      setTribes(data as Tribe[]);
       setIsLoading(false);
     } else {
       displayErrorToast(error);
@@ -64,7 +60,11 @@ export default function MaintainTribes({
   ) {
     addToastRef.current = toast("Adding record...");
 
-    const { error } = await cardService.addTribe(values);
+    const { error } = await cardService.addTribe({
+      ...values,
+      id: 0, // temporary id, will be replaced by server
+      created_at: new Date().toISOString(),
+    });
 
     updateToast(addToastRef, error, true);
 
@@ -74,9 +74,9 @@ export default function MaintainTribes({
     }
   }
 
-  async function deleteTribe(e: React.MouseEvent<HTMLElement>) {
+  async function deleteTribe(e: React.MouseEvent<SVGSVGElement>) {
     deleteToastRef.current = toast("Deleting record...");
-    const { error } = await cardService.deleteTribe(e.currentTarget.id);
+    const { error } = await cardService.deleteTribe(Number(e.currentTarget.id));
     updateToast(deleteToastRef, error, true);
 
     if (error == null) {
