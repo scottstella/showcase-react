@@ -1,3 +1,4 @@
+import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Nav from "./components/Nav/Nav";
@@ -9,7 +10,7 @@ import MetaData from "./components/meta-data/MetaData";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function App() {
+const App: React.FC = () => {
   return (
     <>
       <div className="grid-container">
@@ -51,6 +52,6 @@ function App() {
       />
     </>
   );
-}
+};
 
 export default App;
