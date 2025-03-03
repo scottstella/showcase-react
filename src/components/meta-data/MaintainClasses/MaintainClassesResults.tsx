@@ -3,19 +3,13 @@ import Refreshed from "../../../common/Refreshed";
 import { getLastUpdatedString } from "../../../common/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../../../assets/fontAwesome";
-
-// Define the type for the heroClass object
-interface HeroClass {
-  id: string;
-  name: string;
-  created_at: string; // Adjust the type based on the actual format
-}
+import type { HeroClass } from "../../../dto/HeroClass";
 
 // Define the type for props
 interface MaintainClassesResultsProps {
   isLoading: boolean;
   heroClasses: HeroClass[];
-  deleteHeroClass: (event: React.MouseEvent<HTMLElement>) => void;
+  deleteHeroClass: (event: React.MouseEvent<SVGSVGElement>) => void;
 }
 
 const MaintainClassesResults: React.FC<MaintainClassesResultsProps> = (
@@ -40,7 +34,7 @@ const MaintainClassesResults: React.FC<MaintainClassesResultsProps> = (
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
                 icon="trash-can"
-                id={heroClass.id}
+                id={String(heroClass.id)}
                 onClick={props.deleteHeroClass}
               />
             </td>
