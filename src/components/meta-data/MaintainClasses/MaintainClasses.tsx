@@ -85,23 +85,27 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
   }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="input-group" role="form">
-        <input
-          placeholder="Name"
-          type="text"
-          id="name"
-          name="name"
-          value={values.name}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          className={errors.name && touched.name ? "error" : ""}
-        />
-        {errors.name && touched.name && (
-          <div className="error-msg">{errors.name}</div>
-        )}
-        <input type="submit" value="Submit" />
-      </form>
+    <div className="maintain-data">
+      <div className="input-group">
+        <form onSubmit={handleSubmit} role="form">
+          <div className="form-control">
+            <input
+              placeholder="Name"
+              type="text"
+              id="name"
+              name="name"
+              value={values.name}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={errors.name && touched.name ? "error" : ""}
+            />
+            {errors.name && touched.name && (
+              <div className="error-msg">{errors.name}</div>
+            )}
+          </div>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
 
       <MaintainClassesResults
         isLoading={isLoading}

@@ -85,22 +85,27 @@ export default function MaintainTribes({
   }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="input-group">
-        <input
-          placeholder="Name"
-          type="text"
-          id="name"
-          value={values.name}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          className={errors.name && touched.name ? "error" : ""}
-        />
-        {errors.name && touched.name && (
-          <div className="error-msg">{errors.name}</div>
-        )}
-        <input type="submit" />
-      </form>
+    <div className="maintain-data">
+      <div className="input-group">
+        <form onSubmit={handleSubmit} role="form">
+          <div className="form-control">
+            <input
+              placeholder="Name"
+              type="text"
+              id="name"
+              name="name"
+              value={values.name}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={errors.name && touched.name ? "error" : ""}
+            />
+            {errors.name && touched.name && (
+              <div className="error-msg">{errors.name}</div>
+            )}
+          </div>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
 
       <MaintainTribesResults
         isLoading={isLoading}
