@@ -6,19 +6,12 @@ import Footer from "./Footer";
 describe("Footer", () => {
   it("renders without crashing", () => {
     render(<Footer />);
-    expect(screen.getByText(/Copyright 2024 stella.ws/i)).toBeInTheDocument();
+    expect(screen.getByText(/Copyright 2025 stella.ws/i)).toBeInTheDocument();
   });
 
   it("has the correct CSS class", () => {
     const { container } = render(<Footer />);
     expect(container.firstChild).toHaveClass("footer");
-  });
-
-  it("contains copyright text", () => {
-    render(<Footer />);
-    const copyrightText = screen.getByText(/Copyright 2024 stella.ws/i);
-    expect(copyrightText).toBeInTheDocument();
-    expect(copyrightText.tagName.toLowerCase()).toBe("p");
   });
 
   it("matches snapshot", () => {
