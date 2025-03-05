@@ -39,6 +39,16 @@
   font-size: 1.2rem;
 }
 
+/* Loading spinner spacing */
+.auth-container button .fa-spinner {
+  margin: 0;
+}
+
+/* GitHub icon spacing */
+.auth-container button .fa-github {
+  margin-left: 0.75rem;
+}
+
 /* Add some space between the icon and text when they're together */
 .auth-container button svg {
   margin-right: 0.5rem;

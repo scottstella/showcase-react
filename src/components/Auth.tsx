@@ -3,10 +3,12 @@ import { signIn, signOut, supabase } from "../supabase/Client";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { User } from "@supabase/supabase-js";
 import "./Auth.css";
 
 const Auth: React.FC = () => {
-  const [user, setUser] = React.useState<any>(null);
+  const [user, setUser] = React.useState<User | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -28,23 +30,38 @@ const Auth: React.FC = () => {
   }, []);
 
   const handleSignIn = async () => {
-    setLoading(true);
-    const { error } = await signIn();
-    if (error) {
-      toast.error(`Error signing in: ${error.message}`);
+    try {
+      setLoading(true);
+      const { error } = await signIn();
+      if (error) {
+        toast.error(`Error signing in: ${error.message}`);
+        setLoading(false);
+      }
+      // Don't set loading to false on success as we'll be redirected
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+      toast.error(`Error signing in: ${errorMessage}`);
       setLoading(false);
     }
   };
 
   const handleSignOut = async () => {
-    setLoading(true);
-    const { error } = await signOut();
-    if (error) {
-      toast.error(`Error signing out: ${error.message}`);
-    } else {
-      toast.success("Signed out successfully");
+    try {
+      setLoading(true);
+      const { error } = await signOut();
+      if (error) {
+        toast.error(`Error signing out: ${error.message}`);
+      } else {
+        toast.info("Signed out successfully");
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+      toast.error(`Error signing out: ${errorMessage}`);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   if (loading) {
@@ -69,7 +86,9 @@ const Auth: React.FC = () => {
           {loading ? (
             <FontAwesomeIcon icon={faSpinner} spin />
           ) : (
-            "Sign in with GitHub"
+            <>
+              Sign in with GitHub <FontAwesomeIcon icon={faGithub} />
+            </>
           )}
         </button>
       )}
