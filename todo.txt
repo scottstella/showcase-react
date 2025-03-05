@@ -1,12 +1,5 @@
-Immediate
+TODO:
 
-Pass client into CardService?
-Write unit tests for CardService
-Write unit tests for MaintainClasses 
+Implement paging
+Implement edit record
 
-Longer term
-
-Paging
-mui.com
-
-Add Typescript

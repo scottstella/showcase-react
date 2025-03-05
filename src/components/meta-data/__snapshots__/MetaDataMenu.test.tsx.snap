@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MetaDataMenu > matches snapshot 1`] = `
+<div>
+  <div>
+    <div
+      class="meta-data-menu"
+    >
+      <div
+        class=""
+        id="sets"
+      >
+        Sets
+      </div>
+      <div
+        class=""
+        id="classes"
+      >
+        Hero Classes
+      </div>
+      <div
+        class=""
+        id="tribes"
+      >
+        Tribes
+      </div>
+    </div>
+    <hr />
+  </div>
+</div>
+`;

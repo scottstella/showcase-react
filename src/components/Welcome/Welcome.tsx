@@ -4,8 +4,8 @@ import hearthstoneIcon from "../../assets/images/hearthstone-icon.png";
 
 export default function Welcome(): JSX.Element {
   return (
-    <div className="welcome">
-      <div className="welcome-header-section">
+    <div className="welcome" data-testid="welcome-container">
+      <div className="welcome-header-section" data-testid="welcome-header">
         <img
           className="welcome-logo"
           src={hearthstoneIcon}
