@@ -14,6 +14,15 @@ interface ValidationError extends Error {
   inner?: Array<{ path: string; message: string }>;
 }
 
+interface MockCardService {
+  fetchHeroClasses: jest.Mock;
+  addHeroClass: jest.Mock;
+  deleteHeroClass: jest.Mock;
+  fetchTribes: jest.Mock;
+  addTribe: jest.Mock;
+  deleteTribe: jest.Mock;
+}
+
 // Mock dependencies
 vi.mock("react-toastify", () => ({
   toast: vi.fn(() => "toast-id"),
@@ -68,31 +77,35 @@ describe("MaintainClasses", () => {
     { id: 2, name: "Warrior", created_at: "2024-03-02" },
   ];
 
-  // Create a mock service that extends CardService
-  const mockService = new CardService(supabase);
-  Object.keys(mockService).forEach((key) => {
-    if (typeof (mockService as Record<string, unknown>)[key] === "function") {
-      (mockService as Record<string, unknown>)[key] = vi.fn();
-    }
-  });
+  // Create a mock service
+  const mockService: MockCardService = {
+    fetchHeroClasses: vi.fn(),
+    addHeroClass: vi.fn(),
+    deleteHeroClass: vi.fn(),
+    fetchTribes: vi.fn(),
+    addTribe: vi.fn(),
+    deleteTribe: vi.fn(),
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (mockService as Record<string, unknown>).fetchHeroClasses.mockResolvedValue(
-      {
-        data: mockHeroClasses,
-        error: null,
-      }
-    );
+    mockService.fetchHeroClasses.mockResolvedValue({
+      data: mockHeroClasses,
+      error: null,
+    });
   });
 
   it("renders without crashing", () => {
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
     expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
   });
 
   it("shows loading state initially and then removes it", async () => {
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
 
     await waitFor(() => {
@@ -101,7 +114,9 @@ describe("MaintainClasses", () => {
   });
 
   it("fetches and displays hero classes on mount", async () => {
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
 
     // First verify loading state
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -126,14 +141,14 @@ describe("MaintainClasses", () => {
 
   it("handles fetch error", async () => {
     const error = { message: "Failed to fetch" };
-    (mockService as Record<string, unknown>).fetchHeroClasses.mockResolvedValue(
-      {
-        data: null,
-        error,
-      }
-    );
+    mockService.fetchHeroClasses.mockResolvedValue({
+      data: null,
+      error,
+    });
 
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
 
     await waitFor(() => {
       expect(mockService.fetchHeroClasses).toHaveBeenCalled();
@@ -141,12 +156,14 @@ describe("MaintainClasses", () => {
   });
 
   it("adds a new hero class", async () => {
-    (mockService as Record<string, unknown>).addHeroClass.mockResolvedValue({
+    mockService.addHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });
 
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
 
     const input = screen.getByPlaceholderText("Name");
     await fireEvent.change(input, { target: { value: "Druid" } });
@@ -166,12 +183,14 @@ describe("MaintainClasses", () => {
 
   it("handles add hero class error", async () => {
     const error = { message: "Failed to add" };
-    (mockService as Record<string, unknown>).addHeroClass.mockResolvedValue({
+    mockService.addHeroClass.mockResolvedValue({
       data: null,
       error,
     });
 
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
 
     // Fill out and submit the form
     const input = screen.getByPlaceholderText("Name");
@@ -211,12 +230,14 @@ describe("MaintainClasses", () => {
   });
 
   it("deletes a hero class", async () => {
-    (mockService as Record<string, unknown>).deleteHeroClass.mockResolvedValue({
+    mockService.deleteHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });
 
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Mage")).toBeInTheDocument();
@@ -234,12 +255,14 @@ describe("MaintainClasses", () => {
 
   it("handles delete hero class error", async () => {
     const error = { message: "Failed to delete" };
-    (mockService as Record<string, unknown>).deleteHeroClass.mockResolvedValue({
+    mockService.deleteHeroClass.mockResolvedValue({
       data: null,
       error,
     });
 
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
 
     // Wait for initial data to load
     await waitFor(() => {
@@ -285,7 +308,9 @@ describe("MaintainClasses", () => {
   });
 
   it("validates form input", async () => {
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
 
     const form = screen.getByRole("form");
     await fireEvent.submit(form);
@@ -298,12 +323,14 @@ describe("MaintainClasses", () => {
   });
 
   it("resets form after successful submission", async () => {
-    (mockService as Record<string, unknown>).addHeroClass.mockResolvedValue({
+    mockService.addHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });
 
-    render(<MaintainClasses cardService={mockService} />);
+    render(
+      <MaintainClasses cardService={mockService as unknown as CardService} />
+    );
 
     const input = screen.getByPlaceholderText("Name");
     await fireEvent.change(input, { target: { value: "Druid" } });
