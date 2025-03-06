@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import type { HeroClass } from "../../../dto/HeroClass";
 import { CardService } from "../../../services/CardService";
 import { updateToast } from "../../../common/toastHelpers";
-import { supabase } from "../../../supabase/Client";
 
 interface ValidationError extends Error {
   name: string;
