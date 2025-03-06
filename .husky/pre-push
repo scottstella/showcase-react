@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 echo "Running tests before push..."
-npm test -- --ci
+npm test -- --run
