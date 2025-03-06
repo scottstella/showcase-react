@@ -20,18 +20,26 @@ docker image build -t showcase-react-image:latest .
 
 ## Environment Setup
 
-1. Copy `.env.example` to `.env.local`:
+1. Create a `.env.local` file in the project root:
 
 ```bash
+# Copy the example file (if it exists)
 cp .env.example .env.local
+
+# Or create a new .env.local file
+touch .env.local
 ```
 
-2. Update the environment variables in `.env.local` with your Supabase credentials:
+2. Add the following environment variables to `.env.local`:
 
-- `VITE_SUPABASE_URL`: Your Supabase project URL
-- `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
 You can find these values in your Supabase project settings under Project Settings > API.
+
+> **Note**: The `.env.local` file is used for local environment variables and should not be committed to version control. It is automatically ignored by Git.
 
 ## Development
 
@@ -39,9 +47,14 @@ You can find these values in your Supabase project settings under Project Settin
 # Install dependencies
 npm install
 
-# Start development server
+# Start development server (accessible from other devices on your network)
+npm run start
+
+# Or start development server (local access only)
 npm run dev
 ```
+
+Both commands start the development server with hot module replacement (HMR). The only difference is that `npm start` makes the server accessible from other devices on your network, while `npm run dev` is for local development only.
 
 ## Testing
 
