@@ -52,3 +52,36 @@ npm test
 # Run tests with coverage
 npm run test:coverage
 ```
+
+## VS Code Configuration
+
+This project includes VS Code settings for consistent code formatting and linting. To take advantage of these features:
+
+1. Install the following VS Code extensions:
+
+   - [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+   - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+
+2. The project includes `.vscode/settings.json` which configures:
+
+   - Format on save
+   - Prettier as the default formatter
+   - Automatic ESLint fixes on save
+   - Language-specific formatting rules
+
+3. Available formatting commands:
+
+   ```bash
+   # Format all files in the src directory
+   npm run format
+   ```
+
+4. The project uses the following formatting rules:
+   - 2 spaces for indentation
+   - 100 characters line length
+   - Double quotes for strings
+   - Semicolons at the end of statements
+   - Trailing commas in objects and arrays
+   - Consistent bracket spacing
+
+These settings will be automatically applied when you open the project in VS Code.
