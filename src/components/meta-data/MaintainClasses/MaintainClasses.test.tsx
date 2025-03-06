@@ -6,10 +6,12 @@ import { toast } from "react-toastify";
 import type { HeroClass } from "../../../dto/HeroClass";
 import { CardService } from "../../../services/CardService";
 import { updateToast } from "../../../common/toastHelpers";
+import { supabase } from "../../../supabase/Client";
 
 interface ValidationError extends Error {
   name: string;
   errors: string[];
+  inner?: Array<{ path: string; message: string }>;
 }
 
 // Mock dependencies
@@ -28,19 +30,18 @@ vi.mock("../../../schemas/index.js", () => ({
   heroClassSchema: {
     validateSync: vi.fn((values) => {
       if (!values.name) {
-        const error = new Error("Required");
+        const error = new Error("Required") as ValidationError;
         error.name = "ValidationError";
-        // This is what Formik actually looks at
-        (error as any).inner = [{ path: "name", message: "Required" }];
+        error.inner = [{ path: "name", message: "Required" }];
         throw error;
       }
       return values;
     }),
     validate: vi.fn(async (values) => {
       if (!values.name) {
-        const error = new Error("Required");
+        const error = new Error("Required") as ValidationError;
         error.name = "ValidationError";
-        (error as any).inner = [{ path: "name", message: "Required" }];
+        error.inner = [{ path: "name", message: "Required" }];
         throw error;
       }
       return values;
@@ -68,19 +69,16 @@ describe("MaintainClasses", () => {
   ];
 
   // Create a mock service that extends CardService
-  const mockService = {
-    fetchHeroClasses: vi.fn(),
-    deleteHeroClass: vi.fn(),
-    addHeroClass: vi.fn(),
-    fetchTribes: vi.fn(),
-    deleteTribe: vi.fn(),
-    addTribe: vi.fn(),
-    supabase: {} as any,
-  } as unknown as CardService;
+  const mockService = new CardService(supabase);
+  Object.keys(mockService).forEach((key) => {
+    if (typeof (mockService as any)[key] === "function") {
+      (mockService as any)[key] = vi.fn();
+    }
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (mockService.fetchHeroClasses as any).mockResolvedValue({
+    (mockService as any).fetchHeroClasses.mockResolvedValue({
       data: mockHeroClasses,
       error: null,
     });
@@ -126,7 +124,7 @@ describe("MaintainClasses", () => {
 
   it("handles fetch error", async () => {
     const error = { message: "Failed to fetch" };
-    (mockService.fetchHeroClasses as any).mockResolvedValue({
+    (mockService as any).fetchHeroClasses.mockResolvedValue({
       data: null,
       error,
     });
@@ -139,7 +137,7 @@ describe("MaintainClasses", () => {
   });
 
   it("adds a new hero class", async () => {
-    (mockService.addHeroClass as any).mockResolvedValue({
+    (mockService as any).addHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });
@@ -164,7 +162,7 @@ describe("MaintainClasses", () => {
 
   it("handles add hero class error", async () => {
     const error = { message: "Failed to add" };
-    (mockService.addHeroClass as any).mockResolvedValue({ data: null, error });
+    (mockService as any).addHeroClass.mockResolvedValue({ data: null, error });
 
     render(<MaintainClasses cardService={mockService} />);
 
@@ -206,7 +204,7 @@ describe("MaintainClasses", () => {
   });
 
   it("deletes a hero class", async () => {
-    (mockService.deleteHeroClass as any).mockResolvedValue({
+    (mockService as any).deleteHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });
@@ -229,7 +227,7 @@ describe("MaintainClasses", () => {
 
   it("handles delete hero class error", async () => {
     const error = { message: "Failed to delete" };
-    (mockService.deleteHeroClass as any).mockResolvedValue({
+    (mockService as any).deleteHeroClass.mockResolvedValue({
       data: null,
       error,
     });
@@ -293,7 +291,7 @@ describe("MaintainClasses", () => {
   });
 
   it("resets form after successful submission", async () => {
-    (mockService.addHeroClass as any).mockResolvedValue({
+    (mockService as any).addHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });

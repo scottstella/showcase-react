@@ -2,20 +2,30 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CardService } from "./CardService";
 import { HeroClass } from "../dto/HeroClass";
 import { Tribe } from "../dto/Tribe";
+import { SupabaseClient } from "@supabase/supabase-js";
+
+interface MockQueryBuilder {
+  select: jest.Mock;
+  delete: jest.Mock;
+  insert: jest.Mock;
+  order: jest.Mock;
+  eq: jest.Mock;
+  single: jest.Mock;
+}
 
 // Mock Supabase client
 const mockSupabase = {
   from: vi.fn(),
-};
+} as unknown as SupabaseClient;
 
 describe("CardService", () => {
   let cardService: CardService;
-  let mockSelect: any;
-  let mockDelete: any;
-  let mockInsert: any;
-  let mockEq: any;
-  let mockOrder: any;
-  let mockSingle: any;
+  let mockSelect: jest.Mock;
+  let mockDelete: jest.Mock;
+  let mockInsert: jest.Mock;
+  let mockEq: jest.Mock;
+  let mockOrder: jest.Mock;
+  let mockSingle: jest.Mock;
 
   beforeEach(() => {
     // Reset all mocks
@@ -29,18 +39,18 @@ describe("CardService", () => {
     mockOrder = vi.fn();
     mockSingle = vi.fn();
 
-    mockSupabase.from.mockReturnValue({
+    (mockSupabase as any).from.mockReturnValue({
       select: mockSelect,
       delete: mockDelete,
       insert: mockInsert,
-    });
+    } as MockQueryBuilder);
 
     mockSelect.mockReturnValue({ order: mockOrder });
     mockDelete.mockReturnValue({ eq: mockEq });
     mockInsert.mockReturnValue({ single: mockSingle });
 
     // Initialize service with mock
-    cardService = new CardService(mockSupabase as any);
+    cardService = new CardService(mockSupabase);
   });
 
   describe("fetchHeroClasses", () => {
@@ -50,7 +60,7 @@ describe("CardService", () => {
 
       const result = await cardService.fetchHeroClasses();
 
-      expect(mockSupabase.from).toHaveBeenCalledWith("hero_class");
+      expect((mockSupabase as any).from).toHaveBeenCalledWith("hero_class");
       expect(mockSelect).toHaveBeenCalled();
       expect(mockOrder).toHaveBeenCalledWith("name");
       expect(result).toEqual(expectedResponse);
@@ -64,7 +74,7 @@ describe("CardService", () => {
 
       const result = await cardService.deleteHeroClass(1);
 
-      expect(mockSupabase.from).toHaveBeenCalledWith("hero_class");
+      expect((mockSupabase as any).from).toHaveBeenCalledWith("hero_class");
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
@@ -83,7 +93,7 @@ describe("CardService", () => {
 
       const result = await cardService.addHeroClass(heroClass);
 
-      expect(mockSupabase.from).toHaveBeenCalledWith("hero_class");
+      expect((mockSupabase as any).from).toHaveBeenCalledWith("hero_class");
       expect(mockInsert).toHaveBeenCalledWith([{ name: heroClass.name }]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
@@ -97,7 +107,7 @@ describe("CardService", () => {
 
       const result = await cardService.fetchTribes();
 
-      expect(mockSupabase.from).toHaveBeenCalledWith("tribe");
+      expect((mockSupabase as any).from).toHaveBeenCalledWith("tribe");
       expect(mockSelect).toHaveBeenCalled();
       expect(mockOrder).toHaveBeenCalledWith("name");
       expect(result).toEqual(expectedResponse);
@@ -111,7 +121,7 @@ describe("CardService", () => {
 
       const result = await cardService.deleteTribe(1);
 
-      expect(mockSupabase.from).toHaveBeenCalledWith("tribe");
+      expect((mockSupabase as any).from).toHaveBeenCalledWith("tribe");
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
@@ -130,7 +140,7 @@ describe("CardService", () => {
 
       const result = await cardService.addTribe(tribe);
 
-      expect(mockSupabase.from).toHaveBeenCalledWith("tribe");
+      expect((mockSupabase as any).from).toHaveBeenCalledWith("tribe");
       expect(mockInsert).toHaveBeenCalledWith([{ name: tribe.name }]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);

@@ -49,10 +49,16 @@
   },
   "devDependencies": {
     "@testing-library/react": "^13.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
     "@vitejs/plugin-react": "^4.3.1",
     "@vitest/coverage-v8": "latest",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^26.0.0",
     "react-router-dom": "^6.3.0",
+    "typescript": "^5.8.2",
     "vite": "^6.2.0",
     "vitest": "latest"
   }
