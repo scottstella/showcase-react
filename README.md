@@ -53,6 +53,42 @@ npm test
 npm run test:coverage
 ```
 
+## Git Hooks
+
+This project uses Husky Git hooks to ensure code quality. The hooks are configured in the `.husky` directory:
+
+### Pre-commit Hook
+
+Located in `.husky/pre-commit`:
+
+- Runs automatically before each commit
+- Executes `lint-staged` to:
+  - Run ESLint on staged TypeScript/TSX files
+  - Format staged files with Prettier
+- Prevents commit if there are any linting errors
+- Can be bypassed with `git commit --no-verify`
+
+### Pre-push Hook
+
+Located in `.husky/pre-push`:
+
+- Runs automatically before each push to remote
+- Executes all tests with `npm test`
+- Prevents push if any tests fail
+- Can be bypassed with `git push --no-verify`
+
+### Bypassing Hooks
+
+For work-in-progress commits or when you need to bypass the checks:
+
+```bash
+# Skip pre-commit hook
+git commit --no-verify -m "your message"
+
+# Skip pre-push hook
+git push --no-verify
+```
+
 ## VS Code Configuration
 
 This project includes VS Code settings for consistent code formatting and linting. To take advantage of these features:
