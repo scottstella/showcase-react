@@ -39,7 +39,7 @@ describe("CardService", () => {
     mockOrder = vi.fn();
     mockSingle = vi.fn();
 
-    (mockSupabase as any).from.mockReturnValue({
+    (mockSupabase as unknown as { from: jest.Mock }).from.mockReturnValue({
       select: mockSelect,
       delete: mockDelete,
       insert: mockInsert,
@@ -60,7 +60,9 @@ describe("CardService", () => {
 
       const result = await cardService.fetchHeroClasses();
 
-      expect((mockSupabase as any).from).toHaveBeenCalledWith("hero_class");
+      expect(
+        (mockSupabase as unknown as { from: jest.Mock }).from
+      ).toHaveBeenCalledWith("hero_class");
       expect(mockSelect).toHaveBeenCalled();
       expect(mockOrder).toHaveBeenCalledWith("name");
       expect(result).toEqual(expectedResponse);
@@ -74,7 +76,9 @@ describe("CardService", () => {
 
       const result = await cardService.deleteHeroClass(1);
 
-      expect((mockSupabase as any).from).toHaveBeenCalledWith("hero_class");
+      expect(
+        (mockSupabase as unknown as { from: jest.Mock }).from
+      ).toHaveBeenCalledWith("hero_class");
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
@@ -93,7 +97,9 @@ describe("CardService", () => {
 
       const result = await cardService.addHeroClass(heroClass);
 
-      expect((mockSupabase as any).from).toHaveBeenCalledWith("hero_class");
+      expect(
+        (mockSupabase as unknown as { from: jest.Mock }).from
+      ).toHaveBeenCalledWith("hero_class");
       expect(mockInsert).toHaveBeenCalledWith([{ name: heroClass.name }]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
@@ -107,7 +113,9 @@ describe("CardService", () => {
 
       const result = await cardService.fetchTribes();
 
-      expect((mockSupabase as any).from).toHaveBeenCalledWith("tribe");
+      expect(
+        (mockSupabase as unknown as { from: jest.Mock }).from
+      ).toHaveBeenCalledWith("tribe");
       expect(mockSelect).toHaveBeenCalled();
       expect(mockOrder).toHaveBeenCalledWith("name");
       expect(result).toEqual(expectedResponse);
@@ -121,7 +129,9 @@ describe("CardService", () => {
 
       const result = await cardService.deleteTribe(1);
 
-      expect((mockSupabase as any).from).toHaveBeenCalledWith("tribe");
+      expect(
+        (mockSupabase as unknown as { from: jest.Mock }).from
+      ).toHaveBeenCalledWith("tribe");
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
@@ -140,7 +150,9 @@ describe("CardService", () => {
 
       const result = await cardService.addTribe(tribe);
 
-      expect((mockSupabase as any).from).toHaveBeenCalledWith("tribe");
+      expect(
+        (mockSupabase as unknown as { from: jest.Mock }).from
+      ).toHaveBeenCalledWith("tribe");
       expect(mockInsert).toHaveBeenCalledWith([{ name: tribe.name }]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);

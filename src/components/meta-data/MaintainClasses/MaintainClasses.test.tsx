@@ -71,17 +71,19 @@ describe("MaintainClasses", () => {
   // Create a mock service that extends CardService
   const mockService = new CardService(supabase);
   Object.keys(mockService).forEach((key) => {
-    if (typeof (mockService as any)[key] === "function") {
-      (mockService as any)[key] = vi.fn();
+    if (typeof (mockService as Record<string, unknown>)[key] === "function") {
+      (mockService as Record<string, unknown>)[key] = vi.fn();
     }
   });
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (mockService as any).fetchHeroClasses.mockResolvedValue({
-      data: mockHeroClasses,
-      error: null,
-    });
+    (mockService as Record<string, unknown>).fetchHeroClasses.mockResolvedValue(
+      {
+        data: mockHeroClasses,
+        error: null,
+      }
+    );
   });
 
   it("renders without crashing", () => {
@@ -124,10 +126,12 @@ describe("MaintainClasses", () => {
 
   it("handles fetch error", async () => {
     const error = { message: "Failed to fetch" };
-    (mockService as any).fetchHeroClasses.mockResolvedValue({
-      data: null,
-      error,
-    });
+    (mockService as Record<string, unknown>).fetchHeroClasses.mockResolvedValue(
+      {
+        data: null,
+        error,
+      }
+    );
 
     render(<MaintainClasses cardService={mockService} />);
 
@@ -137,7 +141,7 @@ describe("MaintainClasses", () => {
   });
 
   it("adds a new hero class", async () => {
-    (mockService as any).addHeroClass.mockResolvedValue({
+    (mockService as Record<string, unknown>).addHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });
@@ -162,7 +166,10 @@ describe("MaintainClasses", () => {
 
   it("handles add hero class error", async () => {
     const error = { message: "Failed to add" };
-    (mockService as any).addHeroClass.mockResolvedValue({ data: null, error });
+    (mockService as Record<string, unknown>).addHeroClass.mockResolvedValue({
+      data: null,
+      error,
+    });
 
     render(<MaintainClasses cardService={mockService} />);
 
@@ -204,7 +211,7 @@ describe("MaintainClasses", () => {
   });
 
   it("deletes a hero class", async () => {
-    (mockService as any).deleteHeroClass.mockResolvedValue({
+    (mockService as Record<string, unknown>).deleteHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });
@@ -227,7 +234,7 @@ describe("MaintainClasses", () => {
 
   it("handles delete hero class error", async () => {
     const error = { message: "Failed to delete" };
-    (mockService as any).deleteHeroClass.mockResolvedValue({
+    (mockService as Record<string, unknown>).deleteHeroClass.mockResolvedValue({
       data: null,
       error,
     });
@@ -291,7 +298,7 @@ describe("MaintainClasses", () => {
   });
 
   it("resets form after successful submission", async () => {
-    (mockService as any).addHeroClass.mockResolvedValue({
+    (mockService as Record<string, unknown>).addHeroClass.mockResolvedValue({
       data: null,
       error: null,
     });
