@@ -56,7 +56,7 @@ export default function MaintainTribes({
 
   async function addTribe(
     values: FormValues,
-    actions: FormikHelpers<FormValues>
+    actions: FormikHelpers<FormValues>,
   ) {
     addToastRef.current = toast("Adding record...");
 

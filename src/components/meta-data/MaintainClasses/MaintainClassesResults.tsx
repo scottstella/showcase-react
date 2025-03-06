@@ -13,7 +13,7 @@ interface MaintainClassesResultsProps {
 }
 
 const MaintainClassesResults: React.FC<MaintainClassesResultsProps> = (
-  props
+  props,
 ) => {
   return (
     <table>

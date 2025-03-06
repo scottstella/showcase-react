@@ -96,14 +96,14 @@ describe("MaintainClasses", () => {
 
   it("renders without crashing", () => {
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
     expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
   });
 
   it("shows loading state initially and then removes it", async () => {
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
 
@@ -114,7 +114,7 @@ describe("MaintainClasses", () => {
 
   it("fetches and displays hero classes on mount", async () => {
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
     // First verify loading state
@@ -146,7 +146,7 @@ describe("MaintainClasses", () => {
     });
 
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
     await waitFor(() => {
@@ -161,7 +161,7 @@ describe("MaintainClasses", () => {
     });
 
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
     const input = screen.getByPlaceholderText("Name");
@@ -188,7 +188,7 @@ describe("MaintainClasses", () => {
     });
 
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
     // Fill out and submit the form
@@ -216,7 +216,7 @@ describe("MaintainClasses", () => {
       expect(updateToast).toHaveBeenCalledWith(
         { current: "toast-id" },
         error,
-        true
+        true,
       );
     });
 
@@ -235,7 +235,7 @@ describe("MaintainClasses", () => {
     });
 
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
     await waitFor(() => {
@@ -260,7 +260,7 @@ describe("MaintainClasses", () => {
     });
 
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
     // Wait for initial data to load
@@ -293,7 +293,7 @@ describe("MaintainClasses", () => {
       expect(updateToast).toHaveBeenCalledWith(
         { current: "toast-id" },
         error,
-        true
+        true,
       );
     });
 
@@ -308,7 +308,7 @@ describe("MaintainClasses", () => {
 
   it("validates form input", async () => {
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
     const form = screen.getByRole("form");
@@ -328,7 +328,7 @@ describe("MaintainClasses", () => {
     });
 
     render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />
+      <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
     const input = screen.getByPlaceholderText("Name");

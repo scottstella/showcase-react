@@ -37,10 +37,10 @@ describe("MetaDataMenu", () => {
 
     expect(sets).toHaveClass("meta-data-menu__selected");
     expect(screen.getByText("Hero Classes")).not.toHaveClass(
-      "meta-data-menu__selected"
+      "meta-data-menu__selected",
     );
     expect(screen.getByText("Tribes")).not.toHaveClass(
-      "meta-data-menu__selected"
+      "meta-data-menu__selected",
     );
   });
 
@@ -67,16 +67,16 @@ describe("MetaDataMenu", () => {
     // Then click Hero Classes
     fireEvent.click(screen.getByText("Hero Classes"));
     expect(screen.getByText("Sets")).not.toHaveClass(
-      "meta-data-menu__selected"
+      "meta-data-menu__selected",
     );
     expect(screen.getByText("Hero Classes")).toHaveClass(
-      "meta-data-menu__selected"
+      "meta-data-menu__selected",
     );
   });
 
   it("renders with correct styling", () => {
     const { container } = render(
-      <MetaDataMenu onSelectMetaData={mockOnSelectMetaData} />
+      <MetaDataMenu onSelectMetaData={mockOnSelectMetaData} />,
     );
 
     const menu = container.querySelector(".meta-data-menu");
@@ -89,7 +89,7 @@ describe("MetaDataMenu", () => {
 
   it("matches snapshot", () => {
     const { container } = render(
-      <MetaDataMenu onSelectMetaData={mockOnSelectMetaData} />
+      <MetaDataMenu onSelectMetaData={mockOnSelectMetaData} />,
     );
     expect(container).toMatchSnapshot();
   });

@@ -61,7 +61,7 @@ describe("CardService", () => {
       const result = await cardService.fetchHeroClasses();
 
       expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from
+        (mockSupabase as unknown as { from: jest.Mock }).from,
       ).toHaveBeenCalledWith("hero_class");
       expect(mockSelect).toHaveBeenCalled();
       expect(mockOrder).toHaveBeenCalledWith("name");
@@ -77,7 +77,7 @@ describe("CardService", () => {
       const result = await cardService.deleteHeroClass(1);
 
       expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from
+        (mockSupabase as unknown as { from: jest.Mock }).from,
       ).toHaveBeenCalledWith("hero_class");
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith("id", 1);
@@ -98,7 +98,7 @@ describe("CardService", () => {
       const result = await cardService.addHeroClass(heroClass);
 
       expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from
+        (mockSupabase as unknown as { from: jest.Mock }).from,
       ).toHaveBeenCalledWith("hero_class");
       expect(mockInsert).toHaveBeenCalledWith([{ name: heroClass.name }]);
       expect(mockSingle).toHaveBeenCalled();
@@ -114,7 +114,7 @@ describe("CardService", () => {
       const result = await cardService.fetchTribes();
 
       expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from
+        (mockSupabase as unknown as { from: jest.Mock }).from,
       ).toHaveBeenCalledWith("tribe");
       expect(mockSelect).toHaveBeenCalled();
       expect(mockOrder).toHaveBeenCalledWith("name");
@@ -130,7 +130,7 @@ describe("CardService", () => {
       const result = await cardService.deleteTribe(1);
 
       expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from
+        (mockSupabase as unknown as { from: jest.Mock }).from,
       ).toHaveBeenCalledWith("tribe");
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith("id", 1);
@@ -151,7 +151,7 @@ describe("CardService", () => {
       const result = await cardService.addTribe(tribe);
 
       expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from
+        (mockSupabase as unknown as { from: jest.Mock }).from,
       ).toHaveBeenCalledWith("tribe");
       expect(mockInsert).toHaveBeenCalledWith([{ name: tribe.name }]);
       expect(mockSingle).toHaveBeenCalled();
@@ -166,7 +166,7 @@ describe("CardService", () => {
       mockOrder.mockRejectedValue(error);
 
       await expect(cardService.fetchHeroClasses()).rejects.toThrow(
-        "Database error"
+        "Database error",
       );
     });
 
@@ -175,7 +175,7 @@ describe("CardService", () => {
       mockEq.mockRejectedValue(error);
 
       await expect(cardService.deleteHeroClass(1)).rejects.toThrow(
-        "Delete failed"
+        "Delete failed",
       );
     });
 
@@ -190,7 +190,7 @@ describe("CardService", () => {
       };
 
       await expect(cardService.addHeroClass(heroClass)).rejects.toThrow(
-        "Insert failed"
+        "Insert failed",
       );
     });
   });

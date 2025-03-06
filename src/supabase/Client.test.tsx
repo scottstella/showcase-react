@@ -15,7 +15,7 @@ describe("Supabase Client", () => {
   it("creates a client with correct configuration", () => {
     expect(createClient).toHaveBeenCalledWith(
       "https://hasmzeqltdnshibkgbuj.supabase.co",
-      expect.any(String) // We don't want to expose the actual key in test output
+      expect.any(String), // We don't want to expose the actual key in test output
     );
   });
 

@@ -15,7 +15,7 @@ describe("Welcome", () => {
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveAttribute(
       "src",
-      "/src/assets/images/hearthstone-icon.png"
+      "/src/assets/images/hearthstone-icon.png",
     );
     expect(logo).toHaveClass("welcome-logo");
   });

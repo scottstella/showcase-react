@@ -54,7 +54,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
 
   async function addHeroClass(
     values: FormValues,
-    actions: FormikHelpers<FormValues>
+    actions: FormikHelpers<FormValues>,
   ) {
     addToastRef.current = toast("Adding record...");
 
@@ -75,7 +75,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
   async function deleteHeroClass(e: React.MouseEvent<SVGSVGElement>) {
     deleteToastRef.current = toast("Deleting record...");
     const { error } = await cardService.deleteHeroClass(
-      Number(e.currentTarget.id)
+      Number(e.currentTarget.id),
     );
     updateToast(deleteToastRef, error, true);
 

@@ -9,7 +9,7 @@ const renderWithRouter = () => {
   return render(
     <BrowserRouter>
       <Nav />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 };
 
@@ -31,7 +31,7 @@ describe("Nav", () => {
       const adminLinks = screen.getByText("Manage Meta-Data").parentElement;
       expect(adminLinks).toHaveClass("nav-group-collapsed");
       expect(screen.getByText("Admin").previousElementSibling).toHaveClass(
-        "fa-angle-right"
+        "fa-angle-right",
       );
     });
 
@@ -41,7 +41,7 @@ describe("Nav", () => {
       const adminLinks = screen.getByText("Manage Meta-Data").parentElement;
       expect(adminLinks).toHaveClass("nav-group-expanded");
       expect(screen.getByText("Admin").previousElementSibling).toHaveClass(
-        "fa-angle-down"
+        "fa-angle-down",
       );
     });
 
@@ -62,7 +62,7 @@ describe("Nav", () => {
       const decksLinks = screen.getByText("Link 1").parentElement;
       expect(decksLinks).toHaveClass("nav-group-collapsed");
       expect(screen.getByText("Decks").previousElementSibling).toHaveClass(
-        "fa-angle-right"
+        "fa-angle-right",
       );
     });
 
@@ -72,7 +72,7 @@ describe("Nav", () => {
       const decksLinks = screen.getByText("Link 1").parentElement;
       expect(decksLinks).toHaveClass("nav-group-expanded");
       expect(screen.getByText("Decks").previousElementSibling).toHaveClass(
-        "fa-angle-down"
+        "fa-angle-down",
       );
     });
 
@@ -96,10 +96,10 @@ describe("Nav", () => {
 
     // Check both are expanded
     expect(screen.getByText("Manage Meta-Data").parentElement).toHaveClass(
-      "nav-group-expanded"
+      "nav-group-expanded",
     );
     expect(screen.getByText("Link 1").parentElement).toHaveClass(
-      "nav-group-expanded"
+      "nav-group-expanded",
     );
 
     // Collapse Admin only
@@ -107,10 +107,10 @@ describe("Nav", () => {
 
     // Check Admin is collapsed but Decks is still expanded
     expect(screen.getByText("Manage Meta-Data").parentElement).toHaveClass(
-      "nav-group-collapsed"
+      "nav-group-collapsed",
     );
     expect(screen.getByText("Link 1").parentElement).toHaveClass(
-      "nav-group-expanded"
+      "nav-group-expanded",
     );
   });
 
