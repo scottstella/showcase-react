@@ -3,3 +3,5 @@ TODO:
 Implement paging
 Implement edit record
 
+Google analytics
+Playwright tests

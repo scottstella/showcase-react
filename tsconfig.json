@@ -7,7 +7,16 @@
     "skipLibCheck": true, // Skip type checking of declaration files
     "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references
     "jsx": "react", // Add this line to support JSX in React
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": "src", // Base directory for resolving non-relative module names
+    "paths": {
+      "@/*": ["*"], // Allows imports from src directory using @ prefix
+      "@components/*": ["components/*"], // Import components using @components prefix
+      "@services/*": ["services/*"], // Import services using @services prefix
+      "@utils/*": ["utils/*"], // Import utilities using @utils prefix
+      "@types/*": ["types/*"], // Import types using @types prefix
+      "@assets/*": ["assets/*"] // Import assets using @assets prefix
+    }
   },
   "include": ["src"], // Specify project source files
   "exclude": ["node_modules"] // Exclude unnecessary files

@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "@testing-library/react": "^13.3.0",
+    "@types/node": "^22.13.9",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
     "@vitejs/plugin-react": "^4.3.1",

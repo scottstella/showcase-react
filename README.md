@@ -53,6 +53,27 @@ npm test
 npm run test:coverage
 ```
 
+## Path Aliases
+
+The project uses path aliases to make imports cleaner and more maintainable. The following aliases are available:
+
+```typescript
+// Instead of
+import { CardService } from "../../../services/CardService";
+
+// You can use
+import { CardService } from "@services/CardService";
+```
+
+Available aliases:
+
+- `@/*` - Import from the src directory
+- `@components/*` - Import components
+- `@services/*` - Import services
+- `@utils/*` - Import utilities
+- `@types/*` - Import types
+- `@assets/*` - Import assets
+
 ## Git Hooks
 
 This project uses Husky Git hooks to ensure code quality. The hooks are configured in the `.husky` directory:
