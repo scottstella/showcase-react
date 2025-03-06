@@ -62,9 +62,12 @@ This project uses Husky Git hooks to ensure code quality. The hooks are configur
 Located in `.husky/pre-commit`:
 
 - Runs automatically before each commit
-- Executes `lint-staged` to:
-  - Run ESLint on staged TypeScript/TSX files
-  - Format staged files with Prettier
+- Uses `lint-staged` to process staged files:
+  - For TypeScript/TSX files:
+    - Runs ESLint with auto-fix
+    - Formats with Prettier
+  - For other files (JS, JSON, CSS, etc.):
+    - Formats with Prettier
 - Prevents commit if there are any linting errors
 - Can be bypassed with `git commit --no-verify`
 
@@ -87,6 +90,19 @@ git commit --no-verify -m "your message"
 
 # Skip pre-push hook
 git push --no-verify
+```
+
+### Lint-staged Configuration
+
+The project uses `lint-staged` to efficiently process only staged files. Configuration in `package.json`:
+
+```json
+{
+  "lint-staged": {
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{js,jsx,json,css,scss,md}": ["prettier --write"]
+  }
+}
 ```
 
 ## VS Code Configuration
