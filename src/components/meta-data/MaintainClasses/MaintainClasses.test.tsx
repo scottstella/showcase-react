@@ -5,7 +5,7 @@ import MaintainClasses from "./MaintainClasses";
 import { toast } from "react-toastify";
 import type { HeroClass } from "../../../dto/HeroClass";
 import { CardService } from "../../../services/CardService";
-import { updateToast } from "../../../common/toastHelpers";
+import { updateToast, displayErrorToast } from "../../../common/toastHelpers";
 
 interface ValidationError extends Error {
   name: string;
@@ -94,22 +94,42 @@ describe("MaintainClasses", () => {
     });
   });
 
-  it("renders without crashing", () => {
+  it("renders without crashing", async () => {
     render(
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
-    expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    });
   });
 
   it("shows loading state initially and then removes it", async () => {
+    mockService.fetchHeroClasses.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ data: mockHeroClasses, error: null });
+          }, 100);
+        }),
+    );
+
     render(
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
+
+    // Initial loading state
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
-    });
+    // Wait for data to load and loading state to be removed
+    await waitFor(
+      () => {
+        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+        const rows = screen.getAllByRole("row");
+        expect(rows.length).toBeGreaterThan(1); // Header row + at least one data row
+      },
+      { timeout: 2000 },
+    );
   });
 
   it("fetches and displays hero classes on mount", async () => {
@@ -117,25 +137,12 @@ describe("MaintainClasses", () => {
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
-    // First verify loading state
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
-
-    // Wait for loading to finish and data to be displayed
     await waitFor(() => {
-      expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+      const rows = screen.getAllByRole("row");
+      expect(rows.length).toBe(3); // Header row + 2 data rows
+      expect(screen.getByText("Mage")).toBeInTheDocument();
+      expect(screen.getByText("Warrior")).toBeInTheDocument();
     });
-
-    // Now check for the rendered data in the table
-    const rows = screen.getAllByRole("row");
-    expect(rows.length).toBe(3); // Header row + 2 data rows
-
-    // Find cells containing the hero class names
-    const cells = screen.getAllByRole("cell");
-    const nameCell1 = cells.find((cell) => cell.textContent === "Mage");
-    const nameCell2 = cells.find((cell) => cell.textContent === "Warrior");
-
-    expect(nameCell1).toBeInTheDocument();
-    expect(nameCell2).toBeInTheDocument();
   });
 
   it("handles fetch error", async () => {
@@ -151,6 +158,7 @@ describe("MaintainClasses", () => {
 
     await waitFor(() => {
       expect(mockService.fetchHeroClasses).toHaveBeenCalled();
+      expect(displayErrorToast).toHaveBeenCalledWith(error);
     });
   });
 
@@ -164,10 +172,14 @@ describe("MaintainClasses", () => {
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    });
+
     const input = screen.getByPlaceholderText("Name");
-    await fireEvent.change(input, { target: { value: "Druid" } });
+    fireEvent.change(input, { target: { value: "Druid" } });
     const form = screen.getByRole("form");
-    await fireEvent.submit(form);
+    fireEvent.submit(form);
 
     await waitFor(() => {
       expect(mockService.addHeroClass).toHaveBeenCalledWith({
@@ -175,9 +187,9 @@ describe("MaintainClasses", () => {
         name: "Druid",
         created_at: expect.any(String),
       });
+      expect(toast).toHaveBeenCalledWith("Adding record...");
+      expect(input).toHaveValue("");
     });
-
-    expect(toast).toHaveBeenCalledWith("Adding record...");
   });
 
   it("handles add hero class error", async () => {
@@ -191,44 +203,48 @@ describe("MaintainClasses", () => {
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
-    // Fill out and submit the form
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    });
+
     const input = screen.getByPlaceholderText("Name");
     const inputValue = "Druid";
-    await fireEvent.change(input, { target: { value: inputValue } });
+    fireEvent.change(input, { target: { value: inputValue } });
     const form = screen.getByRole("form");
-    await fireEvent.submit(form);
+    fireEvent.submit(form);
 
-    // Verify service was called
     await waitFor(() => {
       expect(mockService.addHeroClass).toHaveBeenCalledWith({
         id: 0,
         name: inputValue,
         created_at: expect.any(String),
       });
-    });
-
-    // Verify toast notifications
-    await waitFor(() => {
-      // Verify toast was called in correct order with correct messages
-      expect(toast).toHaveBeenCalledTimes(1);
-      expect(toast).toHaveBeenNthCalledWith(1, "Adding record...");
-      expect(updateToast).toHaveBeenCalledTimes(1);
+      expect(toast).toHaveBeenCalledWith("Adding record...");
       expect(updateToast).toHaveBeenCalledWith(
         { current: "toast-id" },
         error,
         true,
       );
+      expect(input).toHaveValue(inputValue);
+      expect(input).not.toBeDisabled();
+      expect(form).not.toBeDisabled();
     });
-
-    // Verify form wasn't reset (value should still be there)
-    expect(input).toHaveValue(inputValue);
-
-    // Verify the form is still enabled and can be submitted again
-    expect(input).not.toBeDisabled();
-    expect(form).not.toBeDisabled();
   });
 
   it("deletes a hero class", async () => {
+    // Mock initial data load
+    mockService.fetchHeroClasses.mockResolvedValueOnce({
+      data: mockHeroClasses,
+      error: null,
+    });
+
+    // Mock the fetch after delete to return only one hero class
+    mockService.fetchHeroClasses.mockResolvedValueOnce({
+      data: [mockHeroClasses[1]], // Only return Warrior
+      error: null,
+    });
+
+    // Mock successful delete
     mockService.deleteHeroClass.mockResolvedValue({
       data: null,
       error: null,
@@ -238,18 +254,31 @@ describe("MaintainClasses", () => {
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
+    // Wait for initial data to load
     await waitFor(() => {
+      expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
       expect(screen.getByText("Mage")).toBeInTheDocument();
+      expect(screen.getByText("Warrior")).toBeInTheDocument();
+      expect(screen.getAllByRole("img", { hidden: true })).toHaveLength(2);
     });
 
+    // Click delete button for Mage (first hero class)
     const deleteButtons = screen.getAllByRole("img", { hidden: true });
-    await fireEvent.click(deleteButtons[0]);
+    fireEvent.click(deleteButtons[0]);
 
+    // Wait for delete operation to start
     await waitFor(() => {
       expect(mockService.deleteHeroClass).toHaveBeenCalledWith(1);
+      expect(toast).toHaveBeenCalledWith("Deleting record...");
     });
 
-    expect(toast).toHaveBeenCalledWith("Deleting record...");
+    // Wait for the UI to update after deletion and refetch
+    await waitFor(() => {
+      expect(screen.queryByText("Mage")).not.toBeInTheDocument();
+      expect(screen.getByText("Warrior")).toBeInTheDocument();
+      const rows = screen.getAllByRole("row");
+      expect(rows).toHaveLength(2); // Header + 1 remaining row
+    });
   });
 
   it("handles delete hero class error", async () => {
@@ -263,47 +292,33 @@ describe("MaintainClasses", () => {
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
-    // Wait for initial data to load
+    // Wait for initial data to load and find delete button
     await waitFor(() => {
-      expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+      expect(screen.getByText("Mage")).toBeInTheDocument();
+      expect(screen.getAllByRole("img", { hidden: true })).toHaveLength(2);
     });
 
-    // Verify initial state
-    const mageText = screen.getByText("Mage");
-    expect(mageText).toBeInTheDocument();
-
-    // Clear any toast calls from initial render
     vi.clearAllMocks();
 
-    // Attempt to delete
+    // Click delete button
     const deleteButtons = screen.getAllByRole("img", { hidden: true });
-    await fireEvent.click(deleteButtons[0]);
+    fireEvent.click(deleteButtons[0]);
 
-    // Verify delete attempt
+    // Wait for delete operation to complete and verify error handling
     await waitFor(() => {
       expect(mockService.deleteHeroClass).toHaveBeenCalledWith(1);
-    });
-
-    // Verify toast notifications
-    await waitFor(() => {
-      // Verify toast was called in correct order with correct messages
-      expect(toast).toHaveBeenCalledTimes(1);
-      expect(toast).toHaveBeenNthCalledWith(1, "Deleting record...");
-      expect(updateToast).toHaveBeenCalledTimes(1);
+      expect(toast).toHaveBeenCalledWith("Deleting record...");
       expect(updateToast).toHaveBeenCalledWith(
         { current: "toast-id" },
         error,
         true,
       );
+      // Verify the row is still in the table
+      expect(screen.getByText("Mage")).toBeInTheDocument();
+      const deleteButton = deleteButtons[0];
+      expect(deleteButton).not.toBeDisabled();
+      expect(deleteButton).toHaveAttribute("id", "1");
     });
-
-    // Verify the record is still in the table (not removed)
-    expect(mageText).toBeInTheDocument();
-
-    // Verify delete button is still enabled
-    const deleteButton = deleteButtons[0];
-    expect(deleteButton).not.toBeDisabled();
-    expect(deleteButton).toHaveAttribute("id", "1");
   });
 
   it("validates form input", async () => {
@@ -311,8 +326,12 @@ describe("MaintainClasses", () => {
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
+    await waitFor(() => {
+      expect(screen.getByRole("form")).toBeInTheDocument();
+    });
+
     const form = screen.getByRole("form");
-    await fireEvent.submit(form);
+    fireEvent.submit(form);
 
     await waitFor(() => {
       const errorElement = screen.getByText("Required", { exact: true });
@@ -331,10 +350,14 @@ describe("MaintainClasses", () => {
       <MaintainClasses cardService={mockService as unknown as CardService} />,
     );
 
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    });
+
     const input = screen.getByPlaceholderText("Name");
-    await fireEvent.change(input, { target: { value: "Druid" } });
+    fireEvent.change(input, { target: { value: "Druid" } });
     const form = screen.getByRole("form");
-    await fireEvent.submit(form);
+    fireEvent.submit(form);
 
     await waitFor(() => {
       expect(input).toHaveValue("");

@@ -4,6 +4,7 @@ import { getLastUpdatedString } from "../../../common/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../../../assets/fontAwesome";
 import type { Tribe } from "../../../dto/Tribe";
+import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
 // Define the type for props
 interface MaintainTribesResultsProps {
@@ -31,9 +32,10 @@ const MaintainTribesResults: React.FC<MaintainTribesResultsProps> = (props) => {
           <tr key={tribe.id}>
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
-                icon="trash-can"
-                id={String(tribe.id)}
+                icon={faTrashCan}
+                id={tribe.id.toString()}
                 onClick={props.deleteTribe}
+                data-testid="delete-tribe"
               />
             </td>
             <td style={{ width: "75px" }}>{tribe.id}</td>
