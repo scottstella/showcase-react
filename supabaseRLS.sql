@@ -13,6 +13,12 @@ on hero_class for insert
 to authenticated
 with check (true);
 
+create policy "Only authenticated users can update hero classes"
+on hero_class for update
+to authenticated
+using (true)
+with check (true);
+
 create policy "Only authenticated users can delete hero classes"
 on hero_class for delete
 to authenticated
@@ -28,6 +34,12 @@ on tribe for insert
 to authenticated
 with check (true);
 
+create policy "Only authenticated users can update tribes"
+on tribe for update
+to authenticated
+using (true)
+with check (true);
+
 create policy "Only authenticated users can delete tribes"
 on tribe for delete
 to authenticated
@@ -41,6 +53,12 @@ using (true);
 create policy "Only authenticated users can insert sets"
 on set for insert
 to authenticated
+with check (true);
+
+create policy "Only authenticated users can update sets"
+on set for update
+to authenticated
+using (true)
 with check (true);
 
 create policy "Only authenticated users can delete sets"
