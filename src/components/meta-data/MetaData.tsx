@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MaintainClasses from "./MaintainClasses/MaintainClasses";
-import MaintainSets from "./MaintainSets";
+import MaintainSets from "./MaintainSets/MaintainSets";
 import MaintainTribes from "./MaintainTribes/MaintainTribes";
 import MetaDataMenu from "./MetaDataMenu";
 
