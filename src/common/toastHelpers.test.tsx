@@ -7,7 +7,7 @@ import {
 import { MutableRefObject } from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-// Mock react-toastify
+// Setup Vitest mock for react-toastify
 vi.mock("react-toastify", () => ({
   toast: {
     update: vi.fn(),
