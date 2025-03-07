@@ -3,13 +3,13 @@ import "./Aside.css";
 
 export default function Aside() {
   return (
-    <div className="aside">
+    <aside className="aside" role="complementary">
       <ul>
         <li>
           <p>
             <strong>Developed:</strong>
           </p>
-          <p>July 2022</p>
+          <p>2022-2025</p>
         </li>
         <li>
           <p>
@@ -27,6 +27,6 @@ export default function Aside() {
           <p>Scott Stella</p>
         </li>
       </ul>
-    </div>
+    </aside>
   );
 }
