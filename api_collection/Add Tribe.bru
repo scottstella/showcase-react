@@ -1,0 +1,24 @@
+meta {
+  name: Add Tribe
+  type: http
+  seq: 9
+}
+
+post {
+  url: https://{{url}}/rest/v1/tribe
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{apikey}}
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+  Prefer: return=minimal
+}
+
+body:json {
+  {
+    "name": "Test Tribe"
+  }
+} 

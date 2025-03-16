@@ -1,0 +1,26 @@
+meta {
+  name: Add Set
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{url}}/rest/v1/set
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{apikey}}
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+  Prefer: return=minimal
+}
+
+body:json {
+  {
+    "name": "Test Set",
+    "is_standard": true,
+    "release_date": "2024-03-16"
+  }
+} 

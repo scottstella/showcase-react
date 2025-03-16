@@ -12,6 +12,7 @@ A React application for tracking Hearthstone decks and cards.
 - [Path Aliases](#path-aliases)
 - [Git Hooks](#git-hooks)
 - [VS Code Configuration](#vs-code-configuration)
+- [API Collections](#api-collections)
 
 ## Getting Started
 
@@ -304,3 +305,75 @@ This project includes VS Code settings for consistent code formatting and lintin
    - Consistent bracket spacing
 
 These settings will be automatically applied when you open the project in VS Code.
+
+## API Collections
+
+This project includes a set of Bruno API collections for interacting with the Supabase backend. The collections are located in the `api_collection` directory and include endpoints for managing:
+
+- Sets (card sets)
+- Hero Classes
+- Tribes
+
+### Authentication Setup
+
+The API collections use Supabase's Row Level Security (RLS) and require proper authentication. To use these collections:
+
+1. Configure your environment file (`api_collection/environments/supabase.bru`):
+
+   ```
+   vars {
+     url: your-project-id.supabase.co
+     apikey: your-supabase-anon-key
+     access_token: your-jwt-token
+   }
+   ```
+
+2. To get your JWT token:
+   - Log into the application
+   - Open your browser's Developer Console (F12 or Command+Option+I)
+   - Run this command:
+     ```javascript
+     const token = JSON.parse(localStorage.getItem("supabase.auth.token"))
+       ?.currentSession?.access_token;
+     console.log(token);
+     ```
+   - Copy the output and update the `access_token` in your environment file
+
+Note: The JWT token expires periodically. If your requests start returning 401 unauthorized errors, you'll need to:
+
+1. Log in to the application again
+2. Get a new token using the console command above
+3. Update the `access_token` in your environment file
+
+### Available Requests
+
+#### Sets
+
+- `Get Sets.bru` - Retrieve all sets
+- `Add Set.bru` - Create a new set
+- `Delete Set.bru` - Remove a set by ID
+
+#### Hero Classes
+
+- `Get Hero Classes.bru` - Retrieve all hero classes
+- `Add Hero Class.bru` - Create a new hero class
+- `Delete Hero Class.bru` - Remove a hero class by ID
+
+#### Tribes
+
+- `Get Tribes.bru` - Retrieve all tribes
+- `Add Tribe.bru` - Create a new tribe
+- `Delete Tribe.bru` - Remove a tribe by ID
+
+### Using the Collections
+
+1. Open the collection in Bruno
+2. Select the "supabase" environment from the dropdown
+3. For delete operations, update the ID in the URL parameter (e.g., `?id=eq.1`)
+4. For add operations, update the JSON body with your data
+5. Send the request
+
+All requests require authentication and will include:
+
+- The `apikey` header for basic access
+- The `Authorization` header with your JWT token for authenticated operations

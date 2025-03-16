@@ -1,0 +1,24 @@
+meta {
+  name: Add Hero Class
+  type: http
+  seq: 7
+}
+
+post {
+  url: https://{{url}}/rest/v1/hero_class
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{apikey}}
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+  Prefer: return=minimal
+}
+
+body:json {
+  {
+    "name": "Test Hero Class"
+  }
+} 

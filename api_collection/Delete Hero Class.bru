@@ -1,0 +1,17 @@
+meta {
+  name: Delete Hero Class
+  type: http
+  seq: 8
+}
+
+delete {
+  url: https://{{url}}/rest/v1/hero_class?id=eq.1
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{apikey}}
+  Authorization: Bearer {{access_token}}
+  Prefer: return=minimal
+} 
