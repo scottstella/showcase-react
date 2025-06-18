@@ -8,6 +8,7 @@ A React application for tracking Hearthstone decks and cards.
 - [Development](#development)
 - [Docker](#docker)
 - [Environment Setup](#environment-setup)
+- [Supabase Launch Agent](#supabase-launch-agent)
 - [Testing](#testing)
 - [Path Aliases](#path-aliases)
 - [Git Hooks](#git-hooks)
@@ -176,7 +177,149 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 You can find these values in your Supabase project settings under Project Settings > API.
 
-> **Note**: The `.env.local` file is used for local environment variables and should not be committed to version control. It is automatically ignored by Git.
+## Supabase Launch Agent
+
+This project uses a macOS launch agent to keep the Supabase connection alive by periodically pinging the API. This prevents the connection from going idle and ensures consistent performance.
+
+### Overview
+
+The launch agent runs a script (`supabase-ping.sh`) that sends periodic HTTP requests to your Supabase instance. This is particularly useful for:
+
+- Preventing connection timeouts
+- Keeping the database connection warm
+- Ensuring consistent API response times
+- Avoiding cold starts when the application is accessed
+
+### Files
+
+**Launch Agent Configuration:**
+
+- Location: `~/Library/LaunchAgents/com.sstella.supabase-ping.plist`
+- Purpose: macOS system service configuration
+
+**Script:**
+
+- Location: `/Users/sstella/supabase-ping.sh`
+- Purpose: Executes the actual ping requests
+
+**Logs:**
+
+- Location: `/Users/sstella/ping.log`
+- Purpose: Records ping attempts and results
+
+### Configuration
+
+The script is configured with the following settings:
+
+```bash
+SUPABASE_URL="https://hasmzeqltdnshibkgbuj.supabase.co"
+SUPABASE_ANON_KEY="your-supabase-anon-key"
+PING_INTERVAL_MINUTES=60  # Currently set to 1 hour
+```
+
+### Managing the Launch Agent
+
+#### Check Status
+
+```bash
+# Check if the agent is running
+launchctl list | grep supabase-ping
+
+# View the logs
+tail -f ~/ping.log
+```
+
+#### Start/Stop the Agent
+
+```bash
+# Stop the agent
+launchctl unload ~/Library/LaunchAgents/com.sstella.supabase-ping.plist
+
+# Start the agent
+launchctl load ~/Library/LaunchAgents/com.sstella.supabase-ping.plist
+```
+
+#### Change Ping Frequency
+
+To change how often the script pings Supabase:
+
+1. Edit the script:
+
+   ```bash
+   nano ~/supabase-ping.sh
+   ```
+
+2. Modify the `PING_INTERVAL_MINUTES` variable:
+
+   ```bash
+   PING_INTERVAL_MINUTES=30  # 30 minutes
+   PING_INTERVAL_MINUTES=15  # 15 minutes
+   PING_INTERVAL_MINUTES=5   # 5 minutes
+   ```
+
+3. Restart the agent:
+   ```bash
+   launchctl unload ~/Library/LaunchAgents/com.sstella.supabase-ping.plist
+   launchctl load ~/Library/LaunchAgents/com.sstella.supabase-ping.plist
+   ```
+
+### How It Works
+
+1. **System Integration**: The launch agent is registered with macOS's `launchd` system
+2. **Automatic Startup**: Runs automatically when you log in
+3. **Keep Alive**: Continuously runs and restarts if it stops
+4. **API Ping**: Sends a simple GET request to `hero_class` table
+5. **Logging**: Records success/failure with timestamps
+
+### Troubleshooting
+
+#### Agent Not Running
+
+```bash
+# Check if the agent is loaded
+launchctl list | grep supabase-ping
+
+# If not found, reload it
+launchctl load ~/Library/LaunchAgents/com.sstella.supabase-ping.plist
+```
+
+#### Check Logs for Errors
+
+```bash
+# View recent logs
+tail -20 ~/ping.log
+
+# Monitor logs in real-time
+tail -f ~/ping.log
+```
+
+#### Common Issues
+
+1. **Permission Denied**: Ensure the script is executable:
+
+   ```bash
+   chmod +x ~/supabase-ping.sh
+   ```
+
+2. **Invalid API Key**: Check that the `SUPABASE_ANON_KEY` in the script matches your environment
+
+3. **Network Issues**: Verify your internet connection and Supabase URL
+
+### Security Notes
+
+- The script contains your Supabase API key in plain text
+- The log file may contain sensitive information
+- Consider using environment variables for the API key in production
+- The launch agent runs with your user permissions
+
+### Alternative Approaches
+
+If you prefer not to use a launch agent, consider:
+
+1. **Application-level pinging**: Implement ping logic in your React app
+2. **Cron jobs**: Use `crontab` for scheduling
+3. **External monitoring**: Use services like UptimeRobot or Pingdom
+4. **Supabase Edge Functions**: Create a scheduled function in Supabase
 
 ## Testing
 
