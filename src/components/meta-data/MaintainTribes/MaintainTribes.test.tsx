@@ -34,7 +34,7 @@ vi.mock("../../../common/toastHelpers", () => ({
 }));
 
 // Mock the schema
-vi.mock("../../../schemas/index.js", () => ({
+vi.mock("../../../schemas/index", () => ({
   tribeSchema: {
     validateSync: vi.fn(values => {
       if (!values.name) {

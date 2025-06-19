@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import "../../../common/input-group.css";
 import "../../../common/table.css";
 import { toast, Id } from "react-toastify";
-import MaintainClassesResults from "./MaintainClassesResults.js";
+import MaintainClassesResults from "./MaintainClassesResults";
 import { FormikHelpers } from "formik";
 import { displayErrorToast, updateToast } from "../../../common/toastHelpers";
 import cardServiceImpl from "../../../services/CardService";
 import { useFormik } from "formik";
-import { heroClassSchema } from "../../../schemas/index.js";
+import { heroClassSchema } from "../../../schemas/index";
 import type { HeroClass } from "../../../dto/HeroClass";
 
 interface FormValues {

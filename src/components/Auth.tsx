@@ -23,7 +23,9 @@ const Auth: React.FC = () => {
     });
 
     return () => {
-      authListener?.unsubscribe();
+      if (authListener && authListener.unsubscribe) {
+        authListener.unsubscribe();
+      }
     };
   }, []);
 
