@@ -31,13 +31,9 @@ describe("Refreshed", () => {
 
   it("displays refresh message with current date/time when not loading", () => {
     render(<Refreshed loading={false} />);
-    expect(
-      screen.getByText("Data refreshed on 3/6/2024 - 12:00:00 PM"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Data refreshed on 3/6/2024 - 12:00:00 PM")).toBeInTheDocument();
     expect(getDateAndTimeString).toHaveBeenCalledTimes(1);
-    expect(getDateAndTimeString).toHaveBeenCalledWith(
-      new Date("2024-03-06T12:00:00Z"),
-    );
+    expect(getDateAndTimeString).toHaveBeenCalledWith(new Date("2024-03-06T12:00:00Z"));
   });
 
   it("updates message when loading prop changes", () => {
@@ -45,8 +41,6 @@ describe("Refreshed", () => {
     expect(screen.getByText("Loading...")).toBeInTheDocument();
 
     rerender(<Refreshed loading={false} />);
-    expect(
-      screen.getByText("Data refreshed on 3/6/2024 - 12:00:00 PM"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Data refreshed on 3/6/2024 - 12:00:00 PM")).toBeInTheDocument();
   });
 });

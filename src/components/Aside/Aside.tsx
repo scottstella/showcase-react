@@ -15,10 +15,7 @@ export default function Aside() {
           <p>
             <strong>Showcasing</strong>
           </p>
-          <p>
-            React, Javascript, CSS, Supabase, Toastify, Font Awesome, Formik,
-            Bruno
-          </p>
+          <p>React, Javascript, CSS, Supabase, Toastify, Font Awesome, Formik, Bruno</p>
         </li>
         <li>
           <p>

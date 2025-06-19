@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  convertTimestampToDate,
-  getDateAndTimeString,
-  getLastUpdatedString,
-} from "./utils";
+import { convertTimestampToDate, getDateAndTimeString, getLastUpdatedString } from "./utils";
 
 describe("utils", () => {
   describe("convertTimestampToDate", () => {

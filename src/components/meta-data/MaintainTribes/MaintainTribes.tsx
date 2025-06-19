@@ -24,14 +24,15 @@ export default function MaintainTribes({
   const addToastRef = useRef<Id | null>(null);
   const deleteToastRef = useRef<Id | null>(null);
 
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
-    useFormik<FormValues>({
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit } = useFormik<FormValues>(
+    {
       initialValues: {
         name: "",
       },
       validationSchema: tribeSchema,
       onSubmit,
-    });
+    }
+  );
 
   useEffect(() => {
     fetchTribes();
@@ -54,10 +55,7 @@ export default function MaintainTribes({
     }
   }
 
-  async function addTribe(
-    values: FormValues,
-    actions: FormikHelpers<FormValues>,
-  ) {
+  async function addTribe(values: FormValues, actions: FormikHelpers<FormValues>) {
     addToastRef.current = toast("Adding record...");
 
     const { error } = await cardService.addTribe({
@@ -99,19 +97,13 @@ export default function MaintainTribes({
               onBlur={handleBlur}
               className={errors.name && touched.name ? "error" : ""}
             />
-            {errors.name && touched.name && (
-              <div className="error-msg">{errors.name}</div>
-            )}
+            {errors.name && touched.name && <div className="error-msg">{errors.name}</div>}
           </div>
           <input type="submit" value="Submit" />
         </form>
       </div>
 
-      <MaintainTribesResults
-        isLoading={isLoading}
-        tribes={tribes}
-        deleteTribe={deleteTribe}
-      />
+      <MaintainTribesResults isLoading={isLoading} tribes={tribes} deleteTribe={deleteTribe} />
     </div>
   );
 }

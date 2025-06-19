@@ -1,12 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import MaintainTribes from "./MaintainTribes";
 import { toast } from "react-toastify";
 import type { Tribe } from "../../../dto/Tribe";
@@ -42,7 +36,7 @@ vi.mock("../../../common/toastHelpers", () => ({
 // Mock the schema
 vi.mock("../../../schemas/index.js", () => ({
   tribeSchema: {
-    validateSync: vi.fn((values) => {
+    validateSync: vi.fn(values => {
       if (!values.name) {
         const error = new Error("Required") as ValidationError;
         error.name = "ValidationError";
@@ -51,7 +45,7 @@ vi.mock("../../../schemas/index.js", () => ({
       }
       return values;
     }),
-    validate: vi.fn(async (values) => {
+    validate: vi.fn(async values => {
       if (!values.name) {
         const error = new Error("Required") as ValidationError;
         error.name = "ValidationError";
@@ -60,9 +54,9 @@ vi.mock("../../../schemas/index.js", () => ({
       }
       return values;
     }),
-    isValid: vi.fn((values) => Promise.resolve(values?.name ? true : false)),
-    isValidSync: vi.fn((values) => (values?.name ? true : false)),
-    cast: vi.fn((values) => values),
+    isValid: vi.fn(values => Promise.resolve(values?.name ? true : false)),
+    isValidSync: vi.fn(values => (values?.name ? true : false)),
+    cast: vi.fn(values => values),
     _nodes: ["name"],
     fields: { name: { type: "string", tests: [] } },
     spec: {
@@ -103,9 +97,7 @@ describe("MaintainTribes", () => {
   it("renders without crashing", async () => {
     mockService.fetchTribes.mockImplementationOnce(() => new Promise(() => {}));
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
@@ -113,16 +105,14 @@ describe("MaintainTribes", () => {
   it("shows loading state initially and then removes it", async () => {
     mockService.fetchTribes.mockImplementationOnce(
       () =>
-        new Promise((resolve) => {
+        new Promise(resolve => {
           setTimeout(() => {
             resolve({ data: mockTribes, error: null });
           }, 100);
-        }),
+        })
     );
 
-    render(
-      <MaintainTribes cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainTribes cardService={mockService as unknown as CardService} />);
 
     // Initial loading state
     expect(screen.getByText("Loading...")).toBeInTheDocument();
@@ -134,15 +124,13 @@ describe("MaintainTribes", () => {
         const rows = screen.getAllByRole("row");
         expect(rows.length).toBeGreaterThan(1); // Header row + at least one data row
       },
-      { timeout: 2000 },
+      { timeout: 2000 }
     );
   });
 
   it("fetches and displays tribes on mount", async () => {
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
     expect(mockService.fetchTribes).toHaveBeenCalled();
@@ -157,9 +145,7 @@ describe("MaintainTribes", () => {
     });
 
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
     expect(displayErrorToast).toHaveBeenCalledWith(error);
@@ -172,9 +158,7 @@ describe("MaintainTribes", () => {
     });
 
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
     const input = screen.getByPlaceholderText("Name");
@@ -188,7 +172,7 @@ describe("MaintainTribes", () => {
     expect(mockService.addTribe).toHaveBeenCalledWith(
       expect.objectContaining({
         name: "Dragon",
-      }),
+      })
     );
     expect(toast).toHaveBeenCalledWith("Adding record...");
   });
@@ -201,9 +185,7 @@ describe("MaintainTribes", () => {
     });
 
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
     const input = screen.getByPlaceholderText("Name");
@@ -217,14 +199,12 @@ describe("MaintainTribes", () => {
     expect(mockService.addTribe).toHaveBeenCalledWith(
       expect.objectContaining({
         name: "Dragon",
-      }),
+      })
     );
   });
 
   it("deletes a tribe", async () => {
-    const mockTribes = [
-      { id: 1, name: "Murloc", created_at: "2024-02-29T19:00:00.000Z" },
-    ];
+    const mockTribes = [{ id: 1, name: "Murloc", created_at: "2024-02-29T19:00:00.000Z" }];
 
     mockService.fetchTribes.mockResolvedValue({
       data: mockTribes,
@@ -233,9 +213,7 @@ describe("MaintainTribes", () => {
     mockService.deleteTribe.mockResolvedValue({ error: null });
 
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
     await act(async () => {
@@ -251,9 +229,7 @@ describe("MaintainTribes", () => {
   });
 
   it("handles delete tribe error", async () => {
-    const mockTribes = [
-      { id: 1, name: "Murloc", created_at: "2024-02-29T19:00:00.000Z" },
-    ];
+    const mockTribes = [{ id: 1, name: "Murloc", created_at: "2024-02-29T19:00:00.000Z" }];
 
     mockService.fetchTribes.mockResolvedValue({
       data: mockTribes,
@@ -263,9 +239,7 @@ describe("MaintainTribes", () => {
     mockService.deleteTribe.mockResolvedValue({ error });
 
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
     await act(async () => {
@@ -282,9 +256,7 @@ describe("MaintainTribes", () => {
 
   it("validates form input", async () => {
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
     const form = screen.getByRole("form");
@@ -306,9 +278,7 @@ describe("MaintainTribes", () => {
     mockService.addTribe.mockResolvedValue({ error: null });
 
     await act(async () => {
-      render(
-        <MaintainTribes cardService={mockService as unknown as CardService} />,
-      );
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
     const input = screen.getByPlaceholderText("Name");

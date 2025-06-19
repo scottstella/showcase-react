@@ -13,7 +13,7 @@ interface MaintainTribesResultsProps {
   deleteTribe: (event: React.MouseEvent<SVGSVGElement>) => void;
 }
 
-const MaintainTribesResults: React.FC<MaintainTribesResultsProps> = (props) => {
+const MaintainTribesResults: React.FC<MaintainTribesResultsProps> = props => {
   return (
     <table>
       <caption>
@@ -28,7 +28,7 @@ const MaintainTribesResults: React.FC<MaintainTribesResultsProps> = (props) => {
         </tr>
       </thead>
       <tbody>
-        {props.tribes.map((tribe) => (
+        {props.tribes.map(tribe => (
           <tr key={tribe.id}>
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon

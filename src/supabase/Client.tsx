@@ -17,7 +17,7 @@ export const signIn = async () => {
     },
     {
       redirectTo: `${window.location.origin}/`,
-    },
+    }
   );
 };
 

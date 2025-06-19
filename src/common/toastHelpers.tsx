@@ -21,7 +21,7 @@ const getFriendlyErrorMessage = (error: ErrorObject): string => {
 export const updateToast = (
   toastRef: React.MutableRefObject<ToastId | null>,
   error: ErrorObject | null | undefined,
-  showSuccess: boolean,
+  showSuccess: boolean
 ): void => {
   if (!toastRef.current) return;
 

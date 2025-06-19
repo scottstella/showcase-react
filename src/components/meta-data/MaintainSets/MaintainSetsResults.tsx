@@ -13,7 +13,7 @@ interface MaintainSetsResultsProps {
   deleteSet: (event: React.MouseEvent<SVGSVGElement>) => void;
 }
 
-const MaintainSetsResults: React.FC<MaintainSetsResultsProps> = (props) => {
+const MaintainSetsResults: React.FC<MaintainSetsResultsProps> = props => {
   return (
     <table>
       <caption>
@@ -30,7 +30,7 @@ const MaintainSetsResults: React.FC<MaintainSetsResultsProps> = (props) => {
         </tr>
       </thead>
       <tbody>
-        {props.sets.map((set) => (
+        {props.sets.map(set => (
           <tr key={set.id}>
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon

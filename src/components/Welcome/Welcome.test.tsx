@@ -13,10 +13,7 @@ describe("Welcome", () => {
     render(<Welcome />);
     const logo = screen.getByAltText("Hearthstone Icon");
     expect(logo).toBeInTheDocument();
-    expect(logo).toHaveAttribute(
-      "src",
-      "/src/assets/images/hearthstone-icon.png",
-    );
+    expect(logo).toHaveAttribute("src", "/src/assets/images/hearthstone-icon.png");
     expect(logo).toHaveClass("welcome-logo");
   });
 
@@ -38,7 +35,7 @@ describe("Welcome", () => {
     // Check paragraphs (using container query since paragraphs don't have a role)
     const paragraphs = container.querySelectorAll("p");
     expect(paragraphs).toHaveLength(3);
-    paragraphs.forEach((p) => {
+    paragraphs.forEach(p => {
       expect(p).toBeInTheDocument();
       expect(p).toHaveTextContent(/Lorem ipsum/);
     });

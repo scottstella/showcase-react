@@ -6,8 +6,8 @@ import type { Tribe } from "../../../dto/Tribe";
 
 // Mock the utils functions
 vi.mock("../../../common/utils", () => ({
-  getLastUpdatedString: vi.fn((date) => `Mocked date for ${date}`),
-  getDateAndTimeString: vi.fn((date) => `Mocked time for ${date}`),
+  getLastUpdatedString: vi.fn(date => `Mocked date for ${date}`),
+  getDateAndTimeString: vi.fn(date => `Mocked time for ${date}`),
 }));
 
 describe("MaintainTribesResults", () => {
@@ -19,23 +19,13 @@ describe("MaintainTribesResults", () => {
   const mockDeleteTribe = vi.fn();
 
   it("displays loading message when loading", () => {
-    render(
-      <MaintainTribesResults
-        isLoading={true}
-        tribes={[]}
-        deleteTribe={mockDeleteTribe}
-      />,
-    );
+    render(<MaintainTribesResults isLoading={true} tribes={[]} deleteTribe={mockDeleteTribe} />);
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
   it("displays tribes data when not loading", () => {
     render(
-      <MaintainTribesResults
-        isLoading={false}
-        tribes={mockTribes}
-        deleteTribe={mockDeleteTribe}
-      />,
+      <MaintainTribesResults isLoading={false} tribes={mockTribes} deleteTribe={mockDeleteTribe} />
     );
 
     // Check for table headers
@@ -52,11 +42,7 @@ describe("MaintainTribesResults", () => {
 
   it("calls deleteTribe when delete icon is clicked", () => {
     render(
-      <MaintainTribesResults
-        isLoading={false}
-        tribes={mockTribes}
-        deleteTribe={mockDeleteTribe}
-      />,
+      <MaintainTribesResults isLoading={false} tribes={mockTribes} deleteTribe={mockDeleteTribe} />
     );
 
     const deleteButtons = screen.getAllByRole("img", { hidden: true });
@@ -67,11 +53,7 @@ describe("MaintainTribesResults", () => {
 
   it("formats dates using getLastUpdatedString", () => {
     render(
-      <MaintainTribesResults
-        isLoading={false}
-        tribes={mockTribes}
-        deleteTribe={mockDeleteTribe}
-      />,
+      <MaintainTribesResults isLoading={false} tribes={mockTribes} deleteTribe={mockDeleteTribe} />
     );
 
     expect(screen.getByText("Mocked date for 2024-03-01")).toBeInTheDocument();

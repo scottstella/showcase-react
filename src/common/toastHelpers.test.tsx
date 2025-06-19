@@ -1,9 +1,5 @@
 import { toast } from "react-toastify";
-import {
-  updateToast,
-  displayErrorToast,
-  formatErrorMessage,
-} from "./toastHelpers";
+import { updateToast, displayErrorToast, formatErrorMessage } from "./toastHelpers";
 import { MutableRefObject } from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
@@ -99,10 +95,9 @@ describe("toastHelpers", () => {
 
       displayErrorToast(error);
 
-      expect(toast.error).toHaveBeenCalledWith(
-        "You must be logged in to add records",
-        { autoClose: 5000 },
-      );
+      expect(toast.error).toHaveBeenCalledWith("You must be logged in to add records", {
+        autoClose: 5000,
+      });
     });
 
     it("should display 403 error toast", () => {
@@ -128,10 +123,9 @@ describe("toastHelpers", () => {
 
       displayErrorToast(error);
 
-      expect(toast.error).toHaveBeenCalledWith(
-        "Error: [500] Server error, Internal error",
-        { autoClose: 5000 },
-      );
+      expect(toast.error).toHaveBeenCalledWith("Error: [500] Server error, Internal error", {
+        autoClose: 5000,
+      });
     });
   });
 

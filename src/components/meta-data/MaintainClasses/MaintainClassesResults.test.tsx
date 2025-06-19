@@ -6,8 +6,8 @@ import type { HeroClass } from "../../../dto/HeroClass";
 
 // Mock the utils functions
 vi.mock("../../../common/utils", () => ({
-  getLastUpdatedString: vi.fn((date) => `Mocked date for ${date}`),
-  getDateAndTimeString: vi.fn((date) => `Mocked time for ${date}`),
+  getLastUpdatedString: vi.fn(date => `Mocked date for ${date}`),
+  getDateAndTimeString: vi.fn(date => `Mocked time for ${date}`),
 }));
 
 describe("MaintainClassesResults", () => {
@@ -24,7 +24,7 @@ describe("MaintainClassesResults", () => {
         isLoading={true}
         heroClasses={[]}
         deleteHeroClass={mockDeleteHeroClass}
-      />,
+      />
     );
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
@@ -35,7 +35,7 @@ describe("MaintainClassesResults", () => {
         isLoading={false}
         heroClasses={mockHeroClasses}
         deleteHeroClass={mockDeleteHeroClass}
-      />,
+      />
     );
 
     // Check for table headers
@@ -56,7 +56,7 @@ describe("MaintainClassesResults", () => {
         isLoading={false}
         heroClasses={mockHeroClasses}
         deleteHeroClass={mockDeleteHeroClass}
-      />,
+      />
     );
 
     const deleteButtons = screen.getAllByRole("img", { hidden: true });
@@ -71,7 +71,7 @@ describe("MaintainClassesResults", () => {
         isLoading={false}
         heroClasses={mockHeroClasses}
         deleteHeroClass={mockDeleteHeroClass}
-      />,
+      />
     );
 
     expect(screen.getByText("Mocked date for 2024-03-01")).toBeInTheDocument();

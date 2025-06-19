@@ -5,9 +5,7 @@ interface MetaDataMenuProps {
   onSelectMetaData: (id: string) => void;
 }
 
-const MetaDataMenu: React.FC<MetaDataMenuProps> = ({
-  onSelectMetaData,
-}: MetaDataMenuProps) => {
+const MetaDataMenu: React.FC<MetaDataMenuProps> = ({ onSelectMetaData }: MetaDataMenuProps) => {
   const [menuSelection, setMenuSelection] = useState<string>("");
 
   const makeMenuSelection = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -22,27 +20,21 @@ const MetaDataMenu: React.FC<MetaDataMenuProps> = ({
         <div
           id="sets"
           onClick={makeMenuSelection}
-          className={`${
-            menuSelection === "sets" ? "meta-data-menu__selected" : ""
-          }`}
+          className={`${menuSelection === "sets" ? "meta-data-menu__selected" : ""}`}
         >
           Sets
         </div>
         <div
           id="classes"
           onClick={makeMenuSelection}
-          className={`${
-            menuSelection === "classes" ? "meta-data-menu__selected" : ""
-          }`}
+          className={`${menuSelection === "classes" ? "meta-data-menu__selected" : ""}`}
         >
           Hero Classes
         </div>
         <div
           id="tribes"
           onClick={makeMenuSelection}
-          className={`${
-            menuSelection === "tribes" ? "meta-data-menu__selected" : ""
-          }`}
+          className={`${menuSelection === "tribes" ? "meta-data-menu__selected" : ""}`}
         >
           Tribes
         </div>

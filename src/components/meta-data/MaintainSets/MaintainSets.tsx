@@ -30,8 +30,8 @@ export default function MaintainSets({
   const addToastRef = useRef<Id | null>(null);
   const deleteToastRef = useRef<Id | null>(null);
 
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
-    useFormik<FormValues>({
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit } = useFormik<FormValues>(
+    {
       initialValues: {
         name: "",
         is_standard: false,
@@ -39,7 +39,8 @@ export default function MaintainSets({
       },
       validationSchema: setSchema,
       onSubmit,
-    });
+    }
+  );
 
   useEffect(() => {
     fetchSets();
@@ -62,10 +63,7 @@ export default function MaintainSets({
     }
   }
 
-  async function addSet(
-    values: FormValues,
-    actions: FormikHelpers<FormValues>,
-  ) {
+  async function addSet(values: FormValues, actions: FormikHelpers<FormValues>) {
     addToastRef.current = toast("Adding record...");
 
     const { error } = await cardService.addSet({
@@ -116,9 +114,7 @@ export default function MaintainSets({
                     onBlur={handleBlur}
                     className={errors.name && touched.name ? "error" : ""}
                   />
-                  {errors.name && touched.name && (
-                    <div className="error-msg">{errors.name}</div>
-                  )}
+                  {errors.name && touched.name && <div className="error-msg">{errors.name}</div>}
                 </div>
               </div>
 
@@ -148,15 +144,10 @@ export default function MaintainSets({
                   value={values.release_date}
                   onChange={handleDateChange}
                   onBlur={handleBlur}
-                  className={
-                    errors.release_date && touched.release_date ? "error" : ""
-                  }
+                  className={errors.release_date && touched.release_date ? "error" : ""}
                 />
                 <div className="icon-container">
-                  <FontAwesomeIcon
-                    icon={faCalendar}
-                    className="date-picker-icon"
-                  />
+                  <FontAwesomeIcon icon={faCalendar} className="date-picker-icon" />
                 </div>
                 {errors.release_date && touched.release_date && (
                   <div className="error-msg">{errors.release_date}</div>
@@ -169,11 +160,7 @@ export default function MaintainSets({
         </form>
       </div>
 
-      <MaintainSetsResults
-        isLoading={isLoading}
-        sets={sets}
-        deleteSet={deleteSet}
-      />
+      <MaintainSetsResults isLoading={isLoading} sets={sets} deleteSet={deleteSet} />
     </div>
   );
 }

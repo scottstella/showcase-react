@@ -36,7 +36,7 @@ vi.mock("../../../common/toastHelpers", () => ({
 // Mock the schema
 vi.mock("../../../schemas/index.js", () => ({
   heroClassSchema: {
-    validateSync: vi.fn((values) => {
+    validateSync: vi.fn(values => {
       if (!values.name) {
         const error = new Error("Required") as ValidationError;
         error.name = "ValidationError";
@@ -45,7 +45,7 @@ vi.mock("../../../schemas/index.js", () => ({
       }
       return values;
     }),
-    validate: vi.fn(async (values) => {
+    validate: vi.fn(async values => {
       if (!values.name) {
         const error = new Error("Required") as ValidationError;
         error.name = "ValidationError";
@@ -54,9 +54,9 @@ vi.mock("../../../schemas/index.js", () => ({
       }
       return values;
     }),
-    isValid: vi.fn((values) => Promise.resolve(values?.name ? true : false)),
-    isValidSync: vi.fn((values) => (values?.name ? true : false)),
-    cast: vi.fn((values) => values),
+    isValid: vi.fn(values => Promise.resolve(values?.name ? true : false)),
+    isValidSync: vi.fn(values => (values?.name ? true : false)),
+    cast: vi.fn(values => values),
     _nodes: ["name"],
     fields: { name: { type: "string", tests: [] } },
     spec: {
@@ -95,9 +95,7 @@ describe("MaintainClasses", () => {
   });
 
   it("renders without crashing", async () => {
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
@@ -107,16 +105,14 @@ describe("MaintainClasses", () => {
   it("shows loading state initially and then removes it", async () => {
     mockService.fetchHeroClasses.mockImplementationOnce(
       () =>
-        new Promise((resolve) => {
+        new Promise(resolve => {
           setTimeout(() => {
             resolve({ data: mockHeroClasses, error: null });
           }, 100);
-        }),
+        })
     );
 
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     // Initial loading state
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -128,14 +124,12 @@ describe("MaintainClasses", () => {
         const rows = screen.getAllByRole("row");
         expect(rows.length).toBeGreaterThan(1); // Header row + at least one data row
       },
-      { timeout: 2000 },
+      { timeout: 2000 }
     );
   });
 
   it("fetches and displays hero classes on mount", async () => {
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     await waitFor(() => {
       const rows = screen.getAllByRole("row");
@@ -152,9 +146,7 @@ describe("MaintainClasses", () => {
       error,
     });
 
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     await waitFor(() => {
       expect(mockService.fetchHeroClasses).toHaveBeenCalled();
@@ -168,9 +160,7 @@ describe("MaintainClasses", () => {
       error: null,
     });
 
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
@@ -199,9 +189,7 @@ describe("MaintainClasses", () => {
       error,
     });
 
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
@@ -220,11 +208,7 @@ describe("MaintainClasses", () => {
         created_at: expect.any(String),
       });
       expect(toast).toHaveBeenCalledWith("Adding record...");
-      expect(updateToast).toHaveBeenCalledWith(
-        { current: "toast-id" },
-        error,
-        true,
-      );
+      expect(updateToast).toHaveBeenCalledWith({ current: "toast-id" }, error, true);
       expect(input).toHaveValue(inputValue);
       expect(input).not.toBeDisabled();
       expect(form).not.toBeDisabled();
@@ -250,9 +234,7 @@ describe("MaintainClasses", () => {
       error: null,
     });
 
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     // Wait for initial data to load
     await waitFor(() => {
@@ -288,9 +270,7 @@ describe("MaintainClasses", () => {
       error,
     });
 
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     // Wait for initial data to load and find delete button
     await waitFor(() => {
@@ -308,11 +288,7 @@ describe("MaintainClasses", () => {
     await waitFor(() => {
       expect(mockService.deleteHeroClass).toHaveBeenCalledWith(1);
       expect(toast).toHaveBeenCalledWith("Deleting record...");
-      expect(updateToast).toHaveBeenCalledWith(
-        { current: "toast-id" },
-        error,
-        true,
-      );
+      expect(updateToast).toHaveBeenCalledWith({ current: "toast-id" }, error, true);
       // Verify the row is still in the table
       expect(screen.getByText("Mage")).toBeInTheDocument();
       const deleteButton = deleteButtons[0];
@@ -322,9 +298,7 @@ describe("MaintainClasses", () => {
   });
 
   it("validates form input", async () => {
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     await waitFor(() => {
       expect(screen.getByRole("form")).toBeInTheDocument();
@@ -346,9 +320,7 @@ describe("MaintainClasses", () => {
       error: null,
     });
 
-    render(
-      <MaintainClasses cardService={mockService as unknown as CardService} />,
-    );
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();

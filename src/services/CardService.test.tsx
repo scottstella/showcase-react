@@ -60,9 +60,9 @@ describe("CardService", () => {
 
       const result = await cardService.fetchHeroClasses();
 
-      expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from,
-      ).toHaveBeenCalledWith("hero_class");
+      expect((mockSupabase as unknown as { from: jest.Mock }).from).toHaveBeenCalledWith(
+        "hero_class"
+      );
       expect(mockSelect).toHaveBeenCalled();
       expect(mockOrder).toHaveBeenCalledWith("name");
       expect(result).toEqual(expectedResponse);
@@ -76,9 +76,9 @@ describe("CardService", () => {
 
       const result = await cardService.deleteHeroClass(1);
 
-      expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from,
-      ).toHaveBeenCalledWith("hero_class");
+      expect((mockSupabase as unknown as { from: jest.Mock }).from).toHaveBeenCalledWith(
+        "hero_class"
+      );
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
@@ -97,9 +97,9 @@ describe("CardService", () => {
 
       const result = await cardService.addHeroClass(heroClass);
 
-      expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from,
-      ).toHaveBeenCalledWith("hero_class");
+      expect((mockSupabase as unknown as { from: jest.Mock }).from).toHaveBeenCalledWith(
+        "hero_class"
+      );
       expect(mockInsert).toHaveBeenCalledWith([{ name: heroClass.name }]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
@@ -113,9 +113,7 @@ describe("CardService", () => {
 
       const result = await cardService.fetchTribes();
 
-      expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from,
-      ).toHaveBeenCalledWith("tribe");
+      expect((mockSupabase as unknown as { from: jest.Mock }).from).toHaveBeenCalledWith("tribe");
       expect(mockSelect).toHaveBeenCalled();
       expect(mockOrder).toHaveBeenCalledWith("name");
       expect(result).toEqual(expectedResponse);
@@ -129,9 +127,7 @@ describe("CardService", () => {
 
       const result = await cardService.deleteTribe(1);
 
-      expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from,
-      ).toHaveBeenCalledWith("tribe");
+      expect((mockSupabase as unknown as { from: jest.Mock }).from).toHaveBeenCalledWith("tribe");
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
@@ -150,9 +146,7 @@ describe("CardService", () => {
 
       const result = await cardService.addTribe(tribe);
 
-      expect(
-        (mockSupabase as unknown as { from: jest.Mock }).from,
-      ).toHaveBeenCalledWith("tribe");
+      expect((mockSupabase as unknown as { from: jest.Mock }).from).toHaveBeenCalledWith("tribe");
       expect(mockInsert).toHaveBeenCalledWith([{ name: tribe.name }]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
@@ -165,18 +159,14 @@ describe("CardService", () => {
       const error = new Error("Database error");
       mockOrder.mockRejectedValue(error);
 
-      await expect(cardService.fetchHeroClasses()).rejects.toThrow(
-        "Database error",
-      );
+      await expect(cardService.fetchHeroClasses()).rejects.toThrow("Database error");
     });
 
     it("should handle deleteHeroClass error", async () => {
       const error = new Error("Delete failed");
       mockEq.mockRejectedValue(error);
 
-      await expect(cardService.deleteHeroClass(1)).rejects.toThrow(
-        "Delete failed",
-      );
+      await expect(cardService.deleteHeroClass(1)).rejects.toThrow("Delete failed");
     });
 
     it("should handle addHeroClass error", async () => {
@@ -189,9 +179,7 @@ describe("CardService", () => {
         created_at: "2024-03-02",
       };
 
-      await expect(cardService.addHeroClass(heroClass)).rejects.toThrow(
-        "Insert failed",
-      );
+      await expect(cardService.addHeroClass(heroClass)).rejects.toThrow("Insert failed");
     });
   });
 });

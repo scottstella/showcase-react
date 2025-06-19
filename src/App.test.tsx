@@ -5,50 +5,32 @@ import App from "./App";
 
 // Mock child components
 vi.mock("./components/Nav/Nav", () => ({
-  default: () =>
-    React.createElement("div", { "data-testid": "nav" }, "Nav Component"),
+  default: () => React.createElement("div", { "data-testid": "nav" }, "Nav Component"),
 }));
 
 vi.mock("./components/Welcome/Welcome", () => ({
-  default: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "welcome" },
-      "Welcome Component",
-    ),
+  default: () => React.createElement("div", { "data-testid": "welcome" }, "Welcome Component"),
 }));
 
 vi.mock("./components/Aside/Aside", () => ({
-  default: () =>
-    React.createElement("div", { "data-testid": "aside" }, "Aside Component"),
+  default: () => React.createElement("div", { "data-testid": "aside" }, "Aside Component"),
 }));
 
 vi.mock("./components/Footer/Footer", () => ({
-  default: () =>
-    React.createElement("div", { "data-testid": "footer" }, "Footer Component"),
+  default: () => React.createElement("div", { "data-testid": "footer" }, "Footer Component"),
 }));
 
 vi.mock("./components/Header/Header", () => ({
-  default: () =>
-    React.createElement("div", { "data-testid": "header" }, "Header Component"),
+  default: () => React.createElement("div", { "data-testid": "header" }, "Header Component"),
 }));
 
 vi.mock("./components/meta-data/MetaData", () => ({
-  default: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "meta-data" },
-      "MetaData Component",
-    ),
+  default: () => React.createElement("div", { "data-testid": "meta-data" }, "MetaData Component"),
 }));
 
 vi.mock("react-toastify", () => ({
   ToastContainer: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "toast-container" },
-      "Toast Container",
-    ),
+    React.createElement("div", { "data-testid": "toast-container" }, "Toast Container"),
 }));
 
 describe("App", () => {

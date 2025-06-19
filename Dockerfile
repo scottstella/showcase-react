@@ -6,11 +6,11 @@ WORKDIR /showcase-react/
 
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
-COPY vite.config.js ./
+COPY vite.config.ts ./
 COPY index.html ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with legacy peer deps to handle conflicts
+RUN npm install --legacy-peer-deps
 
 # Copy the rest of the application
 COPY . .

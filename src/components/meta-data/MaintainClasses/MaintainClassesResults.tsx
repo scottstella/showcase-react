@@ -12,9 +12,7 @@ interface MaintainClassesResultsProps {
   deleteHeroClass: (event: React.MouseEvent<SVGSVGElement>) => void;
 }
 
-const MaintainClassesResults: React.FC<MaintainClassesResultsProps> = (
-  props,
-) => {
+const MaintainClassesResults: React.FC<MaintainClassesResultsProps> = props => {
   return (
     <table>
       <caption>
@@ -29,7 +27,7 @@ const MaintainClassesResults: React.FC<MaintainClassesResultsProps> = (
         </tr>
       </thead>
       <tbody>
-        {props.heroClasses.map((heroClass) => (
+        {props.heroClasses.map(heroClass => (
           <tr key={heroClass.id}>
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon

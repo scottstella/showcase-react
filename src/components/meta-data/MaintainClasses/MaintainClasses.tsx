@@ -21,14 +21,13 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
   const addToastRef = useRef<Id | null>(null);
   const deleteToastRef = useRef<Id | null>(null);
 
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
-    useFormik({
-      initialValues: {
-        name: "",
-      },
-      validationSchema: heroClassSchema,
-      onSubmit,
-    });
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit } = useFormik({
+    initialValues: {
+      name: "",
+    },
+    validationSchema: heroClassSchema,
+    onSubmit,
+  });
 
   useEffect(() => {
     fetchHeroClasses();
@@ -52,10 +51,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
     }
   }
 
-  async function addHeroClass(
-    values: FormValues,
-    actions: FormikHelpers<FormValues>,
-  ) {
+  async function addHeroClass(values: FormValues, actions: FormikHelpers<FormValues>) {
     addToastRef.current = toast("Adding record...");
 
     const { error } = await cardService.addHeroClass({
@@ -74,9 +70,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
 
   async function deleteHeroClass(e: React.MouseEvent<SVGSVGElement>) {
     deleteToastRef.current = toast("Deleting record...");
-    const { error } = await cardService.deleteHeroClass(
-      Number(e.currentTarget.id),
-    );
+    const { error } = await cardService.deleteHeroClass(Number(e.currentTarget.id));
     updateToast(deleteToastRef, error, true);
 
     if (error == null) {
@@ -99,9 +93,7 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
               onBlur={handleBlur}
               className={errors.name && touched.name ? "error" : ""}
             />
-            {errors.name && touched.name && (
-              <div className="error-msg">{errors.name}</div>
-            )}
+            {errors.name && touched.name && <div className="error-msg">{errors.name}</div>}
           </div>
           <input type="submit" value="Submit" />
         </form>

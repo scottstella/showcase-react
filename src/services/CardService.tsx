@@ -15,10 +15,7 @@ export class CardService {
   }
 
   async deleteHeroClass(id: number) {
-    const response = await this.supabase
-      .from("hero_class")
-      .delete()
-      .eq("id", id);
+    const response = await this.supabase.from("hero_class").delete().eq("id", id);
 
     // If no error but no rows affected, it means RLS blocked the operation
     if (!response.error && response.data?.length === 0) {
@@ -91,10 +88,7 @@ export class CardService {
 
   async addSet(set: Set) {
     const { name, is_standard, release_date } = set;
-    return await this.supabase
-      .from("set")
-      .insert([{ name, is_standard, release_date }])
-      .single();
+    return await this.supabase.from("set").insert([{ name, is_standard, release_date }]).single();
   }
 }
 

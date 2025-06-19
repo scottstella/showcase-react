@@ -9,7 +9,7 @@ const renderWithRouter = () => {
   return render(
     <BrowserRouter>
       <Nav />
-    </BrowserRouter>,
+    </BrowserRouter>
   );
 };
 
@@ -30,9 +30,7 @@ describe("Nav", () => {
       renderWithRouter();
       const adminLinks = screen.getByText("Manage Meta-Data").parentElement;
       expect(adminLinks).toHaveClass("nav-group-collapsed");
-      expect(screen.getByText("Admin").previousElementSibling).toHaveClass(
-        "fa-angle-right",
-      );
+      expect(screen.getByText("Admin").previousElementSibling).toHaveClass("fa-angle-right");
     });
 
     it("expands when clicked", () => {
@@ -40,9 +38,7 @@ describe("Nav", () => {
       fireEvent.click(screen.getByText("Admin"));
       const adminLinks = screen.getByText("Manage Meta-Data").parentElement;
       expect(adminLinks).toHaveClass("nav-group-expanded");
-      expect(screen.getByText("Admin").previousElementSibling).toHaveClass(
-        "fa-angle-down",
-      );
+      expect(screen.getByText("Admin").previousElementSibling).toHaveClass("fa-angle-down");
     });
 
     it("shows correct links when expanded", () => {
@@ -61,9 +57,7 @@ describe("Nav", () => {
       renderWithRouter();
       const decksLinks = screen.getByText("Link 1").parentElement;
       expect(decksLinks).toHaveClass("nav-group-collapsed");
-      expect(screen.getByText("Decks").previousElementSibling).toHaveClass(
-        "fa-angle-right",
-      );
+      expect(screen.getByText("Decks").previousElementSibling).toHaveClass("fa-angle-right");
     });
 
     it("expands when clicked", () => {
@@ -71,9 +65,7 @@ describe("Nav", () => {
       fireEvent.click(screen.getByText("Decks"));
       const decksLinks = screen.getByText("Link 1").parentElement;
       expect(decksLinks).toHaveClass("nav-group-expanded");
-      expect(screen.getByText("Decks").previousElementSibling).toHaveClass(
-        "fa-angle-down",
-      );
+      expect(screen.getByText("Decks").previousElementSibling).toHaveClass("fa-angle-down");
     });
 
     it("shows correct links when expanded", () => {
@@ -95,23 +87,15 @@ describe("Nav", () => {
     fireEvent.click(screen.getByText("Decks"));
 
     // Check both are expanded
-    expect(screen.getByText("Manage Meta-Data").parentElement).toHaveClass(
-      "nav-group-expanded",
-    );
-    expect(screen.getByText("Link 1").parentElement).toHaveClass(
-      "nav-group-expanded",
-    );
+    expect(screen.getByText("Manage Meta-Data").parentElement).toHaveClass("nav-group-expanded");
+    expect(screen.getByText("Link 1").parentElement).toHaveClass("nav-group-expanded");
 
     // Collapse Admin only
     fireEvent.click(screen.getByText("Admin"));
 
     // Check Admin is collapsed but Decks is still expanded
-    expect(screen.getByText("Manage Meta-Data").parentElement).toHaveClass(
-      "nav-group-collapsed",
-    );
-    expect(screen.getByText("Link 1").parentElement).toHaveClass(
-      "nav-group-expanded",
-    );
+    expect(screen.getByText("Manage Meta-Data").parentElement).toHaveClass("nav-group-collapsed");
+    expect(screen.getByText("Link 1").parentElement).toHaveClass("nav-group-expanded");
   });
 
   it("matches snapshot", () => {

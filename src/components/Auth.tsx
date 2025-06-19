@@ -18,11 +18,9 @@ const Auth: React.FC = () => {
     setLoading(false);
 
     // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-      },
-    );
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
 
     return () => {
       authListener?.unsubscribe();
@@ -39,8 +37,7 @@ const Auth: React.FC = () => {
       }
       // Don't set loading to false on success as we'll be redirected
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       toast.error(`Error signing in: ${errorMessage}`);
       setLoading(false);
     }
@@ -56,8 +53,7 @@ const Auth: React.FC = () => {
         toast.info("Signed out successfully");
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       toast.error(`Error signing out: ${errorMessage}`);
     } finally {
       setLoading(false);

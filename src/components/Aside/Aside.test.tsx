@@ -28,9 +28,7 @@ describe("Aside", () => {
 
     // Technologies used
     expect(
-      screen.getByText(
-        /React, Javascript, CSS, Supabase, Toastify, Font Awesome, Formik, Bruno/i,
-      ),
+      screen.getByText(/React, Javascript, CSS, Supabase, Toastify, Font Awesome, Formik, Bruno/i)
     ).toBeInTheDocument();
 
     // Developer name

@@ -36,12 +36,8 @@ describe("MetaDataMenu", () => {
     fireEvent.click(sets);
 
     expect(sets).toHaveClass("meta-data-menu__selected");
-    expect(screen.getByText("Hero Classes")).not.toHaveClass(
-      "meta-data-menu__selected",
-    );
-    expect(screen.getByText("Tribes")).not.toHaveClass(
-      "meta-data-menu__selected",
-    );
+    expect(screen.getByText("Hero Classes")).not.toHaveClass("meta-data-menu__selected");
+    expect(screen.getByText("Tribes")).not.toHaveClass("meta-data-menu__selected");
   });
 
   it("calls onSelectMetaData with correct id when menu item is clicked", () => {
@@ -66,18 +62,12 @@ describe("MetaDataMenu", () => {
 
     // Then click Hero Classes
     fireEvent.click(screen.getByText("Hero Classes"));
-    expect(screen.getByText("Sets")).not.toHaveClass(
-      "meta-data-menu__selected",
-    );
-    expect(screen.getByText("Hero Classes")).toHaveClass(
-      "meta-data-menu__selected",
-    );
+    expect(screen.getByText("Sets")).not.toHaveClass("meta-data-menu__selected");
+    expect(screen.getByText("Hero Classes")).toHaveClass("meta-data-menu__selected");
   });
 
   it("renders with correct styling", () => {
-    const { container } = render(
-      <MetaDataMenu onSelectMetaData={mockOnSelectMetaData} />,
-    );
+    const { container } = render(<MetaDataMenu onSelectMetaData={mockOnSelectMetaData} />);
 
     const menu = container.querySelector(".meta-data-menu");
     expect(menu).toBeInTheDocument();
@@ -88,9 +78,7 @@ describe("MetaDataMenu", () => {
   });
 
   it("matches snapshot", () => {
-    const { container } = render(
-      <MetaDataMenu onSelectMetaData={mockOnSelectMetaData} />,
-    );
+    const { container } = render(<MetaDataMenu onSelectMetaData={mockOnSelectMetaData} />);
     expect(container).toMatchSnapshot();
   });
 });

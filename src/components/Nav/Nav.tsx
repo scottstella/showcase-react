@@ -18,19 +18,11 @@ export default function Nav(): JSX.Element {
       <h2>Menu</h2>
       <div className="nav-collapsable">
         <i
-          className={`${
-            isAdminCollapsed
-              ? "fa-solid fa-angle-right"
-              : "fa-solid fa-angle-down"
-          }`}
+          className={`${isAdminCollapsed ? "fa-solid fa-angle-right" : "fa-solid fa-angle-down"}`}
         />
         <div onClick={clickAdmin}>Admin</div>
       </div>
-      <div
-        className={`${
-          isAdminCollapsed ? "nav-group-collapsed" : "nav-group-expanded"
-        }`}
-      >
+      <div className={`${isAdminCollapsed ? "nav-group-collapsed" : "nav-group-expanded"}`}>
         <NavLink to="/ManageMetaData" className="nav-link">
           Manage Meta-Data
         </NavLink>
@@ -41,19 +33,11 @@ export default function Nav(): JSX.Element {
       </div>
       <div className="nav-collapsable">
         <i
-          className={`${
-            isDecksCollapsed
-              ? "fa-solid fa-angle-right"
-              : "fa-solid fa-angle-down"
-          }`}
+          className={`${isDecksCollapsed ? "fa-solid fa-angle-right" : "fa-solid fa-angle-down"}`}
         />
         <div onClick={clickDecks}>Decks</div>
       </div>
-      <div
-        className={`${
-          isDecksCollapsed ? "nav-group-collapsed" : "nav-group-expanded"
-        }`}
-      >
+      <div className={`${isDecksCollapsed ? "nav-group-collapsed" : "nav-group-expanded"}`}>
         <NavLink to="/ManageMetaData" className="nav-link">
           Link 1
         </NavLink>

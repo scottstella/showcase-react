@@ -10,11 +10,5 @@ export default function Refreshed(props: RefreshedProps): JSX.Element {
     return getDateAndTimeString(new Date());
   };
 
-  return (
-    <div>
-      {props.loading
-        ? "Loading..."
-        : "Data refreshed on " + getCurrentDateTime()}
-    </div>
-  );
+  return <div>{props.loading ? "Loading..." : "Data refreshed on " + getCurrentDateTime()}</div>;
 }
