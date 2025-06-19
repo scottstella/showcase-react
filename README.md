@@ -78,7 +78,9 @@ npm run start
 npm run dev
 ```
 
-Both commands start the development server with hot module replacement (HMR). The only difference is that `npm start` makes the server accessible from other devices on your network, while `npm run dev` is for local development only.
+Both commands start the development server with hot module replacement (HMR).
+The only difference is that `npm start` makes the server accessible from other
+devices on your network, while `npm run dev` is for local development only.
 
 ### Development Features
 
@@ -95,66 +97,232 @@ Both commands start the development server with hot module replacement (HMR). Th
 - Docker installed on your system
 - Node.js 18 or higher (for local development)
 
+### Quick Start
+
+```bash
+# Build and run the development container
+docker build -t showcase-react-image:latest .
+docker run -dp 8000:3000 --name showcase-react-container showcase-react-image:latest
+
+# Access your application at: http://localhost:8000
+```
+
 ### Development with Docker
 
 ```bash
 # Build the development image
-docker image build -t showcase-react-image:latest .
+docker build -t showcase-react-image:latest .
 
-# Run the container
-docker run -dp 8000:5173 --name showcase-react-container showcase-react-image:latest
+# Run the container (maps host port 8000 to container port 3000)
+docker run -dp 8000:3000 --name showcase-react-container showcase-react-image:latest
+
+# Access the application
+# Local: http://localhost:8000
+# Network: http://your-ip:8000
 ```
 
-### Production with Docker
+### Container Management
+
+#### Start/Stop Containers
 
 ```bash
-# Build the production image
-docker image build -t showcase-react-prod:latest --target production .
+# Start a stopped container
+docker start showcase-react-container
 
-# Run the production container
-docker run -dp 8000:80 --name showcase-react-prod showcase-react-prod:latest
-```
-
-### Docker Commands Reference
-
-```bash
-# Build images
-docker image build -t showcase-react-image:latest .           # Development
-docker image build -t showcase-react-prod:latest --target production .  # Production
-
-# Run containers
-docker run -dp 8000:5173 --name showcase-react-container showcase-react-image:latest  # Development
-docker run -dp 8000:80 --name showcase-react-prod showcase-react-prod:latest         # Production
-
-# Stop containers
+# Stop a running container
 docker stop showcase-react-container
-docker stop showcase-react-prod
 
-# Remove containers
-docker rm showcase-react-container
-docker rm showcase-react-prod
+# Restart a container
+docker restart showcase-react-container
+```
 
-# View logs
+#### View Container Status
+
+```bash
+# List running containers
+docker ps
+
+# List all containers (including stopped)
+docker ps -a
+
+# View container logs
 docker logs showcase-react-container
-docker logs showcase-react-prod
+
+# Follow logs in real-time
+docker logs -f showcase-react-container
+```
+
+#### Remove Containers
+
+```bash
+# Stop and remove a container
+docker stop showcase-react-container && docker rm showcase-react-container
+
+# Force remove a running container
+docker rm -f showcase-react-container
+```
+
+### Image Management
+
+```bash
+# List all images
+docker images
+
+# Remove an image
+docker rmi showcase-react-image:latest
+
+# Remove all unused images
+docker image prune -a
+```
+
+### Port Configuration
+
+The application runs on different ports depending on the environment:
+
+| Environment | Container Port | Host Port | Access URL            |
+| ----------- | -------------- | --------- | --------------------- |
+| Development | 3000           | 8000      | http://localhost:8000 |
+| Production  | 80             | 8000      | http://localhost:8000 |
+
+### Environment Variables
+
+To use environment variables in Docker:
+
+1. **Create a `.env` file** (for Docker):
+
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+2. **Run with environment file**:
+
+```bash
+docker run -dp 8000:3000 --env-file .env --name showcase-react-container showcase-react-image:latest
 ```
 
 ### Troubleshooting
 
-1. **Port Conflicts**:
+#### Common Issues
 
-   - Change the port mapping in the docker run command (e.g., `-dp 3000:5173`)
-   - Check if any other services are using the port
+1. **Port Already in Use**
 
-2. **Container Issues**:
+   ```bash
+   # Check what's using the port
+   lsof -i :8000
 
-   - Check container logs: `docker logs showcase-react-container`
-   - Restart container: `docker restart showcase-react-container`
-   - Rebuild image: `docker image build -t showcase-react-image:latest .`
+   # Use a different port
+   docker run -dp 3000:3000 --name showcase-react-container showcase-react-image:latest
+   ```
 
-3. **Development vs Production**:
-   - Development includes source maps and hot reloading
-   - Production is optimized for performance and smaller bundle size
+2. **Container Won't Start**
+
+   ```bash
+   # Check container logs
+   docker logs showcase-react-container
+
+   # Check if container exists
+   docker ps -a | grep showcase-react-container
+   ```
+
+3. **Application Not Accessible**
+
+   ```bash
+   # Verify container is running
+   docker ps
+
+   # Check port mapping
+   docker port showcase-react-container
+
+   # Test connectivity
+   curl -I http://localhost:8000
+   ```
+
+4. **Build Errors**
+
+   ```bash
+   # Clean build (no cache)
+   docker build --no-cache -t showcase-react-image:latest .
+
+   # Check for dependency issues
+   docker build -t showcase-react-image:latest . 2>&1 | grep -i error
+   ```
+
+#### Dependency Issues
+
+If you encounter npm dependency conflicts during build:
+
+```bash
+# The Dockerfile already uses --legacy-peer-deps
+# If you need to update dependencies locally:
+npm install --legacy-peer-deps
+```
+
+#### Browser Opening Errors
+
+The Vite configuration is set to prevent automatic browser opening in Docker:
+
+- `open: false` - Prevents `xdg-open ENOENT` errors
+- `host: true` - Allows external access
+
+#### Performance Tips
+
+1. **Use Docker volumes for development**:
+
+   ```bash
+   docker run -dp 8000:3000 -v $(pwd):/showcase-react --name showcase-react-container showcase-react-image:latest
+   ```
+
+2. **Multi-stage builds for production**:
+   ```dockerfile
+   # Add to Dockerfile for production builds
+   FROM node:18-alpine as production
+   WORKDIR /app
+   COPY --from=build /showcase-react/build ./build
+   EXPOSE 80
+   CMD ["npm", "run", "serve"]
+   ```
+
+### Production Deployment
+
+For production deployment, consider:
+
+1. **Multi-stage builds** to reduce image size
+2. **Environment-specific configurations**
+3. **Health checks** for container monitoring
+4. **Resource limits** for container constraints
+
+```bash
+# Example production build
+docker build --target production -t showcase-react-prod:latest .
+docker run -dp 80:80 --name showcase-react-prod showcase-react-prod:latest
+```
+
+### Docker Compose (Optional)
+
+For more complex setups, create a `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+services:
+  showcase-react:
+    build: .
+    ports:
+      - "8000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/showcase-react
+      - /showcase-react/node_modules
+    restart: unless-stopped
+```
+
+Then use:
+
+```bash
+docker-compose up -d
+docker-compose down
+```
 
 ## Environment Setup
 
@@ -175,15 +343,19 @@ VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-You can find these values in your Supabase project settings under Project Settings > API.
+You can find these values in your Supabase project settings under Project
+Settings > API.
 
 ## Supabase Launch Agent
 
-This project uses a macOS launch agent to keep the Supabase connection alive by periodically pinging the API. This prevents the connection from going idle and ensures consistent performance.
+This project uses a macOS launch agent to keep the Supabase connection alive by
+periodically pinging the API. This prevents the connection from going idle and
+ensures consistent performance.
 
 ### Overview
 
-The launch agent runs a script (`supabase-ping.sh`) that sends periodic HTTP requests to your Supabase instance. This is particularly useful for:
+The launch agent runs a script (`supabase-ping.sh`) that sends periodic HTTP
+requests to your Supabase instance. This is particularly useful for:
 
 - Preventing connection timeouts
 - Keeping the database connection warm
@@ -265,7 +437,8 @@ To change how often the script pings Supabase:
 
 ### How It Works
 
-1. **System Integration**: The launch agent is registered with macOS's `launchd` system
+1. **System Integration**: The launch agent is registered with macOS's `launchd`
+   system
 2. **Automatic Startup**: Runs automatically when you log in
 3. **Keep Alive**: Continuously runs and restarts if it stops
 4. **API Ping**: Sends a simple GET request to `hero_class` table
@@ -301,7 +474,8 @@ tail -f ~/ping.log
    chmod +x ~/supabase-ping.sh
    ```
 
-2. **Invalid API Key**: Check that the `SUPABASE_ANON_KEY` in the script matches your environment
+2. **Invalid API Key**: Check that the `SUPABASE_ANON_KEY` in the script matches
+   your environment
 
 3. **Network Issues**: Verify your internet connection and Supabase URL
 
@@ -339,7 +513,8 @@ npm run test:coverage
 
 ## Path Aliases
 
-The project uses path aliases to make imports cleaner and more maintainable. The following aliases are available:
+The project uses path aliases to make imports cleaner and more maintainable. The
+following aliases are available:
 
 ```typescript
 // Instead of
@@ -360,7 +535,8 @@ Available aliases:
 
 ## Git Hooks
 
-This project uses Husky Git hooks to ensure code quality. The hooks are configured in the `.husky` directory:
+This project uses Husky Git hooks to ensure code quality. The hooks are
+configured in the `.husky` directory:
 
 ### Pre-commit Hook
 
@@ -399,7 +575,8 @@ git push --no-verify
 
 ### Lint-staged Configuration
 
-The project uses `lint-staged` to efficiently process only staged files. Configuration is in `package.json`:
+The project uses `lint-staged` to efficiently process only staged files.
+Configuration is in `package.json`:
 
 ```json
 {
@@ -418,7 +595,8 @@ This configuration:
 
 ## VS Code Configuration
 
-This project includes VS Code settings for consistent code formatting and linting. To take advantage of these features:
+This project includes VS Code settings for consistent code formatting and
+linting. To take advantage of these features:
 
 1. Install the following VS Code extensions:
 
@@ -447,11 +625,14 @@ This project includes VS Code settings for consistent code formatting and lintin
    - Trailing commas in objects and arrays
    - Consistent bracket spacing
 
-These settings will be automatically applied when you open the project in VS Code.
+These settings will be automatically applied when you open the project in VS
+Code.
 
 ## API Collections
 
-This project includes a set of Bruno API collections for interacting with the Supabase backend. The collections are located in the `api_collection` directory and include endpoints for managing:
+This project includes a set of Bruno API collections for interacting with the
+Supabase backend. The collections are located in the `api_collection` directory
+and include endpoints for managing:
 
 - Sets (card sets)
 - Hero Classes
@@ -459,7 +640,8 @@ This project includes a set of Bruno API collections for interacting with the Su
 
 ### Authentication Setup
 
-The API collections use Supabase's Row Level Security (RLS) and require proper authentication. To use these collections:
+The API collections use Supabase's Row Level Security (RLS) and require proper
+authentication. To use these collections:
 
 1. Configure your environment file (`api_collection/environments/supabase.bru`):
 
@@ -482,7 +664,8 @@ The API collections use Supabase's Row Level Security (RLS) and require proper a
      ```
    - Copy the output and update the `access_token` in your environment file
 
-Note: The JWT token expires periodically. If your requests start returning 401 unauthorized errors, you'll need to:
+Note: The JWT token expires periodically. If your requests start returning 401
+unauthorized errors, you'll need to:
 
 1. Log in to the application again
 2. Get a new token using the console command above
