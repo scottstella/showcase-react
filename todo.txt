@@ -5,3 +5,5 @@ Implement edit record
 
 Google analytics
 Playwright tests
+
+Upgrade Supabase, React Router, React Toastify (major upgrades, breaking changes)
