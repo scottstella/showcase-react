@@ -10,6 +10,7 @@ exports[`Header > matches snapshot 1`] = `
     <a
       aria-current="page"
       class="active"
+      data-discover="true"
       href="/"
     >
       <img
