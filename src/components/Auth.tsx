@@ -13,19 +13,25 @@ const Auth = () => {
 
   React.useEffect(() => {
     // Get initial user
-    const user = supabase.auth.user();
-    setUser(user);
-    setLoading(false);
+    const getInitialUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    };
+
+    getInitialUser();
 
     // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
     });
 
     return () => {
-      if (authListener && authListener.unsubscribe) {
-        authListener.unsubscribe();
-      }
+      subscription.unsubscribe();
     };
   }, []);
 

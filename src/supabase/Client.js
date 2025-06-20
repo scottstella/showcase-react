@@ -25,19 +25,19 @@ validateEnvironmentVariables();
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Helper functions for auth
 export const signIn = async () => {
-  return await supabase.auth.signIn(
-    {
-      provider: "github",
-    },
-    {
+  return await supabase.auth.signInWithOAuth({
+    provider: "github",
+    options: {
       redirectTo: `${window.location.origin}/`,
-    }
-  );
+    },
+  });
 };
 export const signOut = async () => {
   return await supabase.auth.signOut();
 };
 export const getCurrentUser = async () => {
-  const user = supabase.auth.user();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return user;
 };

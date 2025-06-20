@@ -5,24 +5,35 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import "./Auth.css";
+
 const Auth = () => {
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+
   React.useEffect(() => {
     // Get initial user
-    const user = supabase.auth.user();
-    setUser(user);
-    setLoading(false);
+    const getInitialUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    };
+
+    getInitialUser();
+
     // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
     });
+
     return () => {
-      if (authListener && authListener.unsubscribe) {
-        authListener.unsubscribe();
-      }
+      subscription.unsubscribe();
     };
   }, []);
+
   const handleSignIn = async () => {
     try {
       setLoading(true);
@@ -38,6 +49,7 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
   const handleSignOut = async () => {
     try {
       setLoading(true);
@@ -54,6 +66,7 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
   if (loading) {
     return React.createElement(
       "div",
@@ -65,6 +78,7 @@ const Auth = () => {
       })
     );
   }
+
   return React.createElement(
     "div",
     { className: "auth-container" },
@@ -95,4 +109,5 @@ const Auth = () => {
         )
   );
 };
+
 export default Auth;
