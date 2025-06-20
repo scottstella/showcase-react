@@ -13,7 +13,7 @@ interface MaintainTribesResultsProps {
   deleteTribe: (event: React.MouseEvent<SVGSVGElement>) => void;
 }
 
-const MaintainTribesResults: React.FC<MaintainTribesResultsProps> = props => {
+const MaintainTribesResults = (props: MaintainTribesResultsProps) => {
   return (
     <table>
       <caption>

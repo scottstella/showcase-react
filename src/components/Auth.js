@@ -4,31 +4,25 @@ import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
-import { User } from "@supabase/supabase-js";
 import "./Auth.css";
-
 const Auth = () => {
-  const [user, setUser] = React.useState<User | null>(null);
+  const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
-
   React.useEffect(() => {
     // Get initial user
     const user = supabase.auth.user();
     setUser(user);
     setLoading(false);
-
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
     });
-
     return () => {
       if (authListener && authListener.unsubscribe) {
         authListener.unsubscribe();
       }
     };
   }, []);
-
   const handleSignIn = async () => {
     try {
       setLoading(true);
@@ -44,7 +38,6 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
   const handleSignOut = async () => {
     try {
       setLoading(true);
@@ -61,37 +54,45 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
   if (loading) {
-    return (
-      <div className="auth-container">
-        <FontAwesomeIcon icon={faSpinner} spin className="auth-spinner" />
-      </div>
+    return React.createElement(
+      "div",
+      { className: "auth-container" },
+      React.createElement(FontAwesomeIcon, {
+        icon: faSpinner,
+        spin: true,
+        className: "auth-spinner",
+      })
     );
   }
-
-  return (
-    <div className="auth-container">
-      {user ? (
-        <>
-          <span>{user.user_metadata?.user_name || user.email || "User"}</span>
-          <button onClick={handleSignOut} disabled={loading}>
-            {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : "Sign Out"}
-          </button>
-        </>
-      ) : (
-        <button onClick={handleSignIn} disabled={loading}>
-          {loading ? (
-            <FontAwesomeIcon icon={faSpinner} spin />
-          ) : (
-            <>
-              Sign in with GitHub <FontAwesomeIcon icon={faGithub} />
-            </>
-          )}
-        </button>
-      )}
-    </div>
+  return React.createElement(
+    "div",
+    { className: "auth-container" },
+    user
+      ? React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("span", null, user.user_metadata?.user_name || user.email || "User"),
+          React.createElement(
+            "button",
+            { onClick: handleSignOut, disabled: loading },
+            loading
+              ? React.createElement(FontAwesomeIcon, { icon: faSpinner, spin: true })
+              : "Sign Out"
+          )
+        )
+      : React.createElement(
+          "button",
+          { onClick: handleSignIn, disabled: loading },
+          loading
+            ? React.createElement(FontAwesomeIcon, { icon: faSpinner, spin: true })
+            : React.createElement(
+                React.Fragment,
+                null,
+                "Sign in with GitHub ",
+                React.createElement(FontAwesomeIcon, { icon: faGithub })
+              )
+        )
   );
 };
-
 export default Auth;

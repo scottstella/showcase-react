@@ -12,7 +12,7 @@ interface MaintainClassesResultsProps {
   deleteHeroClass: (event: React.MouseEvent<SVGSVGElement>) => void;
 }
 
-const MaintainClassesResults: React.FC<MaintainClassesResultsProps> = props => {
+const MaintainClassesResults = (props: MaintainClassesResultsProps) => {
   return (
     <table>
       <caption>

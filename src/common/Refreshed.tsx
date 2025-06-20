@@ -5,7 +5,7 @@ interface RefreshedProps {
   loading: boolean;
 }
 
-export default function Refreshed(props: RefreshedProps): JSX.Element {
+export default function Refreshed(props: RefreshedProps) {
   const getCurrentDateTime = (): string => {
     return getDateAndTimeString(new Date());
   };

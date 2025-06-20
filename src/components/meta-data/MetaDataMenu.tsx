@@ -5,7 +5,7 @@ interface MetaDataMenuProps {
   onSelectMetaData: (id: string) => void;
 }
 
-const MetaDataMenu: React.FC<MetaDataMenuProps> = ({ onSelectMetaData }: MetaDataMenuProps) => {
+const MetaDataMenu = ({ onSelectMetaData }: MetaDataMenuProps) => {
   const [menuSelection, setMenuSelection] = useState<string>("");
 
   const makeMenuSelection = (e: React.MouseEvent<HTMLDivElement>) => {

@@ -16,7 +16,7 @@ const renderWithRouter = () => {
 describe("Nav", () => {
   it("renders without crashing", () => {
     renderWithRouter();
-    expect(screen.getByText("Menu")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Menu");
   });
 
   it("renders all navigation sections", () => {

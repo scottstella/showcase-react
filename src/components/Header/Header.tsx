@@ -5,7 +5,7 @@ import Auth from "../Auth";
 import "./Header.css";
 import "../Auth.css";
 
-const Header: React.FC = () => {
+const Header = () => {
   return (
     <div className="header">
       <div className="header-left">

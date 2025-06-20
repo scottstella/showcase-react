@@ -13,7 +13,7 @@ interface MaintainSetsResultsProps {
   deleteSet: (event: React.MouseEvent<SVGSVGElement>) => void;
 }
 
-const MaintainSetsResults: React.FC<MaintainSetsResultsProps> = props => {
+const MaintainSetsResults = (props: MaintainSetsResultsProps) => {
   return (
     <table>
       <caption>
