@@ -4,7 +4,7 @@ import MaintainSets from "./MaintainSets/MaintainSets";
 import MaintainTribes from "./MaintainTribes/MaintainTribes";
 import MetaDataMenu from "./MetaDataMenu";
 
-const MetaData: React.FC = () => {
+const MetaData = () => {
   const [selection, setSelection] = useState<string>("");
 
   const metaDataSelection = (selection: string) => {
