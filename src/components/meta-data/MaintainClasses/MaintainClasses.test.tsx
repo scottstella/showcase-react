@@ -14,12 +14,12 @@ interface ValidationError extends Error {
 }
 
 interface MockCardService {
-  fetchHeroClasses: jest.Mock;
-  addHeroClass: jest.Mock;
-  deleteHeroClass: jest.Mock;
-  fetchTribes: jest.Mock;
-  addTribe: jest.Mock;
-  deleteTribe: jest.Mock;
+  fetchHeroClasses: ReturnType<typeof vi.fn>;
+  addHeroClass: ReturnType<typeof vi.fn>;
+  deleteHeroClass: ReturnType<typeof vi.fn>;
+  fetchTribes: ReturnType<typeof vi.fn>;
+  addTribe: ReturnType<typeof vi.fn>;
+  deleteTribe: ReturnType<typeof vi.fn>;
 }
 
 // Mock dependencies

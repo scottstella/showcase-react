@@ -17,7 +17,8 @@
     "formik": "^2.2.9",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-toastify": "^9.0.7",
+    "react-router-dom": "^6.3.0",
+    "react-toastify": "^11.0.5",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"
   },
@@ -76,7 +77,6 @@
     "jsdom": "^26.0.0",
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.3",
-    "react-router-dom": "^6.3.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.0",
     "vitest": "latest"

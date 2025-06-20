@@ -28,14 +28,14 @@ export const updateToast = (
   if (error != null) {
     toast.update(toastRef.current, {
       render: getFriendlyErrorMessage(error),
-      type: toast.TYPE.ERROR,
+      type: "error",
       autoClose: 5000,
     });
   } else {
     if (showSuccess) {
       toast.update(toastRef.current, {
         render: "Success",
-        type: toast.TYPE.INFO,
+        type: "info",
         autoClose: 1500,
       });
     }

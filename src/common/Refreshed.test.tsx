@@ -17,7 +17,7 @@ describe("Refreshed", () => {
     const mockDate = new Date("2024-03-06T12:00:00Z");
     const mockDateString = "3/6/2024 - 12:00:00 PM";
     vi.spyOn(global, "Date").mockImplementation(() => mockDate);
-    (getDateAndTimeString as jest.Mock).mockReturnValue(mockDateString);
+    (getDateAndTimeString as ReturnType<typeof vi.fn>).mockReturnValue(mockDateString);
   });
 
   afterEach(() => {
