@@ -13,6 +13,7 @@ export default defineConfig({
       reporter: ["text", "html"],
       exclude: ["node_modules/", "src/setupTests.ts", "tests/"],
     },
-    exclude: ["tests/**/*"],
+    include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    exclude: ["tests/**/*", "node_modules/**/*"],
   },
 });
