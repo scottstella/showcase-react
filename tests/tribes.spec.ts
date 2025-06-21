@@ -143,4 +143,83 @@ test.describe("Tribes Management E2E Tests", () => {
     // Verify error toast is shown
     await expect(page.locator(".Toastify__toast--error")).toBeVisible();
   });
+
+  test("should require authentication for adding tribes", async ({ page }) => {
+    // Mock RLS error for POST requests (unauthenticated user)
+    await page.route("**/rest/v1/tribe*", async route => {
+      const method = route.request().method();
+
+      if (method === "GET") {
+        // Return mock tribes data
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            { id: 1, name: "Beast", created_at: "2024-01-01T10:00:00Z" },
+            { id: 2, name: "Dragon", created_at: "2024-01-02T11:00:00Z" },
+          ]),
+        });
+      } else if (method === "POST") {
+        // Mock RLS blocked response - no error but no data returned
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]), // Empty array indicates RLS blocked the operation
+        });
+      }
+    });
+
+    await page.goto("/manageMetaData");
+    await page.click("text=Tribes");
+
+    // Wait for the form to be visible
+    await expect(page.locator('input[placeholder="Name"]')).toBeVisible();
+
+    // Try to add a tribe
+    await page.fill('input[placeholder="Name"]', "Mech");
+    await page.click('input[type="submit"]');
+
+    // Verify authentication error toast is shown
+    await expect(page.locator(".Toastify__toast--error")).toBeVisible();
+    await expect(page.locator(".Toastify__toast--error")).toContainText("You must be logged in");
+  });
+
+  test("should require authentication for deleting tribes", async ({ page }) => {
+    // Mock RLS error for DELETE requests (unauthenticated user)
+    await page.route("**/rest/v1/tribe*", async route => {
+      const method = route.request().method();
+
+      if (method === "GET") {
+        // Return mock tribes data
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            { id: 1, name: "Beast", created_at: "2024-01-01T10:00:00Z" },
+            { id: 2, name: "Dragon", created_at: "2024-01-02T11:00:00Z" },
+          ]),
+        });
+      } else if (method === "DELETE") {
+        // Mock RLS blocked response - no error but no data returned
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]), // Empty array indicates RLS blocked the operation
+        });
+      }
+    });
+
+    await page.goto("/manageMetaData");
+    await page.click("text=Tribes");
+
+    // Wait for the table to load
+    await expect(page.locator("text=Beast")).toBeVisible();
+
+    // Try to delete a tribe
+    await page.click('[data-testid="delete-tribe"]');
+
+    // Verify authentication error toast is shown
+    await expect(page.locator(".Toastify__toast--error")).toBeVisible();
+    await expect(page.locator(".Toastify__toast--error")).toContainText("You must be logged in");
+  });
 });

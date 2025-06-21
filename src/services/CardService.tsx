@@ -38,7 +38,8 @@ export class CardService {
 
   async addHeroClass(heroClass: HeroClass) {
     const { name } = heroClass;
-    return await this.supabase.from("hero_class").insert([{ name }]).single();
+    const response = await this.supabase.from("hero_class").insert([{ name }]).single();
+    return handleRLSError(response);
   }
 
   async fetchTribes() {
@@ -52,7 +53,8 @@ export class CardService {
 
   async addTribe(tribe: Tribe) {
     const { name } = tribe;
-    return await this.supabase.from("tribe").insert([{ name }]).single();
+    const response = await this.supabase.from("tribe").insert([{ name }]).single();
+    return handleRLSError(response);
   }
 
   async fetchSets() {
@@ -66,7 +68,11 @@ export class CardService {
 
   async addSet(set: Set) {
     const { name, is_standard, release_date } = set;
-    return await this.supabase.from("set").insert([{ name, is_standard, release_date }]).single();
+    const response = await this.supabase
+      .from("set")
+      .insert([{ name, is_standard, release_date }])
+      .single();
+    return handleRLSError(response);
   }
 }
 
