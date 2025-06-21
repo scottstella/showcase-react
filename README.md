@@ -10,6 +10,8 @@ A React application for tracking Hearthstone decks and cards.
 - [Environment Setup](#environment-setup)
 - [Supabase Launch Agent](#supabase-launch-agent)
 - [Testing](#testing)
+  - [Unit Tests](#unit-tests)
+  - [E2E Tests](#e2e-tests)
 - [Path Aliases](#path-aliases)
 - [Git Hooks](#git-hooks)
 - [VS Code Configuration](#vs-code-configuration)
@@ -32,9 +34,13 @@ npm run build
 # Preview production build locally
 npm run preview
 
-# Run tests
+# Run unit tests
 npm test
 npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+npm run test:e2e:ui
 
 # Lint code
 npm run lint
@@ -497,19 +503,117 @@ If you prefer not to use a launch agent, consider:
 
 ## Testing
 
+This project includes both unit tests (using Vitest) and end-to-end tests (using
+Playwright).
+
+### Unit Tests
+
 ```bash
-# Run tests
+# Run unit tests
 npm test
 
-# Run tests with coverage
+# Run unit tests with coverage
 npm run test:coverage
+```
+
+### E2E Tests
+
+```bash
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with UI mode (interactive)
+npm run test:e2e:ui
+
+# Run E2E tests in headed mode (see browser)
+npm run test:e2e:headed
+
+# Run E2E tests in debug mode
+npm run test:e2e:debug
 ```
 
 ### Test Commands
 
-- `npm test`: Run tests in watch mode
-- `npm run test:coverage`: Run tests with coverage report
-- `npm test -- --run`: Run tests once (non-interactive)
+#### Unit Tests
+
+- `npm test`: Run unit tests in watch mode
+- `npm run test:coverage`: Run unit tests with coverage report
+- `npm test -- --run`: Run unit tests once (non-interactive)
+
+#### E2E Tests
+
+- `npm run test:e2e`: Run all E2E tests in headless mode
+- `npm run test:e2e:ui`: Open Playwright UI for interactive testing
+- `npm run test:e2e:headed`: Run tests with browser visible
+- `npm run test:e2e:debug`: Run tests in debug mode with step-by-step execution
+
+### Test Structure
+
+#### Unit Tests
+
+- Located in `src/**/*.test.tsx` files
+- Use Vitest and React Testing Library
+- Test individual components and functions
+- Mock external dependencies
+
+#### E2E Tests
+
+- Located in `tests/` directory
+- Use Playwright for browser automation
+- Test complete user workflows
+- Mock Supabase API calls at the network level
+
+### E2E Test Features
+
+The E2E tests include:
+
+1. **Navigation Testing**: Verify users can navigate to different pages
+2. **Form Validation**: Test client-side validation rules
+3. **Authentication Scenarios**: Test both logged-in and logged-out states
+4. **CRUD Operations**: Test create, read, update, delete functionality
+5. **Error Handling**: Verify proper error messages and user feedback
+6. **Loading States**: Test loading indicators and async operations
+
+### Example E2E Test
+
+```typescript
+// tests/tribes.spec.ts
+test("should successfully add a tribe when user is logged in", async ({
+  page,
+}) => {
+  // Mock authentication
+  await page.setExtraHTTPHeaders({
+    authorization: "Bearer fake-token",
+  });
+
+  await page.goto("/manageMetaData");
+  await page.click("text=Tribes");
+
+  // Fill and submit form
+  await page.fill('input[placeholder="Name"]', "Mech");
+  await page.click('input[type="submit"]');
+
+  // Verify success
+  await expect(page.locator(".Toastify__toast--info")).toBeVisible();
+  await expect(page.locator("text=Mech")).toBeInTheDocument();
+});
+```
+
+### Running Tests in CI/CD
+
+For continuous integration, the tests are configured to:
+
+- Run unit tests with coverage reporting
+- Run E2E tests in headless mode across multiple browsers
+- Fail builds if tests don't pass
+- Generate HTML reports for test results
+
+### Test Configuration
+
+- **Unit Tests**: Configured in `vitest.config.ts`
+- **E2E Tests**: Configured in `playwright.config.ts`
+- **Coverage**: Set to exclude test files and setup files
+- **Browsers**: E2E tests run on Chrome, Firefox, and Safari
 
 ## Path Aliases
 
