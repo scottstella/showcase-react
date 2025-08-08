@@ -4,6 +4,7 @@ A React application for tracking Hearthstone decks and cards.
 
 ## Table of Contents
 
+- [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
 - [Development](#development)
 - [Docker](#docker)
@@ -95,6 +96,128 @@ devices on your network, while `npm run dev` is for local development only.
 - ESLint integration
 - Prettier formatting
 - Source maps for debugging
+
+## Prerequisites
+
+### Node.js and npm Setup
+
+This project requires Node.js and npm to be installed on your system.
+
+#### Check if Node.js and npm are installed
+
+```bash
+node --version
+npm --version
+```
+
+If you see version numbers, you're all set! If you get "command not found"
+errors, you'll need to install Node.js.
+
+#### Installing Node.js and npm
+
+**macOS (Recommended - using Homebrew):**
+
+```bash
+# Install Homebrew if you don't have it
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Node.js (includes npm)
+brew install node
+
+# Verify installation
+node --version
+npm --version
+```
+
+**macOS (Alternative - using Node Version Manager):**
+
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Restart your terminal or run
+source ~/.bashrc
+
+# Install the latest LTS version of Node.js
+nvm install --lts
+nvm use --lts
+
+# Verify installation
+node --version
+npm --version
+```
+
+**Windows:**
+
+1. Download the installer from [nodejs.org](https://nodejs.org/)
+2. Run the installer and follow the setup wizard
+3. Verify installation by opening Command Prompt and running:
+   ```cmd
+   node --version
+   npm --version
+   ```
+
+**Linux (Ubuntu/Debian):**
+
+```bash
+# Using NodeSource repository
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Verify installation
+node --version
+npm --version
+```
+
+**Linux (Alternative - using Node Version Manager):**
+
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Restart your terminal or run
+source ~/.bashrc
+
+# Install the latest LTS version of Node.js
+nvm install --lts
+nvm use --lts
+
+# Verify installation
+node --version
+npm --version
+```
+
+#### Required Versions
+
+- **Node.js**: 18.0.0 or higher
+- **npm**: 8.0.0 or higher (comes with Node.js)
+
+#### Troubleshooting
+
+**If npm commands fail:**
+
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Update npm to latest version
+npm install -g npm@latest
+```
+
+**If you get permission errors on macOS/Linux:**
+
+```bash
+# Use nvm instead of global installation
+# Or configure npm to use a different directory
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
+```
+
+**If you get "command not found" after installation:**
+
+1. Restart your terminal/command prompt
+2. If using nvm, run `nvm use --lts`
+3. Check your PATH environment variable
 
 ## Docker
 
