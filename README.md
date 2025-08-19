@@ -66,7 +66,14 @@ npm run format
    npm run test:coverage  # Run tests with coverage report
    ```
 
-3. **Production Build**:
+3. **E2E Testing**:
+
+   ```bash
+   npx playwright install  # Install browser binaries (first time only)
+   npm run test:e2e        # Run end-to-end tests
+   ```
+
+4. **Production Build**:
    ```bash
    npm run build    # Create production build
    npm run preview  # Preview production build locally
@@ -77,6 +84,9 @@ npm run format
 ```bash
 # Install dependencies
 npm install
+
+# Install Playwright browsers (required for E2E tests)
+npx playwright install
 
 # Start development server (accessible from other devices on your network)
 npm run start
@@ -655,6 +665,16 @@ npm run test:e2e:headed
 npm run test:e2e:debug
 ```
 
+**Important**: Before running E2E tests for the first time, you need to install
+the required browser binaries:
+
+```bash
+npx playwright install
+```
+
+This downloads and installs the necessary browser binaries (Chromium, Firefox,
+and WebKit) that Playwright uses to run the tests.
+
 ### Test Commands
 
 #### Unit Tests
@@ -737,6 +757,71 @@ For continuous integration, the tests are configured to:
 - **E2E Tests**: Configured in `playwright.config.ts`
 - **Coverage**: Set to exclude test files and setup files
 - **Browsers**: E2E tests run on Chrome, Firefox, and Safari
+
+### E2E Test Troubleshooting
+
+#### Common Issues
+
+1. **Browser Executable Not Found**
+
+   If you see errors like "Executable doesn't exist" or "browserType.launch
+   failed":
+
+   ```bash
+   # Install required browser binaries
+   npx playwright install
+   ```
+
+2. **Tests Fail on First Run**
+
+   This is usually because browser binaries aren't installed:
+
+   ```bash
+   # Check if browsers are installed
+   npx playwright --version
+
+   # Install browsers if needed
+   npx playwright install
+   ```
+
+3. **Port Already in Use**
+
+   If the test server can't start:
+
+   ```bash
+   # Check what's using port 3000
+   lsof -i :3000
+
+   # Kill the process or use a different port
+   kill -9 <PID>
+   ```
+
+4. **Network Timeouts**
+
+   If tests fail due to network issues:
+
+   ```bash
+   # Increase timeout in playwright.config.ts
+   timeout: 120 * 1000, // 2 minutes instead of default
+   ```
+
+#### Browser-Specific Issues
+
+- **Chromium**: Most stable, recommended for CI/CD
+- **Firefox**: Good for cross-browser testing
+- **WebKit**: Tests Safari compatibility (macOS only)
+
+#### Viewing Test Results
+
+After running tests, you can view detailed HTML reports:
+
+```bash
+# Open the last test report
+npx playwright show-report
+
+# Run tests and generate report
+npm run test:e2e -- --reporter=html
+```
 
 ## Path Aliases
 
