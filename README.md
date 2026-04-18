@@ -13,6 +13,7 @@ A React application for tracking Hearthstone decks and cards.
 - [Testing](#testing)
   - [Unit Tests](#unit-tests)
   - [E2E Tests](#e2e-tests)
+  - [Continuous Integration](#continuous-integration)
 - [Path Aliases](#path-aliases)
 - [Git Hooks](#git-hooks)
 - [VS Code Configuration](#vs-code-configuration)
@@ -38,6 +39,7 @@ npm run preview
 # Run unit tests
 npm test
 npm run test:coverage
+npm run test:ci
 
 # Run E2E tests
 npm run test:e2e
@@ -103,8 +105,10 @@ devices on your network, while `npm run dev` is for local development only.
 
 - Hot Module Replacement (HMR)
 - TypeScript compilation
-- ESLint integration
+- ESLint 9 with flat config (`eslint.config.js`)
 - Prettier formatting
+- Vitest for unit tests; Playwright for E2E
+- GitHub Actions workflow for lint, unit tests, and production build
 - Source maps for debugging
 
 ## Prerequisites
@@ -681,7 +685,8 @@ and WebKit) that Playwright uses to run the tests.
 
 - `npm test`: Run unit tests in watch mode
 - `npm run test:coverage`: Run unit tests with coverage report
-- `npm test -- --run`: Run unit tests once (non-interactive)
+- `npm run test:ci`: Run unit tests once (same command as CI; non-interactive)
+- `npm test -- --run`: Equivalent single run via the Vitest CLI flag
 
 #### E2E Tests
 
@@ -719,37 +724,34 @@ The E2E tests include:
 
 ### Example E2E Test
 
+The real suite lives in `tests/tribes.spec.ts` (mocks Supabase REST at the
+network layer). A simplified pattern:
+
 ```typescript
-// tests/tribes.spec.ts
-test("should successfully add a tribe when user is logged in", async ({
-  page,
-}) => {
-  // Mock authentication
-  await page.setExtraHTTPHeaders({
-    authorization: "Bearer fake-token",
-  });
-
+// tests/tribes.spec.ts (illustrative)
+test("should open Tribes and submit the form", async ({ page }) => {
   await page.goto("/manageMetaData");
-  await page.click("text=Tribes");
+  await page.locator("#tribes").click();
 
-  // Fill and submit form
   await page.fill('input[placeholder="Name"]', "Mech");
   await page.click('input[type="submit"]');
 
-  // Verify success
   await expect(page.locator(".Toastify__toast--info")).toBeVisible();
-  await expect(page.locator("text=Mech")).toBeInTheDocument();
 });
 ```
 
-### Running Tests in CI/CD
+### Continuous Integration
 
-For continuous integration, the tests are configured to:
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push and pull request
+to `main`:
 
-- Run unit tests with coverage reporting
-- Run E2E tests in headless mode across multiple browsers
-- Fail builds if tests don't pass
-- Generate HTML reports for test results
+- `npm ci`
+- `npm run lint` (ESLint 9, flat config)
+- `npm run test:ci` (Vitest, single run)
+- `npm run build`
+
+Playwright E2E tests are **not** executed in that workflow; run them locally
+with `npm run test:e2e` when you need browser coverage.
 
 ### Test Configuration
 
@@ -796,7 +798,16 @@ For continuous integration, the tests are configured to:
    kill -9 <PID>
    ```
 
-4. **Network Timeouts**
+4. **Vite env when Playwright starts the dev server**
+
+   `playwright.config.ts` sets `webServer.env` with test `VITE_SUPABASE_*`
+   values so the app can load without a local `.env`. If you use
+   `reuseExistingServer: true` and already have `npm run start` running
+   **without** those variables, stop that process so Playwright can spawn Vite
+   with the injected env, or keep a valid `.env` when you run the dev server
+   yourself.
+
+5. **Network Timeouts**
 
    If tests fail due to network issues:
 
@@ -809,7 +820,8 @@ For continuous integration, the tests are configured to:
 
 - **Chromium**: Most stable, recommended for CI/CD
 - **Firefox**: Good for cross-browser testing
-- **WebKit**: Tests Safari compatibility (macOS only)
+- **WebKit**: Uses the WebKit engine (same family as Safari) for cross-browser
+  coverage
 
 #### Viewing Test Results
 
@@ -846,7 +858,8 @@ Available aliases:
 ## Git Hooks
 
 This project uses Husky Git hooks to ensure code quality. The hooks are
-configured in the `.husky` directory:
+configured in the `.husky` directory. Husky is wired through the `prepare`
+script in `package.json` (`prepare: husky`).
 
 ### Pre-commit Hook
 
@@ -857,7 +870,7 @@ Located in `.husky/pre-commit`:
   - For TypeScript/TSX files:
     - Runs ESLint with auto-fix
     - Formats with Prettier
-  - For other files (JS, JSON, CSS, etc.):
+  - For JSON, CSS, SCSS, and Markdown:
     - Formats with Prettier
 - Prevents commit if there are any linting errors
 - Can be bypassed with `git commit --no-verify`
@@ -867,7 +880,7 @@ Located in `.husky/pre-commit`:
 Located in `.husky/pre-push`:
 
 - Runs automatically before each push to remote
-- Executes all tests with `npm test`
+- Runs unit tests once with `npm test -- --run` (Vitest non-watch mode)
 - Prevents push if any tests fail
 - Can be bypassed with `git push --no-verify`
 
@@ -892,7 +905,7 @@ Configuration is in `package.json`:
 {
   "lint-staged": {
     "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{js,jsx,json,css,scss,md}": ["prettier --write"]
+    "*.{json,css,scss,md}": ["prettier --write"]
   }
 }
 ```
@@ -900,7 +913,7 @@ Configuration is in `package.json`:
 This configuration:
 
 - Runs ESLint and Prettier on staged TypeScript/TSX files
-- Runs Prettier on other supported file types
+- Runs Prettier on staged JSON, CSS, SCSS, and Markdown files
 - Only processes files that are staged for commit (not all files)
 
 ## VS Code Configuration
@@ -909,15 +922,14 @@ This project includes VS Code settings for consistent code formatting and
 linting. To take advantage of these features:
 
 1. Install the following VS Code extensions:
-
    - [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
    - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
 2. The project includes `.vscode/settings.json` which configures:
-
    - Format on save
    - Prettier as the default formatter
-   - Automatic ESLint fixes on save
+   - Automatic ESLint fixes on save (uses `eslint.config.js` / ESLint 9 flat
+     config)
    - Language-specific formatting rules
 
 3. Available formatting commands:
