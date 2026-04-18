@@ -24,14 +24,14 @@ exports[`Nav > matches snapshot 1`] = `
       <a
         class="nav-link"
         data-discover="true"
-        href="/ManageMetaData"
+        href="/manageMetaData"
       >
         Manage Meta-Data
       </a>
       <a
         class="nav-link"
         data-discover="true"
-        href="/ManageMetaData"
+        href="/manageMetaData"
       >
         Manage Cards
       </a>
@@ -52,14 +52,14 @@ exports[`Nav > matches snapshot 1`] = `
       <a
         class="nav-link"
         data-discover="true"
-        href="/ManageMetaData"
+        href="/manageMetaData"
       >
         Link 1
       </a>
       <a
         class="nav-link"
         data-discover="true"
-        href="/ManageMetaData"
+        href="/manageMetaData"
       >
         Link 2
       </a>

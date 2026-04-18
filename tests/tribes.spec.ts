@@ -1,13 +1,30 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Route } from "@playwright/test";
+
+/** CORS preflight for browser → Supabase cross-origin fetch */
+async function fulfillCorsPreflight(route: Route): Promise<void> {
+  await route.fulfill({
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
+      "Access-Control-Allow-Headers":
+        "authorization, x-client-info, apikey, content-type, prefer, accept-profile, range, x-supabase-api-version",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
+}
 
 test.describe("Tribes Management E2E Tests", () => {
   test.beforeEach(async ({ page }) => {
-    // Set up basic mocking for Supabase requests
     await page.route("**/rest/v1/tribe*", async route => {
       const method = route.request().method();
 
+      if (method === "OPTIONS") {
+        await fulfillCorsPreflight(route);
+        return;
+      }
+
       if (method === "GET") {
-        // Return mock tribes data
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -16,55 +33,54 @@ test.describe("Tribes Management E2E Tests", () => {
             { id: 2, name: "Dragon", created_at: "2024-01-02T11:00:00Z" },
           ]),
         });
-      } else if (method === "POST") {
-        // Return success for POST requests
+        return;
+      }
+
+      if (method === "POST") {
         await route.fulfill({
           status: 201,
           contentType: "application/json",
           body: JSON.stringify({ id: 3, name: "New Tribe", created_at: "2024-01-03T12:00:00Z" }),
         });
-      } else if (method === "DELETE") {
-        // Return success for DELETE requests
+        return;
+      }
+
+      if (method === "DELETE") {
         await route.fulfill({
           status: 204,
           body: "",
         });
+        return;
       }
+
+      await route.fallback();
     });
   });
 
   test("should navigate to Tribes page correctly", async ({ page }) => {
     await page.goto("/");
 
-    // Click on Admin section to expand it
-    await page.click("text=Admin");
+    await page.locator(".nav").getByText("Admin").click();
+    await page.getByRole("link", { name: "Manage Meta-Data" }).click();
+    await expect(page).toHaveURL(/\/manageMetaData$/);
 
-    // Click on Manage Meta-Data
-    await page.click("text=Manage Meta-Data");
+    await page.locator("#tribes").click();
 
-    // Click on Tribes tab
-    await page.click("text=Tribes");
-
-    // Verify we're on the tribes page
     await expect(page.locator('input[placeholder="Name"]')).toBeVisible();
     await expect(page.locator('input[type="submit"]')).toBeVisible();
 
-    // Wait for the table to load and verify mock data is displayed
     await expect(page.locator("text=Beast")).toBeVisible();
     await expect(page.locator("text=Dragon")).toBeVisible();
   });
 
   test("should show validation error when submitting empty form", async ({ page }) => {
     await page.goto("/manageMetaData");
-    await page.click("text=Tribes");
+    await page.locator("#tribes").click();
 
-    // Wait for the form to be visible
     await expect(page.locator('input[placeholder="Name"]')).toBeVisible();
 
-    // Try to submit empty form
     await page.click('input[type="submit"]');
 
-    // Verify validation error is shown
     await expect(page.locator(".error-msg")).toBeVisible();
     await expect(page.locator(".error-msg")).toContainText("Name is required");
   });
@@ -73,84 +89,99 @@ test.describe("Tribes Management E2E Tests", () => {
     page,
   }) => {
     await page.goto("/manageMetaData");
-    await page.click("text=Tribes");
+    await page.locator("#tribes").click();
 
-    // Wait for the form to be visible
     await expect(page.locator('input[placeholder="Name"]')).toBeVisible();
 
-    // Enter only whitespace
     await page.fill('input[placeholder="Name"]', "   ");
     await page.click('input[type="submit"]');
 
-    // Verify validation error is shown
     await expect(page.locator(".error-msg")).toBeVisible();
     await expect(page.locator(".error-msg")).toContainText("Name is required");
   });
 
   test("should successfully add a tribe", async ({ page }) => {
     await page.goto("/manageMetaData");
-    await page.click("text=Tribes");
+    await page.locator("#tribes").click();
 
-    // Wait for the form to be visible
     await expect(page.locator('input[placeholder="Name"]')).toBeVisible();
 
-    // Fill the form with a valid tribe name
     await page.fill('input[placeholder="Name"]', "Mech");
     await page.click('input[type="submit"]');
 
-    // Verify success toast is shown
     await expect(page.locator(".Toastify__toast--info")).toBeVisible();
     await expect(page.locator(".Toastify__toast--info")).toContainText("Success");
 
-    // Verify the form is cleared
     await expect(page.locator('input[placeholder="Name"]')).toHaveValue("");
   });
 
   test("should show loading state while fetching data", async ({ page }) => {
-    // Mock a slow response
     await page.route("**/rest/v1/tribe*", async route => {
+      if (route.request().method() === "OPTIONS") {
+        await fulfillCorsPreflight(route);
+        return;
+      }
       if (route.request().method() === "GET") {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           body: JSON.stringify([{ id: 1, name: "Beast", created_at: "2024-01-01T10:00:00Z" }]),
         });
+        return;
       }
+      await route.fallback();
     });
 
     await page.goto("/manageMetaData");
-    await page.click("text=Tribes");
+    await page.locator("#tribes").click();
 
-    // Verify loading indicator is shown
     await expect(page.getByText("Loading...")).toBeVisible();
 
-    // Wait for data to load
     await expect(page.locator("text=Beast")).toBeVisible();
   });
 
   test("should handle network errors gracefully", async ({ page }) => {
-    // Mock a network error
+    // Use an HTTP error body PostgREST-style. `route.abort()` does not always surface
+    // the same client error path across browsers as a failed REST response.
     await page.route("**/rest/v1/tribe*", async route => {
-      if (route.request().method() === "GET") {
-        await route.abort("failed");
+      if (route.request().method() === "OPTIONS") {
+        await fulfillCorsPreflight(route);
+        return;
       }
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({
+            code: "58000",
+            details: "Simulated server failure for E2E",
+            hint: "",
+            message: "Internal server error",
+          }),
+        });
+        return;
+      }
+      await route.fallback();
     });
 
     await page.goto("/manageMetaData");
-    await page.click("text=Tribes");
+    await page.locator("#tribes").click();
 
-    // Verify error toast is shown
-    await expect(page.locator(".Toastify__toast--error")).toBeVisible();
+    await expect(page.locator(".Toastify__toast--error")).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(".Toastify__toast--error")).toContainText("Error:");
   });
 
   test("should require authentication for adding tribes", async ({ page }) => {
-    // Mock RLS error for POST requests (unauthenticated user)
     await page.route("**/rest/v1/tribe*", async route => {
       const method = route.request().method();
 
+      if (method === "OPTIONS") {
+        await fulfillCorsPreflight(route);
+        return;
+      }
+
       if (method === "GET") {
-        // Return mock tribes data
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -159,38 +190,43 @@ test.describe("Tribes Management E2E Tests", () => {
             { id: 2, name: "Dragon", created_at: "2024-01-02T11:00:00Z" },
           ]),
         });
-      } else if (method === "POST") {
-        // Mock RLS blocked response - no error but no data returned
+        return;
+      }
+
+      if (method === "POST") {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
-          body: JSON.stringify([]), // Empty array indicates RLS blocked the operation
+          body: JSON.stringify([]),
         });
+        return;
       }
+
+      await route.fallback();
     });
 
     await page.goto("/manageMetaData");
-    await page.click("text=Tribes");
+    await page.locator("#tribes").click();
 
-    // Wait for the form to be visible
     await expect(page.locator('input[placeholder="Name"]')).toBeVisible();
 
-    // Try to add a tribe
     await page.fill('input[placeholder="Name"]', "Mech");
     await page.click('input[type="submit"]');
 
-    // Verify authentication error toast is shown
     await expect(page.locator(".Toastify__toast--error")).toBeVisible();
     await expect(page.locator(".Toastify__toast--error")).toContainText("You must be logged in");
   });
 
   test("should require authentication for deleting tribes", async ({ page }) => {
-    // Mock RLS error for DELETE requests (unauthenticated user)
     await page.route("**/rest/v1/tribe*", async route => {
       const method = route.request().method();
 
+      if (method === "OPTIONS") {
+        await fulfillCorsPreflight(route);
+        return;
+      }
+
       if (method === "GET") {
-        // Return mock tribes data
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -199,26 +235,28 @@ test.describe("Tribes Management E2E Tests", () => {
             { id: 2, name: "Dragon", created_at: "2024-01-02T11:00:00Z" },
           ]),
         });
-      } else if (method === "DELETE") {
-        // Mock RLS blocked response - no error but no data returned
+        return;
+      }
+
+      if (method === "DELETE") {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
-          body: JSON.stringify([]), // Empty array indicates RLS blocked the operation
+          body: JSON.stringify([]),
         });
+        return;
       }
+
+      await route.fallback();
     });
 
     await page.goto("/manageMetaData");
-    await page.click("text=Tribes");
+    await page.locator("#tribes").click();
 
-    // Wait for the table to load
     await expect(page.locator("text=Beast")).toBeVisible();
 
-    // Try to delete a tribe
     await page.click('[data-testid="delete-tribe"]');
 
-    // Verify authentication error toast is shown
     await expect(page.locator(".Toastify__toast--error")).toBeVisible();
     await expect(page.locator(".Toastify__toast--error")).toContainText("You must be logged in");
   });

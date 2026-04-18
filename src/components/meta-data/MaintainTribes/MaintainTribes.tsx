@@ -45,13 +45,16 @@ export default function MaintainTribes({
 
   async function fetchTribes() {
     setIsLoading(true);
-    const { data, error } = await cardService.fetchTribes();
+    try {
+      const { data, error } = await cardService.fetchTribes();
 
-    if (error == null) {
-      setTribes(data as Tribe[]);
+      if (error == null) {
+        setTribes(data as Tribe[]);
+      } else {
+        displayErrorToast(error);
+      }
+    } finally {
       setIsLoading(false);
-    } else {
-      displayErrorToast(error);
     }
   }
 

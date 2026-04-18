@@ -1,12 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+ * Vite bakes `VITE_*` into the bundle at dev-server startup. Playwright's webServer
+ * often runs without a local `.env`, but `src/supabase/Client.tsx` validates these
+ * at import time — so E2E must always provide plausible values (requests are mocked in tests).
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+const viteEnvForE2E = {
+  VITE_SUPABASE_URL: "https://test.supabase.co",
+  VITE_SUPABASE_ANON_KEY:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlc3QiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYzNzQ5NjAwMCwiZXhwIjoxOTUzMDcyMDAwfQ.test",
+};
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -76,5 +79,6 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: viteEnvForE2E,
   },
 });

@@ -23,11 +23,11 @@ export default function Nav() {
         <div onClick={clickAdmin}>Admin</div>
       </div>
       <div className={`${isAdminCollapsed ? "nav-group-collapsed" : "nav-group-expanded"}`}>
-        <NavLink to="/ManageMetaData" className="nav-link">
+        <NavLink to="/manageMetaData" className="nav-link">
           Manage Meta-Data
         </NavLink>
 
-        <NavLink to="/ManageMetaData" className="nav-link">
+        <NavLink to="/manageMetaData" className="nav-link">
           Manage Cards
         </NavLink>
       </div>
@@ -38,11 +38,11 @@ export default function Nav() {
         <div onClick={clickDecks}>Decks</div>
       </div>
       <div className={`${isDecksCollapsed ? "nav-group-collapsed" : "nav-group-expanded"}`}>
-        <NavLink to="/ManageMetaData" className="nav-link">
+        <NavLink to="/manageMetaData" className="nav-link">
           Link 1
         </NavLink>
 
-        <NavLink to="/ManageMetaData" className="nav-link">
+        <NavLink to="/manageMetaData" className="nav-link">
           Link 2
         </NavLink>
       </div>
