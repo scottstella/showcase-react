@@ -203,7 +203,8 @@ npm --version
 
 #### Required Versions
 
-- **Node.js**: 18.0.0 or higher
+- **Node.js**: 20.17.0 or higher (required by `lint-staged` 16 in the Husky
+  pre-commit hook; Vite 8 and Vitest 4 are also tested on current Node LTS)
 - **npm**: 8.0.0 or higher (comes with Node.js)
 
 #### Troubleshooting
@@ -238,7 +239,8 @@ npm config set prefix '~/.npm-global'
 ### Prerequisites
 
 - Docker installed on your system
-- Node.js 18 or higher (for local development)
+- Node.js 20.17 or higher (for local development; matches toolchain
+  expectations)
 
 ### Quick Start
 
@@ -419,7 +421,7 @@ The Vite configuration is set to prevent automatic browser opening in Docker:
 2. **Multi-stage builds for production**:
    ```dockerfile
    # Add to Dockerfile for production builds
-   FROM node:18-alpine as production
+   FROM node:20-alpine as production
    WORKDIR /app
    COPY --from=build /showcase-react/build ./build
    EXPOSE 80
@@ -859,7 +861,9 @@ Available aliases:
 
 This project uses Husky Git hooks to ensure code quality. The hooks are
 configured in the `.husky` directory. Husky is wired through the `prepare`
-script in `package.json` (`prepare: husky`).
+script in `package.json` (`prepare: husky`). Pre-commit runs `lint-staged`,
+which requires **Node.js 20.17+**; use an older Node only if you bypass hooks
+(`--no-verify`) and accept that `npm install` may not match CI.
 
 ### Pre-commit Hook
 
