@@ -22,8 +22,6 @@ export default defineConfig({
       "@": resolve(__dirname, "./src"),
       "@components": resolve(__dirname, "./src/components"),
       "@services": resolve(__dirname, "./src/services"),
-      "@utils": resolve(__dirname, "./src/utils"),
-      "@types": resolve(__dirname, "./src/types"),
       "@assets": resolve(__dirname, "./src/assets"),
     },
   },

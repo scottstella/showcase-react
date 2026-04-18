@@ -841,8 +841,6 @@ Available aliases:
 - `@/*` - Import from the src directory
 - `@components/*` - Import components
 - `@services/*` - Import services
-- `@utils/*` - Import utilities
-- `@types/*` - Import types
 - `@assets/*` - Import assets
 
 ## Git Hooks

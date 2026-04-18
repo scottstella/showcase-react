@@ -29,7 +29,7 @@ describe("Supabase Client", () => {
 
   it("creates a client with correct configuration", async () => {
     // Import after mocking environment variables
-    const { supabase } = await import("./Client");
+    await import("./Client");
 
     expect(createClient).toHaveBeenCalledWith(
       "https://test.supabase.co",

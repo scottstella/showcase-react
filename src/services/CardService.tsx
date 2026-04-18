@@ -1,20 +1,23 @@
+import { PostgrestError } from "@supabase/supabase-js";
 import { supabase as supabaseImpl } from "../supabase/Client";
 import { HeroClass } from "../dto/HeroClass";
 import { Tribe } from "../dto/Tribe";
 import { Set } from "../dto/Set";
 
 // Utility function to handle RLS blocked operations
-const handleRLSError = (response: any) => {
+const handleRLSError = <T extends { error: PostgrestError | null; data?: unknown }>(
+  response: T
+): T => {
   // If no error but no rows affected, it means RLS blocked the operation
-  if (!response.error && response.data?.length === 0) {
+  if (!response.error && Array.isArray(response.data) && response.data.length === 0) {
     return {
       ...response,
-      error: {
+      error: new PostgrestError({
         message: "You must be logged in to delete records",
         details: "",
         hint: "",
         code: "403",
-      },
+      }),
     };
   }
   return response;
