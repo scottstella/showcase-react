@@ -80,6 +80,18 @@ describe("toastHelpers", () => {
       });
     });
 
+    it("should support custom success message", () => {
+      const toastRef: MutableRefObject<string | null> = { current: "toast-id" };
+
+      updateToast(toastRef, null, true, "Record updated");
+
+      expect(toast.update).toHaveBeenCalledWith("toast-id", {
+        render: "Record updated",
+        type: "info",
+        autoClose: 1500,
+      });
+    });
+
     it("should not update toast when toastRef is null", () => {
       const toastRef: MutableRefObject<string | null> = { current: null };
 

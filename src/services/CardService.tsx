@@ -77,6 +77,16 @@ export class CardService {
       .single();
     return handleRLSError(response);
   }
+
+  async updateSet(id: number, setPatch: Pick<Set, "name" | "is_standard" | "release_date">) {
+    const { name, is_standard, release_date } = setPatch;
+    const response = await this.supabase
+      .from("set")
+      .update({ name, is_standard, release_date })
+      .eq("id", id)
+      .single();
+    return handleRLSError(response);
+  }
 }
 
 export default new CardService(supabaseImpl);

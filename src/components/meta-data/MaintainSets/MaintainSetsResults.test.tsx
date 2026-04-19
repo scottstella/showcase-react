@@ -28,14 +28,29 @@ describe("MaintainSetsResults", () => {
   ];
 
   const mockDeleteSet = vi.fn();
+  const mockSelectSet = vi.fn();
 
   it("shows loading message when loading", () => {
-    render(<MaintainSetsResults isLoading={true} sets={[]} deleteSet={mockDeleteSet} />);
+    render(
+      <MaintainSetsResults
+        isLoading={true}
+        sets={[]}
+        deleteSet={mockDeleteSet}
+        onSelectSet={mockSelectSet}
+      />
+    );
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
   it("displays sets when not loading", () => {
-    render(<MaintainSetsResults isLoading={false} sets={mockSets} deleteSet={mockDeleteSet} />);
+    render(
+      <MaintainSetsResults
+        isLoading={false}
+        sets={mockSets}
+        deleteSet={mockDeleteSet}
+        onSelectSet={mockSelectSet}
+      />
+    );
 
     expect(screen.getByText("ID")).toBeInTheDocument();
     expect(screen.getByText("Name")).toBeInTheDocument();
@@ -49,14 +64,43 @@ describe("MaintainSetsResults", () => {
   });
 
   it("calls deleteSet when delete control is clicked", () => {
-    render(<MaintainSetsResults isLoading={false} sets={mockSets} deleteSet={mockDeleteSet} />);
+    render(
+      <MaintainSetsResults
+        isLoading={false}
+        sets={mockSets}
+        deleteSet={mockDeleteSet}
+        onSelectSet={mockSelectSet}
+      />
+    );
 
     fireEvent.click(screen.getAllByTestId("delete-set")[0]);
     expect(mockDeleteSet).toHaveBeenCalled();
+    expect(mockSelectSet).not.toHaveBeenCalled();
+  });
+
+  it("calls onSelectSet when row is clicked", () => {
+    render(
+      <MaintainSetsResults
+        isLoading={false}
+        sets={mockSets}
+        deleteSet={mockDeleteSet}
+        onSelectSet={mockSelectSet}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId("set-row-1"));
+    expect(mockSelectSet).toHaveBeenCalledWith(mockSets[0]);
   });
 
   it("formats last updated via getLastUpdatedString", () => {
-    render(<MaintainSetsResults isLoading={false} sets={mockSets} deleteSet={mockDeleteSet} />);
+    render(
+      <MaintainSetsResults
+        isLoading={false}
+        sets={mockSets}
+        deleteSet={mockDeleteSet}
+        onSelectSet={mockSelectSet}
+      />
+    );
 
     expect(screen.getByText("Mocked date for 2024-03-01")).toBeInTheDocument();
     expect(screen.getByText("Mocked date for 2024-03-02")).toBeInTheDocument();

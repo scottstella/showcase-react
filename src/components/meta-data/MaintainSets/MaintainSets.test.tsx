@@ -1,11 +1,11 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act, within } from "@testing-library/react";
 import MaintainSets from "./MaintainSets";
 import { toast } from "react-toastify";
 import type { Set } from "../../../dto/Set";
 import { CardService } from "../../../services/CardService";
-import { displayErrorToast } from "../../../common/toastHelpers";
+import { displayErrorToast, updateToast } from "../../../common/toastHelpers";
 
 interface ValidationError extends Error {
   name: string;
@@ -23,6 +23,7 @@ interface MockCardService {
   fetchSets: ReturnType<typeof vi.fn>;
   addSet: ReturnType<typeof vi.fn>;
   deleteSet: ReturnType<typeof vi.fn>;
+  updateSet: ReturnType<typeof vi.fn>;
 }
 
 vi.mock("react-toastify", () => ({
@@ -92,6 +93,7 @@ describe("MaintainSets", () => {
     fetchSets: vi.fn(),
     addSet: vi.fn(),
     deleteSet: vi.fn(),
+    updateSet: vi.fn(),
   };
 
   beforeEach(() => {
@@ -270,6 +272,108 @@ describe("MaintainSets", () => {
       expect(screen.queryByText("Set 11")).not.toBeInTheDocument();
     });
     expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-10 of 12");
+  });
+
+  it("opens edit modal when row is clicked", async () => {
+    await act(async () => {
+      render(<MaintainSets cardService={mockService as unknown as CardService} />);
+    });
+
+    await waitFor(() => expect(screen.getByText("Core")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("set-row-1"));
+
+    const modal = screen.getByTestId("edit-modal");
+    expect(modal).toBeInTheDocument();
+    expect(within(modal).getByLabelText("Name")).toHaveValue("Core");
+  });
+
+  it("cancels edit and discards unsaved changes", async () => {
+    await act(async () => {
+      render(<MaintainSets cardService={mockService as unknown as CardService} />);
+    });
+
+    fireEvent.click(await screen.findByTestId("set-row-1"));
+    const modal = screen.getByTestId("edit-modal");
+    const editNameInput = within(modal).getByLabelText("Name");
+    fireEvent.change(editNameInput, { target: { value: "Changed Name" } });
+    expect(editNameInput).toHaveValue("Changed Name");
+
+    fireEvent.click(screen.getByTestId("edit-cancel"));
+    expect(screen.queryByTestId("edit-modal")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("set-row-1"));
+    expect(within(screen.getByTestId("edit-modal")).getByLabelText("Name")).toHaveValue("Core");
+  });
+
+  it("validates required name in edit mode", async () => {
+    await act(async () => {
+      render(<MaintainSets cardService={mockService as unknown as CardService} />);
+    });
+
+    fireEvent.click(await screen.findByTestId("set-row-1"));
+    const editNameInput = within(screen.getByTestId("edit-modal")).getByLabelText("Name");
+    fireEvent.change(editNameInput, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("edit-save"));
+
+    await waitFor(() => expect(screen.getByText("Required")).toBeInTheDocument());
+    expect(mockService.updateSet).not.toHaveBeenCalled();
+  });
+
+  it("updates set and refetches on successful save", async () => {
+    mockService.updateSet.mockResolvedValue({ error: null });
+    mockService.fetchSets
+      .mockResolvedValueOnce({ data: mockSets, error: null })
+      .mockResolvedValueOnce({
+        data: [{ ...mockSets[0], name: "Core Updated" }],
+        error: null,
+      });
+
+    await act(async () => {
+      render(<MaintainSets cardService={mockService as unknown as CardService} />);
+    });
+
+    fireEvent.click(await screen.findByTestId("set-row-1"));
+    const editNameInput = within(screen.getByTestId("edit-modal")).getByLabelText("Name");
+    fireEvent.change(editNameInput, { target: { value: "Core Updated" } });
+    fireEvent.click(screen.getByTestId("edit-save"));
+
+    await waitFor(() => {
+      expect(mockService.updateSet).toHaveBeenCalledWith(1, {
+        name: "Core Updated",
+        is_standard: true,
+        release_date: "2020-01-01",
+      });
+      expect(updateToast).toHaveBeenCalledWith(
+        { current: "toast-id" },
+        null,
+        true,
+        "Record updated"
+      );
+      expect(mockService.fetchSets).toHaveBeenCalledTimes(2);
+      expect(screen.queryByTestId("edit-modal")).not.toBeInTheDocument();
+    });
+  });
+
+  it("keeps edit modal open when update fails", async () => {
+    mockService.updateSet.mockResolvedValue({ error: { message: "Update failed" } });
+
+    await act(async () => {
+      render(<MaintainSets cardService={mockService as unknown as CardService} />);
+    });
+
+    fireEvent.click(await screen.findByTestId("set-row-1"));
+    const editNameInput = within(screen.getByTestId("edit-modal")).getByLabelText("Name");
+    fireEvent.change(editNameInput, { target: { value: "Core Updated" } });
+    fireEvent.click(screen.getByTestId("edit-save"));
+
+    await waitFor(() => {
+      expect(mockService.updateSet).toHaveBeenCalled();
+      expect(screen.getByTestId("edit-modal")).toBeInTheDocument();
+      expect(within(screen.getByTestId("edit-modal")).getByLabelText("Name")).toHaveValue(
+        "Core Updated"
+      );
+      expect(mockService.fetchSets).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("keeps form values when addSet returns an error", async () => {

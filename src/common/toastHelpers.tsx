@@ -21,7 +21,8 @@ const getFriendlyErrorMessage = (error: ErrorObject): string => {
 export const updateToast = (
   toastRef: React.MutableRefObject<ToastId | null>,
   error: ErrorObject | null | undefined,
-  showSuccess: boolean
+  showSuccess: boolean,
+  successMessage = "Success"
 ): void => {
   if (!toastRef.current) return;
 
@@ -34,7 +35,7 @@ export const updateToast = (
   } else {
     if (showSuccess) {
       toast.update(toastRef.current, {
-        render: "Success",
+        render: successMessage,
         type: "info",
         autoClose: 1500,
       });

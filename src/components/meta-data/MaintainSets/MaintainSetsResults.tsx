@@ -11,6 +11,7 @@ interface MaintainSetsResultsProps {
   isLoading: boolean;
   sets: Set[];
   deleteSet: (event: React.MouseEvent<SVGSVGElement>) => void;
+  onSelectSet: (set: Set) => void;
 }
 
 const MaintainSetsResults = (props: MaintainSetsResultsProps) => {
@@ -31,12 +32,20 @@ const MaintainSetsResults = (props: MaintainSetsResultsProps) => {
       </thead>
       <tbody>
         {props.sets.map(set => (
-          <tr key={set.id}>
+          <tr
+            key={set.id}
+            className="clickable-table-row"
+            onClick={() => props.onSelectSet(set)}
+            data-testid={`set-row-${set.id}`}
+          >
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
                 icon={faTrashCan}
                 id={set.id.toString()}
-                onClick={props.deleteSet}
+                onClick={event => {
+                  event.stopPropagation();
+                  props.deleteSet(event);
+                }}
                 data-testid="delete-set"
               />
             </td>

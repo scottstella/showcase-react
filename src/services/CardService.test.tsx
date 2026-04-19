@@ -9,6 +9,7 @@ interface MockQueryBuilder {
   select: ReturnType<typeof vi.fn>;
   delete: ReturnType<typeof vi.fn>;
   insert: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
   order: ReturnType<typeof vi.fn>;
   eq: ReturnType<typeof vi.fn>;
   single: ReturnType<typeof vi.fn>;
@@ -24,6 +25,7 @@ describe("CardService", () => {
   let mockSelect: ReturnType<typeof vi.fn>;
   let mockDelete: ReturnType<typeof vi.fn>;
   let mockInsert: ReturnType<typeof vi.fn>;
+  let mockUpdate: ReturnType<typeof vi.fn>;
   let mockEq: ReturnType<typeof vi.fn>;
   let mockOrder: ReturnType<typeof vi.fn>;
   let mockSingle: ReturnType<typeof vi.fn>;
@@ -36,6 +38,7 @@ describe("CardService", () => {
     mockSelect = vi.fn();
     mockDelete = vi.fn();
     mockInsert = vi.fn();
+    mockUpdate = vi.fn();
     mockEq = vi.fn();
     mockOrder = vi.fn();
     mockSingle = vi.fn();
@@ -44,11 +47,14 @@ describe("CardService", () => {
       select: mockSelect,
       delete: mockDelete,
       insert: mockInsert,
+      update: mockUpdate,
     } as MockQueryBuilder);
 
     mockSelect.mockReturnValue({ order: mockOrder });
     mockDelete.mockReturnValue({ eq: mockEq });
     mockInsert.mockReturnValue({ single: mockSingle });
+    mockUpdate.mockReturnValue({ eq: mockEq });
+    mockEq.mockReturnValue({ single: mockSingle });
 
     // Initialize service with mock
     cardService = new CardService(mockSupabase);
@@ -237,6 +243,49 @@ describe("CardService", () => {
       };
 
       const result = await cardService.addSet(set);
+
+      expect(result.error).toBeInstanceOf(PostgrestError);
+      expect(result.error?.code).toBe("403");
+    });
+  });
+
+  describe("updateSet", () => {
+    it("should update name, is_standard, and release_date by id", async () => {
+      const patch = {
+        name: "Updated Set",
+        is_standard: false,
+        release_date: "2024-10-10",
+      };
+      const expectedResponse = {
+        data: {
+          id: 2,
+          name: patch.name,
+          created_at: "2024-03-02",
+          is_standard: patch.is_standard,
+          release_date: patch.release_date,
+        },
+      };
+      mockSingle.mockResolvedValue(expectedResponse);
+
+      const result = await cardService.updateSet(2, patch);
+
+      expect(
+        (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
+      ).toHaveBeenCalledWith("set");
+      expect(mockUpdate).toHaveBeenCalledWith(patch);
+      expect(mockEq).toHaveBeenCalledWith("id", 2);
+      expect(mockSingle).toHaveBeenCalled();
+      expect(result).toEqual(expectedResponse);
+    });
+
+    it("maps empty update result to RLS-style error", async () => {
+      mockSingle.mockResolvedValue({ data: [], error: null });
+
+      const result = await cardService.updateSet(2, {
+        name: "Updated Set",
+        is_standard: true,
+        release_date: "2024-10-10",
+      });
 
       expect(result.error).toBeInstanceOf(PostgrestError);
       expect(result.error?.code).toBe("403");

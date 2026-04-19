@@ -155,3 +155,21 @@
   content: "⚠";
   font-size: 1rem;
 }
+
+.clickable-table-row {
+  cursor: pointer;
+}
+
+.clickable-table-row:hover {
+  background: #f5f9ff;
+}
+
+.edit-set-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit-set-checkbox {
+  padding-bottom: 0;
+}

@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { usePagination } from "../../../common/pagination/usePagination";
 import PaginationControls from "../../../common/pagination/PaginationControls";
+import EditRecordModal from "../../../common/EditRecordModal";
 import "./MaintainSets.css";
 
 interface FormValues {
@@ -33,10 +34,15 @@ export default function MaintainSets({
 }: MaintainSetsProps) {
   const [sets, setSets] = useState<Set[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingSet, setEditingSet] = useState<Set | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const editDateInputRef = useRef<HTMLInputElement>(null);
 
   const addToastRef = useRef<Id | null>(null);
   const deleteToastRef = useRef<Id | null>(null);
+  const updateToastRef = useRef<Id | null>(null);
 
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } = useFormik<FormValues>(
     {
@@ -63,6 +69,17 @@ export default function MaintainSets({
   function onSubmit(values: FormValues, actions: FormikHelpers<FormValues>) {
     addSet(values, actions);
   }
+
+  const editFormik = useFormik<FormValues>({
+    enableReinitialize: true,
+    initialValues: {
+      name: editingSet?.name ?? "",
+      is_standard: editingSet?.is_standard ?? false,
+      release_date: editingSet?.release_date ?? new Date().toISOString().split("T")[0],
+    },
+    validationSchema: setSchema,
+    onSubmit: (values, actions) => updateSet(values, actions),
+  });
 
   async function fetchSets() {
     setIsLoading(true);
@@ -107,6 +124,41 @@ export default function MaintainSets({
     // Blur the input to close the picker after selection
     e.target.blur();
   };
+
+  const handleEditDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    editFormik.handleChange(e);
+    e.target.blur();
+  };
+
+  const openEditModal = (set: Set) => {
+    setEditingSet(set);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    if (isUpdating) return;
+    setIsEditModalOpen(false);
+    editFormik.resetForm();
+    setEditingSet(null);
+  };
+
+  async function updateSet(values: FormValues, actions: FormikHelpers<FormValues>) {
+    if (!editingSet) return;
+    setIsUpdating(true);
+    updateToastRef.current = toast("Updating record...");
+
+    const { error } = await cardService.updateSet(editingSet.id, values);
+    updateToast(updateToastRef, error, true, "Record updated");
+
+    if (error == null) {
+      actions.resetForm();
+      setIsEditModalOpen(false);
+      setEditingSet(null);
+      fetchSets();
+    }
+
+    setIsUpdating(false);
+  }
 
   return (
     <div className="maintain-data">
@@ -177,6 +229,7 @@ export default function MaintainSets({
         isLoading={isLoading}
         sets={pagination.pagedItems}
         deleteSet={deleteSet}
+        onSelectSet={openEditModal}
       />
       {!isLoading && (
         <PaginationControls
@@ -191,6 +244,77 @@ export default function MaintainSets({
           onPageSizeChange={pagination.setPageSize}
         />
       )}
+
+      <EditRecordModal
+        isOpen={isEditModalOpen}
+        title="Edit Set"
+        onCancel={closeEditModal}
+        onSave={editFormik.submitForm}
+        isSaving={isUpdating}
+      >
+        <form
+          className="edit-set-form"
+          onSubmit={editFormik.handleSubmit}
+          role="form"
+          data-testid="edit-set-form"
+        >
+          <div className="form-control">
+            <label htmlFor="edit-name">Name</label>
+            <div className="input-container">
+              <input
+                id="edit-name"
+                name="name"
+                type="text"
+                value={editFormik.values.name}
+                onChange={editFormik.handleChange}
+                onBlur={editFormik.handleBlur}
+                className={editFormik.errors.name && editFormik.touched.name ? "error" : ""}
+              />
+              {editFormik.errors.name && editFormik.touched.name && (
+                <div className="error-msg">{editFormik.errors.name}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="checkbox-control edit-set-checkbox">
+            <label>
+              <input
+                type="checkbox"
+                id="edit-is_standard"
+                name="is_standard"
+                checked={editFormik.values.is_standard}
+                onChange={editFormik.handleChange}
+                onBlur={editFormik.handleBlur}
+              />
+              Standard Set
+            </label>
+          </div>
+
+          <div className="form-control date-control">
+            <label htmlFor="edit-release_date">Release Date</label>
+            <div className="input-container">
+              <input
+                ref={editDateInputRef}
+                type="date"
+                id="edit-release_date"
+                name="release_date"
+                value={editFormik.values.release_date}
+                onChange={handleEditDateChange}
+                onBlur={editFormik.handleBlur}
+                className={
+                  editFormik.errors.release_date && editFormik.touched.release_date ? "error" : ""
+                }
+              />
+              <div className="icon-container">
+                <FontAwesomeIcon icon={faCalendar} className="date-picker-icon" />
+              </div>
+              {editFormik.errors.release_date && editFormik.touched.release_date && (
+                <div className="error-msg">{editFormik.errors.release_date}</div>
+              )}
+            </div>
+          </div>
+        </form>
+      </EditRecordModal>
     </div>
   );
 }

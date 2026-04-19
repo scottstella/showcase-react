@@ -719,6 +719,10 @@ and WebKit) that Playwright uses to run the tests.
   `vitest.config.ts` so imports of `src/supabase/Client.tsx` succeed in CI and
   locally without a `.env` file (values are not a real project; they only
   satisfy client-side validation)
+- Sets edit UX is covered as a proof-of-concept (`MaintainSets`): click a table
+  row to open an edit modal, validate with the same schema, cancel/save, and
+  show update toasts. The shared modal lives in `src/common/EditRecordModal.tsx`
+  and is intended for reuse on Classes/Tribes next.
 - Coverage excludes `src/index.tsx` (React `createRoot` entry only); after
   `npm run test:coverage`, open `coverage/index.html` for the HTML report
 
