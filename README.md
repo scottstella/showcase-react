@@ -705,6 +705,10 @@ and WebKit) that Playwright uses to run the tests.
 - Use Vitest and React Testing Library
 - Test individual components and functions
 - Mock external dependencies
+- Vitest injects placeholder `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in
+  `vitest.config.ts` so imports of `src/supabase/Client.tsx` succeed in CI and
+  locally without a `.env` file (values are not a real project; they only
+  satisfy client-side validation)
 
 #### E2E Tests
 
