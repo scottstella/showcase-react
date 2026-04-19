@@ -204,6 +204,74 @@ describe("MaintainSets", () => {
     blurSpy.mockRestore();
   });
 
+  it("paginates set rows and navigates pages", async () => {
+    const pagedSets: Set[] = Array.from({ length: 12 }, (_, i) => ({
+      id: i + 1,
+      name: `Set ${i + 1}`,
+      created_at: "2024-03-01",
+      is_standard: i % 2 === 0,
+      release_date: "2020-01-01",
+    }));
+
+    mockService.fetchSets.mockResolvedValue({ data: pagedSets, error: null });
+
+    await act(async () => {
+      render(
+        <MaintainSets
+          cardService={mockService as unknown as CardService}
+          initialPageSize={5}
+          pageSizeOptions={[5, 10]}
+        />
+      );
+    });
+
+    expect(await screen.findByText("Set 1")).toBeInTheDocument();
+    expect(screen.queryByText("Set 6")).not.toBeInTheDocument();
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-5 of 12");
+
+    fireEvent.click(screen.getByTestId("next-page"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Set 6")).toBeInTheDocument();
+      expect(screen.queryByText("Set 1")).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("6-10 of 12");
+  });
+
+  it("changes page size and resets to first page", async () => {
+    const pagedSets: Set[] = Array.from({ length: 12 }, (_, i) => ({
+      id: i + 1,
+      name: `Set ${i + 1}`,
+      created_at: "2024-03-01",
+      is_standard: i % 2 === 0,
+      release_date: "2020-01-01",
+    }));
+
+    mockService.fetchSets.mockResolvedValue({ data: pagedSets, error: null });
+
+    await act(async () => {
+      render(
+        <MaintainSets
+          cardService={mockService as unknown as CardService}
+          initialPageSize={5}
+          pageSizeOptions={[5, 10]}
+        />
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("next-page"));
+    await waitFor(() => expect(screen.getByText("Set 6")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByTestId("page-size-select"), { target: { value: "10" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("Set 1")).toBeInTheDocument();
+      expect(screen.getByText("Set 10")).toBeInTheDocument();
+      expect(screen.queryByText("Set 11")).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-10 of 12");
+  });
+
   it("keeps form values when addSet returns an error", async () => {
     mockService.addSet.mockResolvedValue({ error: { message: "Insert failed" } });
 

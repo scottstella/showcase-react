@@ -34,6 +34,7 @@ const MaintainClassesResults = (props: MaintainClassesResultsProps) => {
                 icon="trash-can"
                 id={String(heroClass.id)}
                 onClick={props.deleteHeroClass}
+                data-testid="delete-class"
               />
             </td>
             <td style={{ width: "75px" }}>{heroClass.id}</td>

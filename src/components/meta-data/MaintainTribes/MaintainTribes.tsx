@@ -8,6 +8,8 @@ import cardServiceImpl from "../../../services/CardService";
 import { useFormik, FormikHelpers } from "formik";
 import { tribeSchema } from "../../../schemas/index";
 import type { Tribe } from "../../../dto/Tribe";
+import { usePagination } from "../../../common/pagination/usePagination";
+import PaginationControls from "../../../common/pagination/PaginationControls";
 
 interface FormValues {
   name: string;
@@ -15,8 +17,12 @@ interface FormValues {
 
 export default function MaintainTribes({
   cardService = cardServiceImpl,
+  initialPageSize = 10,
+  pageSizeOptions = [5, 10, 25, 50],
 }: {
   cardService?: typeof cardServiceImpl;
+  initialPageSize?: number;
+  pageSizeOptions?: number[];
 }) {
   const [tribes, setTribes] = useState<Tribe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +39,11 @@ export default function MaintainTribes({
       onSubmit,
     }
   );
+
+  const pagination = usePagination({
+    items: tribes,
+    initialPageSize,
+  });
 
   useEffect(() => {
     fetchTribes();
@@ -106,7 +117,24 @@ export default function MaintainTribes({
         </form>
       </div>
 
-      <MaintainTribesResults isLoading={isLoading} tribes={tribes} deleteTribe={deleteTribe} />
+      <MaintainTribesResults
+        isLoading={isLoading}
+        tribes={pagination.pagedItems}
+        deleteTribe={deleteTribe}
+      />
+      {!isLoading && (
+        <PaginationControls
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.totalItems}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          pageSize={pagination.pageSize}
+          pageSizeOptions={pageSizeOptions}
+          onPageChange={pagination.setPage}
+          onPageSizeChange={pagination.setPageSize}
+        />
+      )}
     </div>
   );
 }

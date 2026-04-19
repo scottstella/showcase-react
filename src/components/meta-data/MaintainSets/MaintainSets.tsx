@@ -10,6 +10,8 @@ import { setSchema } from "../../../schemas/index";
 import type { Set } from "../../../dto/Set";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
+import { usePagination } from "../../../common/pagination/usePagination";
+import PaginationControls from "../../../common/pagination/PaginationControls";
 import "./MaintainSets.css";
 
 interface FormValues {
@@ -18,11 +20,17 @@ interface FormValues {
   release_date: string;
 }
 
+interface MaintainSetsProps {
+  cardService?: typeof cardServiceImpl;
+  initialPageSize?: number;
+  pageSizeOptions?: number[];
+}
+
 export default function MaintainSets({
   cardService = cardServiceImpl,
-}: {
-  cardService?: typeof cardServiceImpl;
-}) {
+  initialPageSize = 10,
+  pageSizeOptions = [5, 10, 25, 50],
+}: MaintainSetsProps) {
   const [sets, setSets] = useState<Set[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -41,6 +49,11 @@ export default function MaintainSets({
       onSubmit,
     }
   );
+
+  const pagination = usePagination({
+    items: sets,
+    initialPageSize,
+  });
 
   useEffect(() => {
     fetchSets();
@@ -160,7 +173,24 @@ export default function MaintainSets({
         </form>
       </div>
 
-      <MaintainSetsResults isLoading={isLoading} sets={sets} deleteSet={deleteSet} />
+      <MaintainSetsResults
+        isLoading={isLoading}
+        sets={pagination.pagedItems}
+        deleteSet={deleteSet}
+      />
+      {!isLoading && (
+        <PaginationControls
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.totalItems}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          pageSize={pagination.pageSize}
+          pageSizeOptions={pageSizeOptions}
+          onPageChange={pagination.setPage}
+          onPageSizeChange={pagination.setPageSize}
+        />
+      )}
     </div>
   );
 }

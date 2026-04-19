@@ -298,4 +298,70 @@ describe("MaintainTribes", () => {
       });
     });
   });
+
+  it("paginates tribe rows and navigates pages", async () => {
+    const pagedTribes: Tribe[] = Array.from({ length: 12 }, (_, i) => ({
+      id: i + 1,
+      name: `Tribe ${i + 1}`,
+      created_at: "2024-03-01",
+    }));
+    mockService.fetchTribes.mockResolvedValue({ data: pagedTribes, error: null });
+
+    await act(async () => {
+      render(
+        <MaintainTribes
+          cardService={mockService as unknown as CardService}
+          initialPageSize={5}
+          pageSizeOptions={[5, 10]}
+        />
+      );
+    });
+
+    expect(screen.getByText("Tribe 1")).toBeInTheDocument();
+    expect(screen.queryByText("Tribe 6")).not.toBeInTheDocument();
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-5 of 12");
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("next-page"));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Tribe 6")).toBeInTheDocument();
+      expect(screen.queryByText("Tribe 1")).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("6-10 of 12");
+  });
+
+  it("changes tribe page size and resets to page 1", async () => {
+    const pagedTribes: Tribe[] = Array.from({ length: 12 }, (_, i) => ({
+      id: i + 1,
+      name: `Tribe ${i + 1}`,
+      created_at: "2024-03-01",
+    }));
+    mockService.fetchTribes.mockResolvedValue({ data: pagedTribes, error: null });
+
+    await act(async () => {
+      render(
+        <MaintainTribes
+          cardService={mockService as unknown as CardService}
+          initialPageSize={5}
+          pageSizeOptions={[5, 10]}
+        />
+      );
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("next-page"));
+    });
+    await waitFor(() => expect(screen.getByText("Tribe 6")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByTestId("page-size-select"), { target: { value: "10" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("Tribe 1")).toBeInTheDocument();
+      expect(screen.getByText("Tribe 10")).toBeInTheDocument();
+      expect(screen.queryByText("Tribe 11")).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-10 of 12");
+  });
 });

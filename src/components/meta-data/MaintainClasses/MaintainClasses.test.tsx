@@ -241,11 +241,11 @@ describe("MaintainClasses", () => {
       expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
       expect(screen.getByText("Mage")).toBeInTheDocument();
       expect(screen.getByText("Warrior")).toBeInTheDocument();
-      expect(screen.getAllByRole("img", { hidden: true })).toHaveLength(2);
+      expect(screen.getAllByTestId("delete-class")).toHaveLength(2);
     });
 
     // Click delete button for Mage (first hero class)
-    const deleteButtons = screen.getAllByRole("img", { hidden: true });
+    const deleteButtons = screen.getAllByTestId("delete-class");
     fireEvent.click(deleteButtons[0]);
 
     // Wait for delete operation to start
@@ -275,13 +275,13 @@ describe("MaintainClasses", () => {
     // Wait for initial data to load and find delete button
     await waitFor(() => {
       expect(screen.getByText("Mage")).toBeInTheDocument();
-      expect(screen.getAllByRole("img", { hidden: true })).toHaveLength(2);
+      expect(screen.getAllByTestId("delete-class")).toHaveLength(2);
     });
 
     vi.clearAllMocks();
 
     // Click delete button
-    const deleteButtons = screen.getAllByRole("img", { hidden: true });
+    const deleteButtons = screen.getAllByTestId("delete-class");
     fireEvent.click(deleteButtons[0]);
 
     // Wait for delete operation to complete and verify error handling
@@ -334,5 +334,66 @@ describe("MaintainClasses", () => {
     await waitFor(() => {
       expect(input).toHaveValue("");
     });
+  });
+
+  it("paginates class rows and navigates pages", async () => {
+    const pagedClasses: HeroClass[] = Array.from({ length: 12 }, (_, i) => ({
+      id: i + 1,
+      name: `Class ${i + 1}`,
+      created_at: "2024-03-01",
+    }));
+    mockService.fetchHeroClasses.mockResolvedValue({ data: pagedClasses, error: null });
+
+    render(
+      <MaintainClasses
+        cardService={mockService as unknown as CardService}
+        initialPageSize={5}
+        pageSizeOptions={[5, 10]}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Class 1")).toBeInTheDocument();
+      expect(screen.queryByText("Class 6")).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-5 of 12");
+
+    fireEvent.click(screen.getByTestId("next-page"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Class 6")).toBeInTheDocument();
+      expect(screen.queryByText("Class 1")).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("6-10 of 12");
+  });
+
+  it("changes class page size and resets to page 1", async () => {
+    const pagedClasses: HeroClass[] = Array.from({ length: 12 }, (_, i) => ({
+      id: i + 1,
+      name: `Class ${i + 1}`,
+      created_at: "2024-03-01",
+    }));
+    mockService.fetchHeroClasses.mockResolvedValue({ data: pagedClasses, error: null });
+
+    render(
+      <MaintainClasses
+        cardService={mockService as unknown as CardService}
+        initialPageSize={5}
+        pageSizeOptions={[5, 10]}
+      />
+    );
+
+    await waitFor(() => expect(screen.getByText("Class 1")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("next-page"));
+    await waitFor(() => expect(screen.getByText("Class 6")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByTestId("page-size-select"), { target: { value: "10" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("Class 1")).toBeInTheDocument();
+      expect(screen.getByText("Class 10")).toBeInTheDocument();
+      expect(screen.queryByText("Class 11")).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-10 of 12");
   });
 });

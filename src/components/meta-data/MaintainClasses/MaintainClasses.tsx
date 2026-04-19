@@ -9,12 +9,24 @@ import cardServiceImpl from "../../../services/CardService";
 import { useFormik } from "formik";
 import { heroClassSchema } from "../../../schemas/index";
 import type { HeroClass } from "../../../dto/HeroClass";
+import { usePagination } from "../../../common/pagination/usePagination";
+import PaginationControls from "../../../common/pagination/PaginationControls";
 
 interface FormValues {
   name: string;
 }
 
-export default function MaintainClasses({ cardService = cardServiceImpl }) {
+interface MaintainClassesProps {
+  cardService?: typeof cardServiceImpl;
+  initialPageSize?: number;
+  pageSizeOptions?: number[];
+}
+
+export default function MaintainClasses({
+  cardService = cardServiceImpl,
+  initialPageSize = 10,
+  pageSizeOptions = [5, 10, 25, 50],
+}: MaintainClassesProps) {
   const [heroClasses, setHeroClasses] = useState<HeroClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,6 +39,11 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
     },
     validationSchema: heroClassSchema,
     onSubmit,
+  });
+
+  const pagination = usePagination({
+    items: heroClasses,
+    initialPageSize,
   });
 
   useEffect(() => {
@@ -101,9 +118,22 @@ export default function MaintainClasses({ cardService = cardServiceImpl }) {
 
       <MaintainClassesResults
         isLoading={isLoading}
-        heroClasses={heroClasses}
+        heroClasses={pagination.pagedItems}
         deleteHeroClass={deleteHeroClass}
       />
+      {!isLoading && (
+        <PaginationControls
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.totalItems}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          pageSize={pagination.pageSize}
+          pageSizeOptions={pageSizeOptions}
+          onPageChange={pagination.setPage}
+          onPageSizeChange={pagination.setPageSize}
+        />
+      )}
     </div>
   );
 }
