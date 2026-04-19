@@ -4,7 +4,7 @@ Implement paging
 Implement edit record
 
 Google analytics
-Playwright tests
+Playwright in CI (chromium smoke)
 
 
 

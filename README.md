@@ -737,8 +737,16 @@ The E2E tests include:
 
 ### Example E2E Test
 
-The real suite lives in `tests/tribes.spec.ts` (mocks Supabase REST at the
-network layer). A simplified pattern:
+The E2E suite is split by area:
+
+- `tests/metadata-navigation.spec.ts`
+- `tests/tribes.spec.ts`
+- `tests/classes.spec.ts`
+- `tests/sets.spec.ts`
+
+Each file mocks Supabase REST network calls through
+`tests/helpers/supabaseRouteMocks.ts` so browser tests are deterministic. A
+simplified pattern:
 
 ```typescript
 // tests/tribes.spec.ts (illustrative)
