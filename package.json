@@ -37,6 +37,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:clean": "eslint . --fix --report-unused-disable-directives",
+    "check": "npm run lint && npm run test:ci && npm run build",
     "preview": "vite preview",
     "prepare": "husky",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css,scss,md}\""

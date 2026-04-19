@@ -47,6 +47,10 @@ npm run test:e2e:ui
 
 # Lint code
 npm run lint
+npm run lint:clean
+
+# Run local sanity checks (lint + unit tests + build)
+npm run check
 
 # Format code
 npm run format
@@ -64,8 +68,8 @@ npm run format
 2. **Testing Changes**:
 
    ```bash
-   npm test         # Run tests
-   npm run test:coverage  # Run tests with coverage report
+   npm run check         # Run lint + unit tests + build
+   npm run test:coverage # Run tests with coverage report
    ```
 
 3. **E2E Testing**:
@@ -689,6 +693,7 @@ and WebKit) that Playwright uses to run the tests.
 - `npm run test:coverage`: Run unit tests with coverage report
 - `npm run test:ci`: Run unit tests once (same command as CI; non-interactive)
 - `npm test -- --run`: Equivalent single run via the Vitest CLI flag
+- `npm run check`: Run local sanity checks (`lint`, `test:ci`, `build`)
 
 #### E2E Tests
 
@@ -709,6 +714,8 @@ and WebKit) that Playwright uses to run the tests.
   `vitest.config.ts` so imports of `src/supabase/Client.tsx` succeed in CI and
   locally without a `.env` file (values are not a real project; they only
   satisfy client-side validation)
+- Coverage excludes `src/index.tsx` (React `createRoot` entry only); after
+  `npm run test:coverage`, open `coverage/index.html` for the HTML report
 
 #### E2E Tests
 
@@ -755,6 +762,8 @@ to `main`:
 - `npm run lint` (ESLint 10, flat config)
 - `npm run test:ci` (Vitest, single run)
 - `npm run build`
+
+For a local equivalent before pushing, run `npm run check`.
 
 Playwright E2E tests are **not** executed in that workflow; run them locally
 with `npm run test:e2e` when you need browser coverage.

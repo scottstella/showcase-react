@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CardService } from "./CardService";
 import { HeroClass } from "../dto/HeroClass";
 import { Tribe } from "../dto/Tribe";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { Set } from "../dto/Set";
+import { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 
 interface MockQueryBuilder {
   select: ReturnType<typeof vi.fn>;
@@ -156,6 +157,89 @@ describe("CardService", () => {
       expect(mockInsert).toHaveBeenCalledWith([{ name: tribe.name }]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
+    });
+  });
+
+  describe("fetchSets", () => {
+    it("should fetch sets ordered by name", async () => {
+      const expectedResponse = { data: [{ id: 1, name: "Core" }] };
+      mockOrder.mockResolvedValue(expectedResponse);
+
+      const result = await cardService.fetchSets();
+
+      expect(
+        (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
+      ).toHaveBeenCalledWith("set");
+      expect(mockSelect).toHaveBeenCalled();
+      expect(mockOrder).toHaveBeenCalledWith("name");
+      expect(result).toEqual(expectedResponse);
+    });
+  });
+
+  describe("deleteSet", () => {
+    it("should delete set by id", async () => {
+      const expectedResponse = { data: { id: 1 } };
+      mockEq.mockResolvedValue(expectedResponse);
+
+      const result = await cardService.deleteSet(1);
+
+      expect(
+        (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
+      ).toHaveBeenCalledWith("set");
+      expect(mockDelete).toHaveBeenCalled();
+      expect(mockEq).toHaveBeenCalledWith("id", 1);
+      expect(result).toEqual(expectedResponse);
+    });
+
+    it("maps empty delete result to RLS-style error", async () => {
+      mockEq.mockResolvedValue({ data: [], error: null });
+
+      const result = await cardService.deleteSet(9);
+
+      expect(result.error).toBeInstanceOf(PostgrestError);
+      expect(result.error?.message).toContain("logged in");
+    });
+  });
+
+  describe("addSet", () => {
+    it("should insert name, is_standard, and release_date", async () => {
+      const set: Set = {
+        id: 1,
+        name: "March",
+        created_at: "2024-03-02",
+        is_standard: true,
+        release_date: "2022-12-06",
+      };
+      const expectedResponse = { data: set };
+      mockSingle.mockResolvedValue(expectedResponse);
+
+      const result = await cardService.addSet(set);
+
+      expect(
+        (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
+      ).toHaveBeenCalledWith("set");
+      expect(mockInsert).toHaveBeenCalledWith([
+        { name: set.name, is_standard: set.is_standard, release_date: set.release_date },
+      ]);
+      expect(mockSingle).toHaveBeenCalled();
+      expect(result).toEqual(expectedResponse);
+    });
+
+    it("maps empty insert result to RLS-style error", async () => {
+      mockSingle.mockResolvedValue({ data: [], error: null });
+
+      const set: Set = {
+        id: 0,
+        name: "X",
+        created_at: "",
+        is_standard: false,
+        release_date: "2020-01-01",
+      };
+
+      const result = await cardService.addSet(set);
+
+      expect(result.error).toBeInstanceOf(PostgrestError);
+      expect(result.error?.code).toBe("403");
     });
   });
 
