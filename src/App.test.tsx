@@ -44,18 +44,18 @@ describe("App", () => {
     expect(screen.getByTestId("toast-container")).toBeInTheDocument();
   });
 
-  it("renders Welcome component on root path", () => {
+  it("renders Welcome component on root path", async () => {
     window.history.pushState({}, "", "/");
     render(<App />);
 
-    expect(screen.getByTestId("welcome")).toBeInTheDocument();
+    expect(await screen.findByTestId("welcome")).toBeInTheDocument();
   });
 
-  it("renders MetaData component on /manageMetaData path", () => {
+  it("renders MetaData component on /manageMetaData path", async () => {
     window.history.pushState({}, "", "/manageMetaData");
     render(<App />);
 
-    expect(screen.getByTestId("meta-data")).toBeInTheDocument();
+    expect(await screen.findByTestId("meta-data")).toBeInTheDocument();
   });
 
   it("has correct layout structure", () => {

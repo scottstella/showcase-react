@@ -22,7 +22,7 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.14.0",
     "react-toastify": "^11.0.5",
-    "yup": "^0.32.11"
+    "yup": "^1.7.1"
   },
   "scripts": {
     "start": "vite --host",
