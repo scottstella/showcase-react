@@ -105,7 +105,7 @@ devices on your network, while `npm run dev` is for local development only.
 
 - Hot Module Replacement (HMR)
 - TypeScript compilation
-- ESLint 9 with flat config (`eslint.config.js`)
+- ESLint 10 with flat config (`eslint.config.js`)
 - Prettier formatting
 - Vitest for unit tests; Playwright for E2E
 - GitHub Actions workflow for lint, unit tests, and production build
@@ -752,7 +752,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every push and pull request
 to `main`:
 
 - `npm ci`
-- `npm run lint` (ESLint 9, flat config)
+- `npm run lint` (ESLint 10, flat config)
 - `npm run test:ci` (Vitest, single run)
 - `npm run build`
 
@@ -936,7 +936,7 @@ linting. To take advantage of these features:
 2. The project includes `.vscode/settings.json` which configures:
    - Format on save
    - Prettier as the default formatter
-   - Automatic ESLint fixes on save (uses `eslint.config.js` / ESLint 9 flat
+   - Automatic ESLint fixes on save (uses `eslint.config.js` / ESLint 10 flat
      config)
    - Language-specific formatting rules
 

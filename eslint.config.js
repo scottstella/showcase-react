@@ -28,7 +28,9 @@ export default tseslint.config(
     },
     settings: {
       react: {
-        version: "detect",
+        // Pinned: eslint-plugin-react@7.37 "detect" uses context.getFilename(), which
+        // ESLint 10 removed from rule contexts (see jsx-eslint/eslint-plugin-react#3977).
+        version: "19.2",
       },
     },
   },
