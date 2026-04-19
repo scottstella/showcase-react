@@ -9,12 +9,11 @@
     "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
-    "baseUrl": "src", // Base directory for resolving non-relative module names
     "paths": {
-      "@/*": ["*"], // Allows imports from src directory using @ prefix
-      "@components/*": ["components/*"], // Import components using @components prefix
-      "@services/*": ["services/*"], // Import services using @services prefix
-      "@assets/*": ["assets/*"] // Import assets using @assets prefix
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@services/*": ["./src/services/*"],
+      "@assets/*": ["./src/assets/*"]
     }
   },
   "include": ["src"], // Specify project source files

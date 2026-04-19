@@ -104,7 +104,7 @@ devices on your network, while `npm run dev` is for local development only.
 ### Development Features
 
 - Hot Module Replacement (HMR)
-- TypeScript compilation
+- TypeScript 6 compilation
 - ESLint 10 with flat config (`eslint.config.js`)
 - Prettier formatting
 - Vitest for unit tests; Playwright for E2E
