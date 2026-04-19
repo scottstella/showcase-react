@@ -43,6 +43,7 @@ npm run test:ci
 
 # Run E2E tests
 npm run test:e2e
+npm run test:e2e:smoke
 npm run test:e2e:ui
 
 # Lint code
@@ -665,6 +666,9 @@ npm run test:coverage
 # Run E2E tests
 npm run test:e2e
 
+# Run fast chromium smoke E2E (CI-aligned)
+npm run test:e2e:smoke
+
 # Run E2E tests with UI mode (interactive)
 npm run test:e2e:ui
 
@@ -698,6 +702,7 @@ and WebKit) that Playwright uses to run the tests.
 #### E2E Tests
 
 - `npm run test:e2e`: Run all E2E tests in headless mode
+- `npm run test:e2e:smoke`: Run the chromium-only smoke E2E subset (`@smoke`)
 - `npm run test:e2e:ui`: Open Playwright UI for interactive testing
 - `npm run test:e2e:headed`: Run tests with browser visible
 - `npm run test:e2e:debug`: Run tests in debug mode with step-by-step execution
@@ -770,11 +775,13 @@ to `main`:
 - `npm run lint` (ESLint 10, flat config)
 - `npm run test:ci` (Vitest, single run)
 - `npm run build`
+- `npx playwright install --with-deps chromium`
+- `npm run test:e2e:smoke` (Playwright chromium smoke only)
 
 For a local equivalent before pushing, run `npm run check`.
 
-Playwright E2E tests are **not** executed in that workflow; run them locally
-with `npm run test:e2e` when you need browser coverage.
+The full Playwright suite is still local/optional (`npm run test:e2e`) when you
+need broader browser coverage beyond CI smoke.
 
 ### Test Configuration
 
