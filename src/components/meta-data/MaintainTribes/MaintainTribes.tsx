@@ -10,6 +10,7 @@ import { tribeSchema } from "../../../schemas/index";
 import type { Tribe } from "../../../dto/Tribe";
 import { usePagination } from "../../../common/pagination/usePagination";
 import PaginationControls from "../../../common/pagination/PaginationControls";
+import EditRecordModal from "../../../common/EditRecordModal";
 
 interface FormValues {
   name: string;
@@ -26,9 +27,13 @@ export default function MaintainTribes({
 }) {
   const [tribes, setTribes] = useState<Tribe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingTribe, setEditingTribe] = useState<Tribe | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const addToastRef = useRef<Id | null>(null);
   const deleteToastRef = useRef<Id | null>(null);
+  const updateToastRef = useRef<Id | null>(null);
 
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } = useFormik<FormValues>(
     {
@@ -39,6 +44,15 @@ export default function MaintainTribes({
       onSubmit,
     }
   );
+
+  const editFormik = useFormik<FormValues>({
+    enableReinitialize: true,
+    initialValues: {
+      name: editingTribe?.name ?? "",
+    },
+    validationSchema: tribeSchema,
+    onSubmit: (formValues, actions) => updateTribe(formValues, actions),
+  });
 
   const pagination = usePagination({
     items: tribes,
@@ -96,6 +110,36 @@ export default function MaintainTribes({
     }
   }
 
+  const openEditModal = (tribe: Tribe) => {
+    setEditingTribe(tribe);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    if (isUpdating) return;
+    setIsEditModalOpen(false);
+    editFormik.resetForm();
+    setEditingTribe(null);
+  };
+
+  async function updateTribe(values: FormValues, actions: FormikHelpers<FormValues>) {
+    if (!editingTribe) return;
+    setIsUpdating(true);
+    updateToastRef.current = toast("Updating record...");
+
+    const { error } = await cardService.updateTribe(editingTribe.id, values);
+    updateToast(updateToastRef, error, true, "Record updated");
+
+    if (error == null) {
+      actions.resetForm();
+      setIsEditModalOpen(false);
+      setEditingTribe(null);
+      fetchTribes();
+    }
+
+    setIsUpdating(false);
+  }
+
   return (
     <div className="maintain-data">
       <div className="input-group">
@@ -121,6 +165,7 @@ export default function MaintainTribes({
         isLoading={isLoading}
         tribes={pagination.pagedItems}
         deleteTribe={deleteTribe}
+        onSelectTribe={openEditModal}
       />
       {!isLoading && (
         <PaginationControls
@@ -135,6 +180,34 @@ export default function MaintainTribes({
           onPageSizeChange={pagination.setPageSize}
         />
       )}
+
+      <EditRecordModal
+        isOpen={isEditModalOpen}
+        title="Edit Tribe"
+        onCancel={closeEditModal}
+        onSave={editFormik.submitForm}
+        isSaving={isUpdating}
+      >
+        <form onSubmit={editFormik.handleSubmit} role="form" data-testid="edit-tribe-form">
+          <div className="form-control">
+            <label htmlFor="edit-tribe-name">Name</label>
+            <div className="input-container">
+              <input
+                id="edit-tribe-name"
+                name="name"
+                type="text"
+                value={editFormik.values.name}
+                onChange={editFormik.handleChange}
+                onBlur={editFormik.handleBlur}
+                className={editFormik.errors.name && editFormik.touched.name ? "error" : ""}
+              />
+              {editFormik.errors.name && editFormik.touched.name && (
+                <div className="error-msg">{editFormik.errors.name}</div>
+              )}
+            </div>
+          </div>
+        </form>
+      </EditRecordModal>
     </div>
   );
 }

@@ -12,11 +12,12 @@ vi.mock("../../../common/utils", () => ({
 
 describe("MaintainClassesResults", () => {
   const mockHeroClasses: HeroClass[] = [
-    { id: 1, name: "Mage", created_at: "2024-03-01" },
-    { id: 2, name: "Warrior", created_at: "2024-03-02" },
+    { id: 1, name: "Mage", created_at: "2024-03-01", updated_at: "2024-04-01" },
+    { id: 2, name: "Warrior", created_at: "2024-03-02", updated_at: "2024-04-02" },
   ];
 
   const mockDeleteHeroClass = vi.fn();
+  const mockSelectHeroClass = vi.fn();
 
   it("displays loading message when loading", () => {
     render(
@@ -24,6 +25,7 @@ describe("MaintainClassesResults", () => {
         isLoading={true}
         heroClasses={[]}
         deleteHeroClass={mockDeleteHeroClass}
+        onSelectHeroClass={mockSelectHeroClass}
       />
     );
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -35,6 +37,7 @@ describe("MaintainClassesResults", () => {
         isLoading={false}
         heroClasses={mockHeroClasses}
         deleteHeroClass={mockDeleteHeroClass}
+        onSelectHeroClass={mockSelectHeroClass}
       />
     );
 
@@ -56,13 +59,28 @@ describe("MaintainClassesResults", () => {
         isLoading={false}
         heroClasses={mockHeroClasses}
         deleteHeroClass={mockDeleteHeroClass}
+        onSelectHeroClass={mockSelectHeroClass}
       />
     );
 
-    const deleteButtons = screen.getAllByRole("img", { hidden: true });
+    const deleteButtons = screen.getAllByTestId("delete-class");
     fireEvent.click(deleteButtons[0]);
 
     expect(mockDeleteHeroClass).toHaveBeenCalled();
+  });
+
+  it("calls onSelectHeroClass when a row is clicked", () => {
+    render(
+      <MaintainClassesResults
+        isLoading={false}
+        heroClasses={mockHeroClasses}
+        deleteHeroClass={mockDeleteHeroClass}
+        onSelectHeroClass={mockSelectHeroClass}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId("class-row-1"));
+    expect(mockSelectHeroClass).toHaveBeenCalledWith(mockHeroClasses[0]);
   });
 
   it("formats dates using getLastUpdatedString", () => {
@@ -71,10 +89,11 @@ describe("MaintainClassesResults", () => {
         isLoading={false}
         heroClasses={mockHeroClasses}
         deleteHeroClass={mockDeleteHeroClass}
+        onSelectHeroClass={mockSelectHeroClass}
       />
     );
 
-    expect(screen.getByText("Mocked date for 2024-03-01")).toBeInTheDocument();
-    expect(screen.getByText("Mocked date for 2024-03-02")).toBeInTheDocument();
+    expect(screen.getByText("Mocked date for 2024-04-01")).toBeInTheDocument();
+    expect(screen.getByText("Mocked date for 2024-04-02")).toBeInTheDocument();
   });
 });

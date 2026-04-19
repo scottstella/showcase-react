@@ -12,20 +12,33 @@ vi.mock("../../../common/utils", () => ({
 
 describe("MaintainTribesResults", () => {
   const mockTribes: Tribe[] = [
-    { id: 1, name: "Murloc", created_at: "2024-03-01" },
-    { id: 2, name: "Dragon", created_at: "2024-03-02" },
+    { id: 1, name: "Murloc", created_at: "2024-03-01", updated_at: "2024-04-01" },
+    { id: 2, name: "Dragon", created_at: "2024-03-02", updated_at: "2024-04-02" },
   ];
 
   const mockDeleteTribe = vi.fn();
+  const mockSelectTribe = vi.fn();
 
   it("displays loading message when loading", () => {
-    render(<MaintainTribesResults isLoading={true} tribes={[]} deleteTribe={mockDeleteTribe} />);
+    render(
+      <MaintainTribesResults
+        isLoading={true}
+        tribes={[]}
+        deleteTribe={mockDeleteTribe}
+        onSelectTribe={mockSelectTribe}
+      />
+    );
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
   it("displays tribes data when not loading", () => {
     render(
-      <MaintainTribesResults isLoading={false} tribes={mockTribes} deleteTribe={mockDeleteTribe} />
+      <MaintainTribesResults
+        isLoading={false}
+        tribes={mockTribes}
+        deleteTribe={mockDeleteTribe}
+        onSelectTribe={mockSelectTribe}
+      />
     );
 
     // Check for table headers
@@ -42,21 +55,45 @@ describe("MaintainTribesResults", () => {
 
   it("calls deleteTribe when delete icon is clicked", () => {
     render(
-      <MaintainTribesResults isLoading={false} tribes={mockTribes} deleteTribe={mockDeleteTribe} />
+      <MaintainTribesResults
+        isLoading={false}
+        tribes={mockTribes}
+        deleteTribe={mockDeleteTribe}
+        onSelectTribe={mockSelectTribe}
+      />
     );
 
-    const deleteButtons = screen.getAllByRole("img", { hidden: true });
+    const deleteButtons = screen.getAllByTestId("delete-tribe");
     fireEvent.click(deleteButtons[0]);
 
     expect(mockDeleteTribe).toHaveBeenCalled();
   });
 
-  it("formats dates using getLastUpdatedString", () => {
+  it("calls onSelectTribe when a row is clicked", () => {
     render(
-      <MaintainTribesResults isLoading={false} tribes={mockTribes} deleteTribe={mockDeleteTribe} />
+      <MaintainTribesResults
+        isLoading={false}
+        tribes={mockTribes}
+        deleteTribe={mockDeleteTribe}
+        onSelectTribe={mockSelectTribe}
+      />
     );
 
-    expect(screen.getByText("Mocked date for 2024-03-01")).toBeInTheDocument();
-    expect(screen.getByText("Mocked date for 2024-03-02")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("tribe-row-1"));
+    expect(mockSelectTribe).toHaveBeenCalledWith(mockTribes[0]);
+  });
+
+  it("formats dates using getLastUpdatedString", () => {
+    render(
+      <MaintainTribesResults
+        isLoading={false}
+        tribes={mockTribes}
+        deleteTribe={mockDeleteTribe}
+        onSelectTribe={mockSelectTribe}
+      />
+    );
+
+    expect(screen.getByText("Mocked date for 2024-04-01")).toBeInTheDocument();
+    expect(screen.getByText("Mocked date for 2024-04-02")).toBeInTheDocument();
   });
 });

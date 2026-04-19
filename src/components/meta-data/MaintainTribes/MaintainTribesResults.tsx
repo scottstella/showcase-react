@@ -11,6 +11,7 @@ interface MaintainTribesResultsProps {
   isLoading: boolean;
   tribes: Tribe[];
   deleteTribe: (event: React.MouseEvent<SVGSVGElement>) => void;
+  onSelectTribe: (tribe: Tribe) => void;
 }
 
 const MaintainTribesResults = (props: MaintainTribesResultsProps) => {
@@ -29,18 +30,26 @@ const MaintainTribesResults = (props: MaintainTribesResultsProps) => {
       </thead>
       <tbody>
         {props.tribes.map(tribe => (
-          <tr key={tribe.id}>
+          <tr
+            key={tribe.id}
+            className="clickable-table-row"
+            onClick={() => props.onSelectTribe(tribe)}
+            data-testid={`tribe-row-${tribe.id}`}
+          >
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
                 icon={faTrashCan}
                 id={tribe.id.toString()}
-                onClick={props.deleteTribe}
+                onClick={event => {
+                  event.stopPropagation();
+                  props.deleteTribe(event);
+                }}
                 data-testid="delete-tribe"
               />
             </td>
             <td style={{ width: "75px" }}>{tribe.id}</td>
             <td>{tribe.name}</td>
-            <td>{getLastUpdatedString(tribe.created_at)}</td>
+            <td>{getLastUpdatedString(tribe.updated_at ?? tribe.created_at)}</td>
           </tr>
         ))}
       </tbody>

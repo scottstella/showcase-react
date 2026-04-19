@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import "./EditRecordModal.css";
 
 interface EditRecordModalProps {
@@ -48,7 +50,14 @@ export default function EditRecordModal({
         data-testid="edit-modal"
         onClick={event => event.stopPropagation()}
       >
-        <h2 className="edit-modal-title">{title}</h2>
+        <div className="edit-modal-header">
+          <FontAwesomeIcon
+            icon={faPenToSquare}
+            className="edit-modal-title-icon"
+            aria-hidden="true"
+          />
+          <h2 className="edit-modal-title">{title}</h2>
+        </div>
         <div className="edit-modal-content">{children}</div>
         <div className="edit-modal-actions">
           <button

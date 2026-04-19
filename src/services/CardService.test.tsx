@@ -107,9 +107,47 @@ describe("CardService", () => {
       expect(
         (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
       ).toHaveBeenCalledWith("hero_class");
-      expect(mockInsert).toHaveBeenCalledWith([{ name: heroClass.name }]);
+      expect(mockInsert).toHaveBeenCalledWith([
+        {
+          name: heroClass.name,
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+        },
+      ]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
+    });
+  });
+
+  describe("updateHeroClass", () => {
+    it("should update hero class name by id", async () => {
+      const patch = { name: "Updated Mage" };
+      const expectedResponse = {
+        data: { id: 1, name: patch.name, created_at: "2024-03-02" },
+      };
+      mockSingle.mockResolvedValue(expectedResponse);
+
+      const result = await cardService.updateHeroClass(1, patch);
+
+      expect(
+        (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
+      ).toHaveBeenCalledWith("hero_class");
+      expect(mockUpdate).toHaveBeenCalledWith({
+        ...patch,
+        updated_at: expect.any(String),
+      });
+      expect(mockEq).toHaveBeenCalledWith("id", 1);
+      expect(mockSingle).toHaveBeenCalled();
+      expect(result).toEqual(expectedResponse);
+    });
+
+    it("maps empty update result to RLS-style error", async () => {
+      mockSingle.mockResolvedValue({ data: [], error: null });
+
+      const result = await cardService.updateHeroClass(1, { name: "Updated Mage" });
+
+      expect(result.error).toBeInstanceOf(PostgrestError);
+      expect(result.error?.code).toBe("403");
     });
   });
 
@@ -160,9 +198,47 @@ describe("CardService", () => {
       expect(
         (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
       ).toHaveBeenCalledWith("tribe");
-      expect(mockInsert).toHaveBeenCalledWith([{ name: tribe.name }]);
+      expect(mockInsert).toHaveBeenCalledWith([
+        {
+          name: tribe.name,
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+        },
+      ]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
+    });
+  });
+
+  describe("updateTribe", () => {
+    it("should update tribe name by id", async () => {
+      const patch = { name: "Updated Beast" };
+      const expectedResponse = {
+        data: { id: 1, name: patch.name, created_at: "2024-03-02" },
+      };
+      mockSingle.mockResolvedValue(expectedResponse);
+
+      const result = await cardService.updateTribe(1, patch);
+
+      expect(
+        (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
+      ).toHaveBeenCalledWith("tribe");
+      expect(mockUpdate).toHaveBeenCalledWith({
+        ...patch,
+        updated_at: expect.any(String),
+      });
+      expect(mockEq).toHaveBeenCalledWith("id", 1);
+      expect(mockSingle).toHaveBeenCalled();
+      expect(result).toEqual(expectedResponse);
+    });
+
+    it("maps empty update result to RLS-style error", async () => {
+      mockSingle.mockResolvedValue({ data: [], error: null });
+
+      const result = await cardService.updateTribe(1, { name: "Updated Beast" });
+
+      expect(result.error).toBeInstanceOf(PostgrestError);
+      expect(result.error?.code).toBe("403");
     });
   });
 
@@ -225,7 +301,13 @@ describe("CardService", () => {
         (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
       ).toHaveBeenCalledWith("set");
       expect(mockInsert).toHaveBeenCalledWith([
-        { name: set.name, is_standard: set.is_standard, release_date: set.release_date },
+        {
+          name: set.name,
+          is_standard: set.is_standard,
+          release_date: set.release_date,
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+        },
       ]);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
@@ -272,7 +354,10 @@ describe("CardService", () => {
       expect(
         (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
       ).toHaveBeenCalledWith("set");
-      expect(mockUpdate).toHaveBeenCalledWith(patch);
+      expect(mockUpdate).toHaveBeenCalledWith({
+        ...patch,
+        updated_at: expect.any(String),
+      });
       expect(mockEq).toHaveBeenCalledWith("id", 2);
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);

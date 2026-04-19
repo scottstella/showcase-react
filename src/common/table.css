@@ -28,6 +28,15 @@ table tbody tr {
 table tbody tr:last-child {
   border: 0;
 }
+
+.clickable-table-row {
+  cursor: pointer;
+}
+
+.clickable-table-row:hover {
+  background: #f5f9ff;
+}
+
 table td,
 table th {
   text-align: left;

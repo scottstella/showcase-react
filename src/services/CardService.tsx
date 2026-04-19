@@ -41,7 +41,23 @@ export class CardService {
 
   async addHeroClass(heroClass: HeroClass) {
     const { name } = heroClass;
-    const response = await this.supabase.from("hero_class").insert([{ name }]).single();
+    const now = new Date().toISOString();
+    const response = await this.supabase
+      .from("hero_class")
+      .insert([{ name, created_at: now, updated_at: now }])
+      .single();
+    return handleRLSError(response);
+  }
+
+  async updateHeroClass(id: number, patch: Pick<HeroClass, "name">) {
+    const response = await this.supabase
+      .from("hero_class")
+      .update({
+        ...patch,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .single();
     return handleRLSError(response);
   }
 
@@ -56,7 +72,23 @@ export class CardService {
 
   async addTribe(tribe: Tribe) {
     const { name } = tribe;
-    const response = await this.supabase.from("tribe").insert([{ name }]).single();
+    const now = new Date().toISOString();
+    const response = await this.supabase
+      .from("tribe")
+      .insert([{ name, created_at: now, updated_at: now }])
+      .single();
+    return handleRLSError(response);
+  }
+
+  async updateTribe(id: number, patch: Pick<Tribe, "name">) {
+    const response = await this.supabase
+      .from("tribe")
+      .update({
+        ...patch,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .single();
     return handleRLSError(response);
   }
 
@@ -71,9 +103,10 @@ export class CardService {
 
   async addSet(set: Set) {
     const { name, is_standard, release_date } = set;
+    const now = new Date().toISOString();
     const response = await this.supabase
       .from("set")
-      .insert([{ name, is_standard, release_date }])
+      .insert([{ name, is_standard, release_date, created_at: now, updated_at: now }])
       .single();
     return handleRLSError(response);
   }
@@ -82,7 +115,12 @@ export class CardService {
     const { name, is_standard, release_date } = setPatch;
     const response = await this.supabase
       .from("set")
-      .update({ name, is_standard, release_date })
+      .update({
+        name,
+        is_standard,
+        release_date,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", id)
       .single();
     return handleRLSError(response);

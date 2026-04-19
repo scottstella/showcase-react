@@ -18,10 +18,26 @@
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
 }
 
+.edit-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: -1.25rem -1.25rem 1rem;
+  padding: 0.9rem 1.25rem;
+  border-radius: 16px 16px 0 0;
+  background: #b6c199;
+  border-bottom: 1px solid #9ea889;
+}
+
 .edit-modal-title {
-  margin: 0 0 1rem;
+  margin: 0;
   font-size: 1.2rem;
   color: #1f2937;
+}
+
+.edit-modal-title-icon {
+  color: #2f4a2f;
+  font-size: 1.1rem;
 }
 
 .edit-modal-content {

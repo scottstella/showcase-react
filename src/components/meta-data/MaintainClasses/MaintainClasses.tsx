@@ -11,6 +11,7 @@ import { heroClassSchema } from "../../../schemas/index";
 import type { HeroClass } from "../../../dto/HeroClass";
 import { usePagination } from "../../../common/pagination/usePagination";
 import PaginationControls from "../../../common/pagination/PaginationControls";
+import EditRecordModal from "../../../common/EditRecordModal";
 
 interface FormValues {
   name: string;
@@ -29,9 +30,13 @@ export default function MaintainClasses({
 }: MaintainClassesProps) {
   const [heroClasses, setHeroClasses] = useState<HeroClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingHeroClass, setEditingHeroClass] = useState<HeroClass | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const addToastRef = useRef<Id | null>(null);
   const deleteToastRef = useRef<Id | null>(null);
+  const updateToastRef = useRef<Id | null>(null);
 
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } = useFormik({
     initialValues: {
@@ -39,6 +44,15 @@ export default function MaintainClasses({
     },
     validationSchema: heroClassSchema,
     onSubmit,
+  });
+
+  const editFormik = useFormik<FormValues>({
+    enableReinitialize: true,
+    initialValues: {
+      name: editingHeroClass?.name ?? "",
+    },
+    validationSchema: heroClassSchema,
+    onSubmit: (formValues, actions) => updateHeroClass(formValues, actions),
   });
 
   const pagination = usePagination({
@@ -95,6 +109,36 @@ export default function MaintainClasses({
     }
   }
 
+  const openEditModal = (heroClass: HeroClass) => {
+    setEditingHeroClass(heroClass);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    if (isUpdating) return;
+    setIsEditModalOpen(false);
+    editFormik.resetForm();
+    setEditingHeroClass(null);
+  };
+
+  async function updateHeroClass(values: FormValues, actions: FormikHelpers<FormValues>) {
+    if (!editingHeroClass) return;
+    setIsUpdating(true);
+    updateToastRef.current = toast("Updating record...");
+
+    const { error } = await cardService.updateHeroClass(editingHeroClass.id, values);
+    updateToast(updateToastRef, error, true, "Record updated");
+
+    if (error == null) {
+      actions.resetForm();
+      setIsEditModalOpen(false);
+      setEditingHeroClass(null);
+      fetchHeroClasses();
+    }
+
+    setIsUpdating(false);
+  }
+
   return (
     <div className="maintain-data">
       <div className="input-group">
@@ -120,6 +164,7 @@ export default function MaintainClasses({
         isLoading={isLoading}
         heroClasses={pagination.pagedItems}
         deleteHeroClass={deleteHeroClass}
+        onSelectHeroClass={openEditModal}
       />
       {!isLoading && (
         <PaginationControls
@@ -134,6 +179,34 @@ export default function MaintainClasses({
           onPageSizeChange={pagination.setPageSize}
         />
       )}
+
+      <EditRecordModal
+        isOpen={isEditModalOpen}
+        title="Edit Hero Class"
+        onCancel={closeEditModal}
+        onSave={editFormik.submitForm}
+        isSaving={isUpdating}
+      >
+        <form onSubmit={editFormik.handleSubmit} role="form" data-testid="edit-class-form">
+          <div className="form-control">
+            <label htmlFor="edit-class-name">Name</label>
+            <div className="input-container">
+              <input
+                id="edit-class-name"
+                name="name"
+                type="text"
+                value={editFormik.values.name}
+                onChange={editFormik.handleChange}
+                onBlur={editFormik.handleBlur}
+                className={editFormik.errors.name && editFormik.touched.name ? "error" : ""}
+              />
+              {editFormik.errors.name && editFormik.touched.name && (
+                <div className="error-msg">{editFormik.errors.name}</div>
+              )}
+            </div>
+          </div>
+        </form>
+      </EditRecordModal>
     </div>
   );
 }

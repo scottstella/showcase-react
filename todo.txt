@@ -1,7 +1,5 @@
 TODO:
 
-Implement edit record
-
 Google analytics
 
 

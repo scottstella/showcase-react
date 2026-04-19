@@ -20,6 +20,7 @@ interface MockCardService {
   fetchTribes: ReturnType<typeof vi.fn>;
   addTribe: ReturnType<typeof vi.fn>;
   deleteTribe: ReturnType<typeof vi.fn>;
+  updateTribe: ReturnType<typeof vi.fn>;
 }
 
 // Mock dependencies
@@ -84,6 +85,7 @@ describe("MaintainTribes", () => {
     fetchTribes: vi.fn(),
     addTribe: vi.fn(),
     deleteTribe: vi.fn(),
+    updateTribe: vi.fn(),
   };
 
   beforeEach(() => {
@@ -363,5 +365,61 @@ describe("MaintainTribes", () => {
       expect(screen.queryByText("Tribe 11")).not.toBeInTheDocument();
     });
     expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-10 of 12");
+  });
+
+  it("opens edit modal with selected tribe values", async () => {
+    await act(async () => {
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
+    });
+
+    await waitFor(() => expect(screen.getByTestId("tribe-row-1")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("tribe-row-1"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: "Edit Tribe" })).toBeInTheDocument();
+      expect(screen.getByLabelText("Name")).toHaveValue("Murloc");
+    });
+  });
+
+  it("updates a tribe from edit modal", async () => {
+    mockService.updateTribe.mockResolvedValue({ error: null, data: null });
+
+    await act(async () => {
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
+    });
+
+    await waitFor(() => expect(screen.getByTestId("tribe-row-1")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("tribe-row-1"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: "Edit Tribe" })).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Murloc Updated" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(mockService.updateTribe).toHaveBeenCalledWith(1, { name: "Murloc Updated" });
+      expect(toast).toHaveBeenCalledWith("Updating record...");
+    });
+  });
+
+  it("shows validation error in tribe edit modal", async () => {
+    await act(async () => {
+      render(<MaintainTribes cardService={mockService as unknown as CardService} />);
+    });
+
+    await waitFor(() => expect(screen.getByTestId("tribe-row-1")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("tribe-row-1"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: "Edit Tribe" })).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Required")).toBeInTheDocument();
+      expect(mockService.updateTribe).not.toHaveBeenCalled();
+    });
   });
 });

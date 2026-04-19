@@ -15,6 +15,7 @@ describe("MaintainSetsResults", () => {
       id: 1,
       name: "Core",
       created_at: "2024-03-01",
+      updated_at: "2024-04-01",
       is_standard: true,
       release_date: "2020-01-15",
     },
@@ -22,6 +23,7 @@ describe("MaintainSetsResults", () => {
       id: 2,
       name: "Wild",
       created_at: "2024-03-02",
+      updated_at: "2024-04-02",
       is_standard: false,
       release_date: "2021-06-01",
     },
@@ -102,7 +104,7 @@ describe("MaintainSetsResults", () => {
       />
     );
 
-    expect(screen.getByText("Mocked date for 2024-03-01")).toBeInTheDocument();
-    expect(screen.getByText("Mocked date for 2024-03-02")).toBeInTheDocument();
+    expect(screen.getByText("Mocked date for 2024-04-01")).toBeInTheDocument();
+    expect(screen.getByText("Mocked date for 2024-04-02")).toBeInTheDocument();
   });
 });

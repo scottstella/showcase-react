@@ -17,6 +17,7 @@ interface MockCardService {
   fetchHeroClasses: ReturnType<typeof vi.fn>;
   addHeroClass: ReturnType<typeof vi.fn>;
   deleteHeroClass: ReturnType<typeof vi.fn>;
+  updateHeroClass: ReturnType<typeof vi.fn>;
   fetchTribes: ReturnType<typeof vi.fn>;
   addTribe: ReturnType<typeof vi.fn>;
   deleteTribe: ReturnType<typeof vi.fn>;
@@ -81,6 +82,7 @@ describe("MaintainClasses", () => {
     fetchHeroClasses: vi.fn(),
     addHeroClass: vi.fn(),
     deleteHeroClass: vi.fn(),
+    updateHeroClass: vi.fn(),
     fetchTribes: vi.fn(),
     addTribe: vi.fn(),
     deleteTribe: vi.fn(),
@@ -395,5 +397,61 @@ describe("MaintainClasses", () => {
       expect(screen.queryByText("Class 11")).not.toBeInTheDocument();
     });
     expect(screen.getByTestId("pagination-summary")).toHaveTextContent("1-10 of 12");
+  });
+
+  it("opens edit modal with selected class values", async () => {
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
+
+    await waitFor(() => expect(screen.getByTestId("class-row-1")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("class-row-1"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: "Edit Hero Class" })).toBeInTheDocument();
+      expect(screen.getByLabelText("Name")).toHaveValue("Mage");
+    });
+  });
+
+  it("updates a class from edit modal", async () => {
+    mockService.updateHeroClass.mockResolvedValue({ error: null, data: null });
+
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
+
+    await waitFor(() => expect(screen.getByTestId("class-row-1")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("class-row-1"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: "Edit Hero Class" })).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Mage Updated" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(mockService.updateHeroClass).toHaveBeenCalledWith(1, { name: "Mage Updated" });
+      expect(toast).toHaveBeenCalledWith("Updating record...");
+      expect(updateToast).toHaveBeenCalledWith(
+        { current: "toast-id" },
+        null,
+        true,
+        "Record updated"
+      );
+    });
+  });
+
+  it("shows validation error in class edit modal", async () => {
+    render(<MaintainClasses cardService={mockService as unknown as CardService} />);
+
+    await waitFor(() => expect(screen.getByTestId("class-row-1")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("class-row-1"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: "Edit Hero Class" })).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Required")).toBeInTheDocument();
+      expect(mockService.updateHeroClass).not.toHaveBeenCalled();
+    });
   });
 });

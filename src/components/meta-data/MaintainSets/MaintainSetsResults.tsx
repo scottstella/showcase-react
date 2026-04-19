@@ -53,7 +53,7 @@ const MaintainSetsResults = (props: MaintainSetsResultsProps) => {
             <td>{set.name}</td>
             <td>{set.is_standard ? "Yes" : "No"}</td>
             <td>{new Date(set.release_date).toLocaleDateString()}</td>
-            <td>{getLastUpdatedString(set.created_at)}</td>
+            <td>{getLastUpdatedString(set.updated_at ?? set.created_at)}</td>
           </tr>
         ))}
       </tbody>
