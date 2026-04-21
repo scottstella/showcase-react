@@ -99,6 +99,10 @@
   max-width: 100%;
 }
 
+.maintain-data.maintain-cards .maintain-cards-mechanics-pane {
+  flex-basis: 100%;
+}
+
 /* Collectible / Token / Legendary on one line */
 .maintain-data.maintain-cards .maintain-cards-row-inline {
   flex-direction: row;
@@ -177,7 +181,7 @@
 
 .maintain-cards-mechanics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.35rem 0.75rem;
   max-height: 220px;
   overflow: auto;

@@ -48,7 +48,16 @@ interface CardFormValues {
   mechanics: Record<Mechanic, boolean>;
 }
 
-const MECHANICS_WITH_DESCRIPTIONS: readonly Mechanic[] = ["BATTLECRY", "DEATHRATTLE"] as const;
+const MECHANICS_WITH_DESCRIPTIONS: readonly Mechanic[] = [
+  "BATTLECRY",
+  "DEATHRATTLE",
+  "DISCOVER",
+  "OUTCAST",
+  "INSPIRE",
+  "SECRET",
+  "COMBO",
+  "SPELL_DAMAGE",
+] as const;
 
 interface MaintainCardsProps {
   cardService?: typeof cardServiceImpl;
@@ -62,13 +71,6 @@ function slugify(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-}
-
-function parseUuidLines(text: string): string[] {
-  return text
-    .split(/\r?\n/g)
-    .map(line => line.trim())
-    .filter(Boolean);
 }
 
 function emptyMechanics(): Record<Mechanic, boolean> {
@@ -237,11 +239,9 @@ export default function MaintainCards({
   const [mechanicDescriptions, setMechanicDescriptions] = useState<Record<Mechanic, string>>(
     emptyMechanicDescriptions()
   );
-  const [relatedCardsText, setRelatedCardsText] = useState("");
   const [editMechanicDescriptions, setEditMechanicDescriptions] = useState<
     Record<Mechanic, string>
   >(emptyMechanicDescriptions());
-  const [editRelatedCardsText, setEditRelatedCardsText] = useState("");
 
   const [addImageFile, setAddImageFile] = useState<File | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
@@ -347,7 +347,6 @@ export default function MaintainCards({
   async function addCard(formValues: CardFormValues, actions: FormikHelpers<CardFormValues>) {
     const payload = toUpsertPayload(formValues);
     payload.keywords = selectedMechanicDescriptors(formValues.mechanics, mechanicDescriptions);
-    payload.related_card_ids = parseUuidLines(relatedCardsText);
 
     addToastRef.current = toast("Adding record...");
     const { error } = await cardService.addCard(payload, addImageFile);
@@ -356,7 +355,6 @@ export default function MaintainCards({
     if (error == null) {
       actions.resetForm();
       setMechanicDescriptions(emptyMechanicDescriptions());
-      setRelatedCardsText("");
       setAddImageFile(null);
       await loadPageData();
     }
@@ -377,7 +375,6 @@ export default function MaintainCards({
     setEditImageFile(null);
     const mechanicSelections = mechanicSelectionsFromCard(card);
     setEditMechanicDescriptions(mechanicSelections.descriptions);
-    setEditRelatedCardsText((card.card_related_card ?? []).map(r => r.related_card_id).join("\n"));
 
     editFormik.setValues({
       name: card.name,
@@ -410,7 +407,6 @@ export default function MaintainCards({
     setEditingCard(null);
     setEditImageFile(null);
     setEditMechanicDescriptions(emptyMechanicDescriptions());
-    setEditRelatedCardsText("");
   };
 
   async function updateCard(formValues: CardFormValues, actions: FormikHelpers<CardFormValues>) {
@@ -418,7 +414,6 @@ export default function MaintainCards({
 
     const payload = toUpsertPayload(formValues);
     payload.keywords = selectedMechanicDescriptors(formValues.mechanics, editMechanicDescriptions);
-    payload.related_card_ids = parseUuidLines(editRelatedCardsText);
 
     setIsUpdating(true);
     updateToastRef.current = toast("Updating record...");
@@ -431,7 +426,6 @@ export default function MaintainCards({
       setEditingCard(null);
       setEditImageFile(null);
       setEditMechanicDescriptions(emptyMechanicDescriptions());
-      setEditRelatedCardsText("");
       await loadPageData();
     }
 
@@ -800,7 +794,7 @@ export default function MaintainCards({
           </div>
 
           <div className="form-row maintain-cards-row-split">
-            <div className="form-control maintain-cards-split-item">
+            <div className="form-control maintain-cards-split-item maintain-cards-mechanics-pane">
               <div>Mechanics</div>
               <div className="maintain-cards-mechanics" data-testid="add-mechanics">
                 {MECHANICS.map(mechanic => (
@@ -830,19 +824,6 @@ export default function MaintainCards({
                       )}
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="form-control maintain-cards-split-item">
-              <label htmlFor="related_cards_text">Related card IDs (UUID per line)</label>
-              <div className="input-container">
-                <textarea
-                  id="related_cards_text"
-                  rows={6}
-                  placeholder="One UUID per line"
-                  value={relatedCardsText}
-                  onChange={e => setRelatedCardsText(e.target.value)}
-                />
               </div>
             </div>
 
@@ -1199,7 +1180,7 @@ export default function MaintainCards({
           </div>
 
           <div className="form-row maintain-cards-row-split">
-            <div className="form-control maintain-cards-split-item">
+            <div className="form-control maintain-cards-split-item maintain-cards-mechanics-pane">
               <div>Mechanics</div>
               <div className="maintain-cards-mechanics" data-testid="edit-mechanics">
                 {MECHANICS.map(mechanic => (
@@ -1229,19 +1210,6 @@ export default function MaintainCards({
                       )}
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="form-control maintain-cards-split-item">
-              <label htmlFor="edit-related_cards_text">Related card IDs (UUID per line)</label>
-              <div className="input-container">
-                <textarea
-                  id="edit-related_cards_text"
-                  rows={6}
-                  placeholder="One UUID per line"
-                  value={editRelatedCardsText}
-                  onChange={e => setEditRelatedCardsText(e.target.value)}
-                />
               </div>
             </div>
 
