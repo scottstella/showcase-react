@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act, within } from "@testing-library/react";
 import MaintainTribes from "./MaintainTribes";
 import { toast } from "react-toastify";
 import type { Tribe } from "../../../dto/Tribe";
@@ -218,15 +218,12 @@ describe("MaintainTribes", () => {
       render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
-    await act(async () => {
-      await waitFor(() => {
-        const deleteButtons = screen.getAllByTestId("delete-tribe");
-        expect(deleteButtons.length).toBeGreaterThan(0);
-        fireEvent.click(deleteButtons[0]);
-      });
-    });
+    const deleteButtons = await screen.findAllByTestId("delete-tribe");
+    expect(deleteButtons.length).toBeGreaterThan(0);
+    fireEvent.click(deleteButtons[0]);
 
-    expect(mockService.deleteTribe).toHaveBeenCalledWith(1);
+    await waitFor(() => expect(mockService.deleteTribe).toHaveBeenCalledWith(1));
+    await waitFor(() => expect(mockService.fetchTribes).toHaveBeenCalledTimes(2));
     expect(toast).toHaveBeenCalledWith("Deleting record...");
   });
 
@@ -244,15 +241,12 @@ describe("MaintainTribes", () => {
       render(<MaintainTribes cardService={mockService as unknown as CardService} />);
     });
 
-    await act(async () => {
-      await waitFor(() => {
-        const deleteButtons = screen.getAllByTestId("delete-tribe");
-        expect(deleteButtons.length).toBeGreaterThan(0);
-        fireEvent.click(deleteButtons[0]);
-      });
-    });
+    const deleteButtons = await screen.findAllByTestId("delete-tribe");
+    expect(deleteButtons.length).toBeGreaterThan(0);
+    fireEvent.click(deleteButtons[0]);
 
-    expect(mockService.deleteTribe).toHaveBeenCalledWith(1);
+    await waitFor(() => expect(mockService.deleteTribe).toHaveBeenCalledWith(1));
+    await waitFor(() => expect(mockService.fetchTribes).toHaveBeenCalledTimes(1));
     expect(toast).toHaveBeenCalledWith("Deleting record...");
   });
 
@@ -376,8 +370,9 @@ describe("MaintainTribes", () => {
     fireEvent.click(screen.getByTestId("tribe-row-1"));
 
     await waitFor(() => {
-      expect(screen.getByRole("dialog", { name: "Edit Tribe" })).toBeInTheDocument();
-      expect(screen.getByLabelText("Name")).toHaveValue("Murloc");
+      const modal = screen.getByRole("dialog", { name: "Edit Tribe" });
+      expect(modal).toBeInTheDocument();
+      expect(within(modal).getByLabelText("Name")).toHaveValue("Murloc");
     });
   });
 
@@ -391,11 +386,9 @@ describe("MaintainTribes", () => {
     await waitFor(() => expect(screen.getByTestId("tribe-row-1")).toBeInTheDocument());
     fireEvent.click(screen.getByTestId("tribe-row-1"));
 
-    await waitFor(() => {
-      expect(screen.getByRole("dialog", { name: "Edit Tribe" })).toBeInTheDocument();
-    });
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Murloc Updated" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    const modal = await screen.findByRole("dialog", { name: "Edit Tribe" });
+    fireEvent.change(within(modal).getByLabelText("Name"), { target: { value: "Murloc Updated" } });
+    fireEvent.click(within(modal).getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
       expect(mockService.updateTribe).toHaveBeenCalledWith(1, { name: "Murloc Updated" });
@@ -411,11 +404,9 @@ describe("MaintainTribes", () => {
     await waitFor(() => expect(screen.getByTestId("tribe-row-1")).toBeInTheDocument());
     fireEvent.click(screen.getByTestId("tribe-row-1"));
 
-    await waitFor(() => {
-      expect(screen.getByRole("dialog", { name: "Edit Tribe" })).toBeInTheDocument();
-    });
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    const modal = await screen.findByRole("dialog", { name: "Edit Tribe" });
+    fireEvent.change(within(modal).getByLabelText("Name"), { target: { value: "" } });
+    fireEvent.click(within(modal).getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
       expect(screen.getByText("Required")).toBeInTheDocument();

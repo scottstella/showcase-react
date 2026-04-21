@@ -200,7 +200,9 @@ describe("MaintainSets", () => {
     const dateInput = screen.getByLabelText(/release date/i) as HTMLInputElement;
     const blurSpy = vi.spyOn(dateInput, "blur");
 
-    fireEvent.change(dateInput, { target: { value: "2024-05-01", name: "release_date" } });
+    await act(async () => {
+      fireEvent.change(dateInput, { target: { value: "2024-05-01", name: "release_date" } });
+    });
 
     expect(blurSpy).toHaveBeenCalled();
     blurSpy.mockRestore();
@@ -292,17 +294,25 @@ describe("MaintainSets", () => {
       render(<MaintainSets cardService={mockService as unknown as CardService} />);
     });
 
-    fireEvent.click(await screen.findByTestId("set-row-1"));
+    await act(async () => {
+      fireEvent.click(await screen.findByTestId("set-row-1"));
+    });
     const modal = screen.getByTestId("edit-modal");
     const editNameInput = within(modal).getByLabelText("Name");
     fireEvent.change(editNameInput, { target: { value: "Changed Name" } });
     expect(editNameInput).toHaveValue("Changed Name");
 
-    fireEvent.click(screen.getByTestId("edit-cancel"));
-    expect(screen.queryByTestId("edit-modal")).not.toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("edit-cancel"));
+    });
+    await waitFor(() => expect(screen.queryByTestId("edit-modal")).not.toBeInTheDocument());
 
-    fireEvent.click(screen.getByTestId("set-row-1"));
-    expect(within(screen.getByTestId("edit-modal")).getByLabelText("Name")).toHaveValue("Core");
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("set-row-1"));
+    });
+    await waitFor(() =>
+      expect(within(screen.getByTestId("edit-modal")).getByLabelText("Name")).toHaveValue("Core")
+    );
   });
 
   it("validates required name in edit mode", async () => {

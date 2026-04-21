@@ -49,7 +49,6 @@ export interface Card {
   text: string;
 
   is_collectible: boolean;
-  is_legendary: boolean;
   is_token: boolean;
 
   image_url: string | null;
@@ -89,7 +88,6 @@ export interface CardUpsertPayload {
   text: string;
 
   is_collectible: boolean;
-  is_legendary: boolean;
   is_token: boolean;
 
   image_url?: string | null;

@@ -30,7 +30,6 @@ const MaintainCardsResults = (props: MaintainCardsResultsProps) => {
           <th>Mana</th>
           <th>Collectible</th>
           <th>Token</th>
-          <th>Legendary</th>
           <th>Last Updated</th>
         </tr>
       </thead>
@@ -61,7 +60,6 @@ const MaintainCardsResults = (props: MaintainCardsResultsProps) => {
             <td>{card.mana_cost}</td>
             <td>{card.is_collectible ? "Yes" : "No"}</td>
             <td>{card.is_token ? "Yes" : "No"}</td>
-            <td>{card.is_legendary ? "Yes" : "No"}</td>
             <td>{getLastUpdatedString(card.updated_at ?? card.created_at)}</td>
           </tr>
         ))}

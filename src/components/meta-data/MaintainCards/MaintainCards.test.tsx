@@ -45,7 +45,6 @@ describe("MaintainCards", () => {
     durability: null,
     text: "Taunt.",
     is_collectible: true,
-    is_legendary: false,
     is_token: false,
     image_url: null,
     image_path: null,
@@ -98,6 +97,17 @@ describe("MaintainCards", () => {
     mockService.deleteCard.mockResolvedValue({ error: null, data: null });
   });
 
+  const fillRequiredAddFormFields = () => {
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "New Card" } });
+    fireEvent.change(screen.getByLabelText("Slug"), { target: { value: "new-card" } });
+    fireEvent.change(screen.getByLabelText("Set"), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText("Class"), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText("Mana"), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText("Attack"), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText("Health"), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText("Card text"), { target: { value: "Does a thing." } });
+  };
+
   it("loads cards and shows summary table", async () => {
     render(<MaintainCards cardService={mockService as unknown as CardService} />);
 
@@ -112,14 +122,7 @@ describe("MaintainCards", () => {
 
     await waitFor(() => expect(screen.getByTestId("add-card-form")).toBeInTheDocument());
 
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "New Card" } });
-    fireEvent.change(screen.getByLabelText("Slug"), { target: { value: "new-card" } });
-    fireEvent.change(screen.getByLabelText("Set"), { target: { value: "1" } });
-    fireEvent.change(screen.getByLabelText("Class"), { target: { value: "1" } });
-    fireEvent.change(screen.getByLabelText("Mana"), { target: { value: "1" } });
-    fireEvent.change(screen.getByLabelText("Attack"), { target: { value: "1" } });
-    fireEvent.change(screen.getByLabelText("Health"), { target: { value: "1" } });
-    fireEvent.change(screen.getByLabelText("Card text"), { target: { value: "Does a thing." } });
+    fillRequiredAddFormFields();
 
     const mechanics = screen.getByTestId("add-mechanics");
     fireEvent.click(within(mechanics).getAllByRole("checkbox")[0]);
@@ -131,6 +134,96 @@ describe("MaintainCards", () => {
       expect(toast).toHaveBeenCalledWith("Adding record...");
       expect(updateToast).toHaveBeenCalled();
     });
+  });
+
+  it("adds mechanic descriptor text for battlecry", async () => {
+    render(<MaintainCards cardService={mockService as unknown as CardService} />);
+    await waitFor(() => expect(screen.getByTestId("add-card-form")).toBeInTheDocument());
+
+    fillRequiredAddFormFields();
+
+    const mechanics = screen.getByTestId("add-mechanics");
+    fireEvent.click(within(mechanics).getByLabelText("BATTLECRY"));
+    fireEvent.change(screen.getByPlaceholderText("BATTLECRY description"), {
+      target: { value: "Draw a card" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit" }));
+
+    await waitFor(() => expect(mockService.addCard).toHaveBeenCalled());
+    expect(mockService.addCard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mechanics: expect.arrayContaining(["BATTLECRY"]),
+        keywords: ["BATTLECRY: Draw a card"],
+      }),
+      null
+    );
+  });
+
+  it("updates a card from edit modal", async () => {
+    render(<MaintainCards cardService={mockService as unknown as CardService} />);
+    await waitFor(() => expect(screen.getByTestId(`card-row-${mockCard.id}`)).toBeInTheDocument());
+
+    fireEvent.click(screen.getByTestId(`card-row-${mockCard.id}`));
+    await waitFor(() =>
+      expect(screen.getByRole("dialog", { name: "Edit Card" })).toBeInTheDocument()
+    );
+    const editModal = screen.getByRole("dialog", { name: "Edit Card" });
+
+    fireEvent.change(within(editModal).getByLabelText("Name"), {
+      target: { value: "Edited Card" },
+    });
+    const editMechanics = within(editModal).getByTestId("edit-mechanics");
+    fireEvent.click(within(editMechanics).getByLabelText("BATTLECRY"));
+    fireEvent.change(within(editModal).getByPlaceholderText("BATTLECRY description"), {
+      target: { value: "Deal 3 damage" },
+    });
+    fireEvent.click(within(editModal).getByTestId("edit-save"));
+
+    await waitFor(() =>
+      expect(mockService.updateCard).toHaveBeenCalledWith(
+        mockCard.id,
+        expect.objectContaining({
+          name: "Edited Card",
+          mechanics: expect.arrayContaining(["BATTLECRY"]),
+          keywords: ["BATTLECRY: Deal 3 damage"],
+        }),
+        null
+      )
+    );
+  });
+
+  it("deletes from results action icon", async () => {
+    render(<MaintainCards cardService={mockService as unknown as CardService} />);
+    await waitFor(() => expect(screen.getByTestId(`card-row-${mockCard.id}`)).toBeInTheDocument());
+
+    fireEvent.click(screen.getByTestId("delete-card"));
+
+    await waitFor(() => expect(mockService.deleteCard).toHaveBeenCalledWith(mockCard.id));
+    expect(screen.queryByRole("dialog", { name: "Edit Card" })).not.toBeInTheDocument();
+  });
+
+  it("clears mechanic descriptor when unchecked", async () => {
+    render(<MaintainCards cardService={mockService as unknown as CardService} />);
+    await waitFor(() => expect(screen.getByTestId("add-card-form")).toBeInTheDocument());
+
+    fillRequiredAddFormFields();
+    const mechanics = screen.getByTestId("add-mechanics");
+    fireEvent.click(within(mechanics).getByLabelText("BATTLECRY"));
+    fireEvent.change(screen.getByPlaceholderText("BATTLECRY description"), {
+      target: { value: "This should be cleared" },
+    });
+    fireEvent.click(within(mechanics).getByLabelText("BATTLECRY"));
+    fireEvent.click(screen.getByRole("button", { name: "Submit" }));
+
+    await waitFor(() => expect(mockService.addCard).toHaveBeenCalled());
+    expect(mockService.addCard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mechanics: expect.not.arrayContaining(["BATTLECRY"]),
+        keywords: [],
+      }),
+      null
+    );
   });
 
   it("opens edit modal from row click", async () => {

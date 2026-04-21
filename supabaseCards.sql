@@ -98,7 +98,6 @@ create table if not exists card (
   text text not null default '',
 
   is_collectible boolean not null default true,
-  is_legendary boolean not null default false,
   is_token boolean not null default false,
 
   image_url text,
@@ -141,6 +140,9 @@ create index if not exists card_set_idx on card (set_id);
 create index if not exists card_class_idx on card (hero_class_id);
 create index if not exists card_rarity_idx on card (rarity);
 create index if not exists card_mana_idx on card (mana_cost);
+
+-- Backward-compat cleanup: older versions stored a redundant is_legendary boolean.
+alter table card drop column if exists is_legendary;
 
 create table if not exists card_mechanic_map (
   card_id uuid not null references card(id) on delete cascade,

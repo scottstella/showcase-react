@@ -106,7 +106,6 @@ test.describe("Meta-data navigation", () => {
             durability: null,
             text: "Taunt.",
             is_collectible: true,
-            is_legendary: false,
             is_token: false,
             image_url: null,
             image_path: null,

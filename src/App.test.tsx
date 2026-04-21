@@ -39,8 +39,11 @@ vi.mock("react-toastify", () => ({
 }));
 
 describe("App", () => {
-  it("renders all layout components", () => {
+  it("renders all layout components", async () => {
     render(<App />);
+
+    // Ensure lazy route content resolves before assertions complete.
+    expect(await screen.findByTestId("welcome")).toBeInTheDocument();
 
     expect(screen.getByTestId("header")).toBeInTheDocument();
     expect(screen.getByTestId("nav")).toBeInTheDocument();

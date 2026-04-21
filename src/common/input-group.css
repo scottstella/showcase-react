@@ -87,6 +87,10 @@
   align-self: stretch;
 }
 
+.input-group input[type="submit"].submit-align-bottom {
+  align-self: flex-end;
+}
+
 .input-group input[type="submit"]:hover {
   background-color: #e2e8f0;
   transform: translateY(-1px);

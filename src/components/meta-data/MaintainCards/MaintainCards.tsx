@@ -41,7 +41,6 @@ interface CardFormValues {
   text: string;
 
   is_collectible: boolean;
-  is_legendary: boolean;
   is_token: boolean;
 
   artist: string;
@@ -212,7 +211,6 @@ function toUpsertPayload(values: CardFormValues): CardUpsertPayload {
     durability: toNullableInt(values.durability),
     text: values.text,
     is_collectible: values.is_collectible,
-    is_legendary: values.is_legendary,
     is_token: values.is_token,
     artist: values.artist.trim() ? values.artist.trim() : null,
     mechanics: selectedMechanics(values.mechanics),
@@ -268,7 +266,6 @@ export default function MaintainCards({
     durability: "",
     text: "",
     is_collectible: true,
-    is_legendary: false,
     is_token: false,
     artist: "",
     mechanics: emptyMechanics(),
@@ -398,7 +395,6 @@ export default function MaintainCards({
       durability: card.durability ?? "",
       text: card.text,
       is_collectible: card.is_collectible,
-      is_legendary: card.is_legendary,
       is_token: card.is_token,
       artist: card.artist ?? "",
       mechanics: mechanicSelections.mechanics,
@@ -484,6 +480,7 @@ export default function MaintainCards({
                     id="name"
                     name="name"
                     type="text"
+                    placeholder="Name"
                     value={values.name}
                     onChange={handleChange}
                     onBlur={onNameBlur}
@@ -500,6 +497,7 @@ export default function MaintainCards({
                     id="slug"
                     name="slug"
                     type="text"
+                    placeholder="Slug"
                     value={values.slug}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -642,6 +640,7 @@ export default function MaintainCards({
                     id="mana_cost"
                     name="mana_cost"
                     type="number"
+                    placeholder="Mana"
                     value={values.mana_cost}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -660,6 +659,7 @@ export default function MaintainCards({
                     id="attack"
                     name="attack"
                     type="number"
+                    placeholder="Attack"
                     value={values.attack}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -678,6 +678,7 @@ export default function MaintainCards({
                     id="health"
                     name="health"
                     type="number"
+                    placeholder="Health"
                     value={values.health}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -696,6 +697,7 @@ export default function MaintainCards({
                     id="durability"
                     name="durability"
                     type="number"
+                    placeholder="Durability"
                     value={values.durability}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -714,6 +716,7 @@ export default function MaintainCards({
                     id="artist"
                     name="artist"
                     type="text"
+                    placeholder="Artist"
                     value={values.artist}
                     onChange={handleChange}
                   />
@@ -743,6 +746,7 @@ export default function MaintainCards({
                   id="text"
                   name="text"
                   rows={4}
+                  placeholder="Card text"
                   value={values.text}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -761,6 +765,7 @@ export default function MaintainCards({
                   id="flavor_text"
                   name="flavor_text"
                   rows={2}
+                  placeholder="Flavor text"
                   value={values.flavor_text}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -790,17 +795,6 @@ export default function MaintainCards({
                   onChange={handleChange}
                 />
                 Token
-              </label>
-            </div>
-            <div className="checkbox-control">
-              <label>
-                <input
-                  type="checkbox"
-                  name="is_legendary"
-                  checked={values.is_legendary}
-                  onChange={handleChange}
-                />
-                Legendary
               </label>
             </div>
           </div>
@@ -845,6 +839,7 @@ export default function MaintainCards({
                 <textarea
                   id="related_cards_text"
                   rows={6}
+                  placeholder="One UUID per line"
                   value={relatedCardsText}
                   onChange={e => setRelatedCardsText(e.target.value)}
                 />
@@ -905,6 +900,7 @@ export default function MaintainCards({
                     id="edit-name"
                     name="name"
                     type="text"
+                    placeholder="Name"
                     value={editFormik.values.name}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
@@ -923,6 +919,7 @@ export default function MaintainCards({
                     id="edit-slug"
                     name="slug"
                     type="text"
+                    placeholder="Slug"
                     value={editFormik.values.slug}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
@@ -1059,6 +1056,7 @@ export default function MaintainCards({
                     id="edit-mana_cost"
                     name="mana_cost"
                     type="number"
+                    placeholder="Mana"
                     value={editFormik.values.mana_cost}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
@@ -1073,6 +1071,7 @@ export default function MaintainCards({
                     id="edit-attack"
                     name="attack"
                     type="number"
+                    placeholder="Attack"
                     value={editFormik.values.attack}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
@@ -1087,6 +1086,7 @@ export default function MaintainCards({
                     id="edit-health"
                     name="health"
                     type="number"
+                    placeholder="Health"
                     value={editFormik.values.health}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
@@ -1101,6 +1101,7 @@ export default function MaintainCards({
                     id="edit-durability"
                     name="durability"
                     type="number"
+                    placeholder="Durability"
                     value={editFormik.values.durability}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
@@ -1115,6 +1116,7 @@ export default function MaintainCards({
                     id="edit-artist"
                     name="artist"
                     type="text"
+                    placeholder="Artist"
                     value={editFormik.values.artist}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
@@ -1145,6 +1147,7 @@ export default function MaintainCards({
                   id="edit-text"
                   name="text"
                   rows={4}
+                  placeholder="Card text"
                   value={editFormik.values.text}
                   onChange={editFormik.handleChange}
                   onBlur={editFormik.handleBlur}
@@ -1161,6 +1164,7 @@ export default function MaintainCards({
                   id="edit-flavor_text"
                   name="flavor_text"
                   rows={2}
+                  placeholder="Flavor text"
                   value={editFormik.values.flavor_text}
                   onChange={editFormik.handleChange}
                   onBlur={editFormik.handleBlur}
@@ -1190,17 +1194,6 @@ export default function MaintainCards({
                   onChange={editFormik.handleChange}
                 />
                 Token
-              </label>
-            </div>
-            <div className="checkbox-control">
-              <label>
-                <input
-                  type="checkbox"
-                  name="is_legendary"
-                  checked={editFormik.values.is_legendary}
-                  onChange={editFormik.handleChange}
-                />
-                Legendary
               </label>
             </div>
           </div>
@@ -1245,6 +1238,7 @@ export default function MaintainCards({
                 <textarea
                   id="edit-related_cards_text"
                   rows={6}
+                  placeholder="One UUID per line"
                   value={editRelatedCardsText}
                   onChange={e => setEditRelatedCardsText(e.target.value)}
                 />

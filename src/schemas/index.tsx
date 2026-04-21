@@ -58,18 +58,12 @@ export const cardSchema = yup
     text: yup.string().required("Card text is required"),
 
     is_collectible: yup.boolean().required(),
-    is_legendary: yup.boolean().required(),
     is_token: yup.boolean().required(),
 
     artist: yup.string().trim().nullable().optional(),
 
     // Form state uses a checkbox map; keywords / related IDs are validated when building the payload.
     mechanics: yup.object(mechanicsFieldShape).required(),
-  })
-  .test("legendary-rarity", "Legendary cards must use LEGENDARY rarity", values => {
-    if (!values) return true;
-    if (values.is_legendary && values.rarity !== "LEGENDARY") return false;
-    return true;
   })
   .test("minion-stats", "Minions require attack and health", values => {
     if (!values || values.card_type !== "MINION") return true;

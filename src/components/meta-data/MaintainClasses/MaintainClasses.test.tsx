@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import MaintainClasses from "./MaintainClasses";
 import { toast } from "react-toastify";
 import type { HeroClass } from "../../../dto/HeroClass";
@@ -406,8 +406,9 @@ describe("MaintainClasses", () => {
     fireEvent.click(screen.getByTestId("class-row-1"));
 
     await waitFor(() => {
-      expect(screen.getByRole("dialog", { name: "Edit Hero Class" })).toBeInTheDocument();
-      expect(screen.getByLabelText("Name")).toHaveValue("Mage");
+      const modal = screen.getByRole("dialog", { name: "Edit Hero Class" });
+      expect(modal).toBeInTheDocument();
+      expect(within(modal).getByLabelText("Name")).toHaveValue("Mage");
     });
   });
 
@@ -419,11 +420,9 @@ describe("MaintainClasses", () => {
     await waitFor(() => expect(screen.getByTestId("class-row-1")).toBeInTheDocument());
     fireEvent.click(screen.getByTestId("class-row-1"));
 
-    await waitFor(() => {
-      expect(screen.getByRole("dialog", { name: "Edit Hero Class" })).toBeInTheDocument();
-    });
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Mage Updated" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    const modal = await screen.findByRole("dialog", { name: "Edit Hero Class" });
+    fireEvent.change(within(modal).getByLabelText("Name"), { target: { value: "Mage Updated" } });
+    fireEvent.click(within(modal).getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
       expect(mockService.updateHeroClass).toHaveBeenCalledWith(1, { name: "Mage Updated" });
@@ -443,11 +442,9 @@ describe("MaintainClasses", () => {
     await waitFor(() => expect(screen.getByTestId("class-row-1")).toBeInTheDocument());
     fireEvent.click(screen.getByTestId("class-row-1"));
 
-    await waitFor(() => {
-      expect(screen.getByRole("dialog", { name: "Edit Hero Class" })).toBeInTheDocument();
-    });
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    const modal = await screen.findByRole("dialog", { name: "Edit Hero Class" });
+    fireEvent.change(within(modal).getByLabelText("Name"), { target: { value: "" } });
+    fireEvent.click(within(modal).getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
       expect(screen.getByText("Required")).toBeInTheDocument();

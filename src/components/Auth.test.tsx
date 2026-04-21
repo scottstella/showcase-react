@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import type { User } from "@supabase/supabase-js";
 import Auth from "./Auth";
 
@@ -177,8 +177,10 @@ describe("Auth", () => {
 
     await waitFor(() => screen.getByRole("button", { name: /sign in with github/i }));
 
-    authListener("SIGNED_IN", {
-      user: { id: "1", email: "new@example.com", user_metadata: {} } as unknown as User,
+    await act(async () => {
+      authListener("SIGNED_IN", {
+        user: { id: "1", email: "new@example.com", user_metadata: {} } as unknown as User,
+      });
     });
 
     await waitFor(() => {

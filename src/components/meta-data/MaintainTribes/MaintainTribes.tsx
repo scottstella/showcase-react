@@ -145,6 +145,7 @@ export default function MaintainTribes({
       <div className="input-group">
         <form onSubmit={handleSubmit} role="form">
           <div className="form-control">
+            <label htmlFor="name">Name</label>
             <input
               placeholder="Name"
               type="text"
@@ -157,7 +158,7 @@ export default function MaintainTribes({
             />
             {errors.name && touched.name && <div className="error-msg">{errors.name}</div>}
           </div>
-          <input type="submit" value="Submit" />
+          <input type="submit" value="Submit" className="submit-align-bottom" />
         </form>
       </div>
 
@@ -196,6 +197,7 @@ export default function MaintainTribes({
                 id="edit-tribe-name"
                 name="name"
                 type="text"
+                placeholder="Name"
                 value={editFormik.values.name}
                 onChange={editFormik.handleChange}
                 onBlur={editFormik.handleBlur}
