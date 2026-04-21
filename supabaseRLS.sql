@@ -1,7 +1,7 @@
 -- Enable RLS
 alter table hero_class enable row level security;
 alter table tribe enable row level security;
-alter table set enable row level security;
+alter table "set" enable row level security;
 
 -- Add updated_at tracking for metadata tables
 alter table hero_class add column if not exists updated_at timestamp with time zone;
@@ -91,21 +91,21 @@ using (true);
 
 -- Create policies for set
 create policy "Public sets are viewable by everyone"
-on set for select
+on "set" for select
 using (true);
 
 create policy "Only authenticated users can insert sets"
-on set for insert
+on "set" for insert
 to authenticated
 with check (true);
 
 create policy "Only authenticated users can update sets"
-on set for update
+on "set" for update
 to authenticated
 using (true)
 with check (true);
 
 create policy "Only authenticated users can delete sets"
-on set for delete
+on "set" for delete
 to authenticated
 using (true);

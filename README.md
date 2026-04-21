@@ -496,6 +496,30 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 You can find these values in your Supabase project settings under Project
 Settings > API.
 
+## Supabase schema (metadata + cards)
+
+This repo keeps Supabase SQL as checked-in scripts (not the Supabase CLI
+migration tree):
+
+- [`supabaseRLS.sql`](supabaseRLS.sql): Row Level Security policies for the
+  metadata tables (`hero_class`, `tribe`, `"set"`) plus `updated_at` triggers.
+- [`supabaseCards.sql`](supabaseCards.sql): Cards domain DDL (enums, `card` +
+  child tables), RLS policies, and a public `card-images` storage bucket + basic
+  storage policies.
+
+Apply order:
+
+1. Ensure your base metadata tables exist (`hero_class`, `tribe`, `"set"`).
+2. Run [`supabaseRLS.sql`](supabaseRLS.sql) (if you have not already).
+3. Run [`supabaseCards.sql`](supabaseCards.sql).
+
+Notes:
+
+- `supabaseCards.sql` seeds a `NEUTRAL` row into `hero_class` if missing, so
+  neutral cards can use a real foreign key.
+- Card images upload to the `card-images` bucket and store `image_url` +
+  `image_path` on the `card` row.
+
 ## Supabase Launch Agent
 
 This project uses a macOS launch agent to keep the Supabase connection alive by

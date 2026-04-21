@@ -27,7 +27,7 @@ export default function Nav() {
           Manage Meta-Data
         </NavLink>
 
-        <NavLink to="/manageMetaData" className="nav-link">
+        <NavLink to="/manageCards" className="nav-link">
           Manage Cards
         </NavLink>
       </div>

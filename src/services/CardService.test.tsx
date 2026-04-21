@@ -3,6 +3,7 @@ import { CardService } from "./CardService";
 import { HeroClass } from "../dto/HeroClass";
 import { Tribe } from "../dto/Tribe";
 import { Set } from "../dto/Set";
+import type { CardUpsertPayload } from "../dto/Card";
 import { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 
 interface MockQueryBuilder {
@@ -18,6 +19,9 @@ interface MockQueryBuilder {
 // Mock Supabase client
 const mockSupabase = {
   from: vi.fn(),
+  storage: {
+    from: vi.fn(),
+  },
 } as unknown as SupabaseClient;
 
 describe("CardService", () => {
@@ -37,11 +41,11 @@ describe("CardService", () => {
     // Set up mock chain
     mockSelect = vi.fn();
     mockDelete = vi.fn();
-    mockInsert = vi.fn();
+    mockInsert = vi.fn().mockImplementation(() => ({ single: mockSingle }));
     mockUpdate = vi.fn();
-    mockEq = vi.fn();
     mockOrder = vi.fn();
     mockSingle = vi.fn();
+    mockEq = vi.fn().mockReturnValue({ single: mockSingle });
 
     (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from.mockReturnValue({
       select: mockSelect,
@@ -52,10 +56,8 @@ describe("CardService", () => {
 
     mockSelect.mockReturnValue({ order: mockOrder });
     mockDelete.mockReturnValue({ eq: mockEq });
-    mockInsert.mockReturnValue({ single: mockSingle });
     mockUpdate.mockReturnValue({ eq: mockEq });
-    mockEq.mockReturnValue({ single: mockSingle });
-
+    // Support both `.delete().eq(...)` and `.update(...).eq(...).single()`
     // Initialize service with mock
     cardService = new CardService(mockSupabase);
   });
@@ -374,6 +376,134 @@ describe("CardService", () => {
 
       expect(result.error).toBeInstanceOf(PostgrestError);
       expect(result.error?.code).toBe("403");
+    });
+  });
+
+  describe("cards", () => {
+    it("should fetch cards ordered by name with embedded relations", async () => {
+      const expectedResponse = { data: [] };
+      mockOrder.mockResolvedValue(expectedResponse);
+
+      const result = await cardService.fetchCards();
+
+      expect(
+        (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
+      ).toHaveBeenCalledWith("card");
+      expect(mockSelect).toHaveBeenCalledWith(expect.stringContaining("card_mechanic_map"));
+      expect(mockOrder).toHaveBeenCalledWith("name");
+      expect(result).toEqual(expectedResponse);
+    });
+
+    it("should delete a card by uuid", async () => {
+      const expectedResponse = { data: { id: "abc" } };
+      mockEq.mockResolvedValue(expectedResponse);
+
+      const result = await cardService.deleteCard("abc");
+
+      expect(
+        (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
+      ).toHaveBeenCalledWith("card");
+      expect(mockDelete).toHaveBeenCalled();
+      expect(mockEq).toHaveBeenCalledWith("id", "abc");
+      expect(result).toEqual(expectedResponse);
+    });
+
+    it("should insert card row then replace child rows", async () => {
+      const created = { id: "11111111-1111-1111-1111-111111111111" };
+      mockSingle.mockResolvedValueOnce({ data: created, error: null });
+
+      mockInsert.mockImplementation((rows: unknown) => {
+        const row = Array.isArray(rows) ? (rows as Record<string, unknown>[])[0] : null;
+        if (row && "card_id" in row) {
+          return Promise.resolve({ error: null });
+        }
+        return { single: mockSingle };
+      });
+
+      const payload: CardUpsertPayload = {
+        name: "Test",
+        slug: "test",
+        flavor_text: null,
+        card_type: "MINION",
+        rarity: "COMMON",
+        spell_school: null,
+        set_id: 1,
+        hero_class_id: 1,
+        race_tribe_id: null,
+        mana_cost: 1,
+        attack: 1,
+        health: 1,
+        durability: null,
+        text: "Hi",
+        is_collectible: true,
+        is_legendary: false,
+        is_token: false,
+        artist: null,
+        mechanics: ["TAUNT"],
+        keywords: ["foo"],
+        related_card_ids: [],
+      };
+
+      const result = await cardService.addCard(payload, null);
+      expect(result.error).toBeNull();
+      expect(mockInsert).toHaveBeenCalled();
+    });
+
+    it("should upload an image after insert when a file is provided", async () => {
+      const created = { id: "11111111-1111-1111-1111-111111111111" };
+      mockSingle
+        .mockResolvedValueOnce({ data: created, error: null })
+        .mockResolvedValueOnce({ data: { ...created, image_url: "https://x/y" }, error: null });
+
+      mockInsert.mockImplementation((rows: unknown) => {
+        const row = Array.isArray(rows) ? (rows as Record<string, unknown>[])[0] : null;
+        if (row && "card_id" in row) {
+          return Promise.resolve({ error: null });
+        }
+        return { single: mockSingle };
+      });
+
+      const mockUpload = vi.fn().mockResolvedValue({ data: { path: "p" }, error: null });
+      const mockGetPublicUrl = vi
+        .fn()
+        .mockReturnValue({ data: { publicUrl: "https://example/public" } });
+      (
+        mockSupabase as unknown as { storage: { from: ReturnType<typeof vi.fn> } }
+      ).storage.from.mockReturnValue({
+        upload: mockUpload,
+        getPublicUrl: mockGetPublicUrl,
+      });
+
+      const file = new File(["x"], "card.png", { type: "image/png" });
+
+      const payload: CardUpsertPayload = {
+        name: "Test",
+        slug: "test",
+        flavor_text: null,
+        card_type: "SPELL",
+        rarity: "RARE",
+        spell_school: null,
+        set_id: 1,
+        hero_class_id: 1,
+        race_tribe_id: null,
+        mana_cost: 2,
+        attack: null,
+        health: null,
+        durability: null,
+        text: "Hi",
+        is_collectible: true,
+        is_legendary: false,
+        is_token: false,
+        artist: null,
+        mechanics: [],
+        keywords: [],
+        related_card_ids: [],
+      };
+
+      const result = await cardService.addCard(payload, file);
+      expect(result.error).toBeNull();
+      expect(mockUpload).toHaveBeenCalled();
+      expect(mockGetPublicUrl).toHaveBeenCalled();
     });
   });
 

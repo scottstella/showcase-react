@@ -1,0 +1,216 @@
+/* Stronger than MaintainSets.css `.form-row > div:first-child { display: flex }`, which was breaking this grid. */
+.maintain-data.maintain-cards .form-row > div.maintain-cards-grid {
+  display: grid;
+  gap: 1rem 1.25rem;
+  align-items: start;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.maintain-data.maintain-cards .maintain-cards-page-header {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, rgba(125, 148, 181, 0.22), rgba(125, 148, 181, 0.06));
+  border: 1px solid rgba(125, 148, 181, 0.35);
+}
+
+.maintain-data.maintain-cards .maintain-cards-page-header h2 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+}
+
+.maintain-data.maintain-cards .maintain-cards-page-header p {
+  margin: 0.35rem 0 0;
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 1100px) {
+  .maintain-data.maintain-cards .form-row > div.maintain-cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .maintain-data.maintain-cards .form-row > div.maintain-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .maintain-data.maintain-cards .form-row > div.maintain-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* input-group.css makes `form` a horizontal flex row — wrong for a multi-section card form. */
+.maintain-data.maintain-cards .input-group {
+  max-width: min(1200px, 100%);
+}
+
+.maintain-data.maintain-cards .input-group form {
+  flex-direction: column;
+  align-items: stretch;
+  align-content: stretch;
+  gap: 1.25rem;
+}
+
+/* MaintainSets.css caps `.form-row` at 400px — too narrow for the card grid. */
+.maintain-data.maintain-cards .form-row {
+  max-width: 100%;
+}
+
+.maintain-data.maintain-cards .input-group input[type="submit"] {
+  align-self: flex-start;
+  max-width: 200px;
+}
+
+/* input-group gives `.form-control { flex: 1 }` — breaks grid / split rows (add + edit modal) */
+.maintain-data.maintain-cards .maintain-cards-grid > .form-control {
+  flex: none !important;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.maintain-data.maintain-cards .maintain-cards-field-full {
+  flex: none !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+.maintain-data.maintain-cards .maintain-cards-row-full {
+  width: 100%;
+}
+
+/* Mechanics + keywords + related: horizontal band with wrap */
+.maintain-data.maintain-cards .maintain-cards-row-split {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem 1.25rem;
+}
+
+.maintain-data.maintain-cards .maintain-cards-split-item {
+  flex: 1 1 260px;
+  min-width: 200px;
+  max-width: 100%;
+}
+
+/* Collectible / Token / Legendary on one line */
+.maintain-data.maintain-cards .maintain-cards-row-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 1.75rem;
+}
+
+/*
+ * MaintainSets `.form-row > div:first-child { display: flex }` turns the first mechanics
+ * column into a row — undo for direct `.form-control` children.
+ */
+.maintain-data.maintain-cards .form-row > .form-control:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+/* Stack errors under inputs instead of absolutely over the next column */
+.maintain-data.maintain-cards .form-control .input-container {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.maintain-data.maintain-cards .error-msg {
+  position: static;
+  transform: none;
+  margin-top: 0.35rem;
+  align-self: flex-start;
+  white-space: normal;
+}
+
+.maintain-data.maintain-cards .form-control input[type="text"],
+.maintain-data.maintain-cards .form-control input[type="number"],
+.maintain-data.maintain-cards .form-control input[type="file"],
+.maintain-data.maintain-cards .form-control select,
+.maintain-data.maintain-cards .form-control textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.maintain-data.maintain-cards .form-control textarea {
+  min-height: 5rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: #2d3748;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.65rem;
+  background: #fff;
+  resize: vertical;
+}
+
+.maintain-data.maintain-cards .form-control select,
+.maintain-data.maintain-cards .form-control input[type="number"] {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  color: #2d3748;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.65rem;
+  background: #fff;
+}
+
+.maintain-data.maintain-cards table.maintain-cards-table {
+  max-width: 100%;
+}
+
+.maintain-data.maintain-cards table.maintain-cards-table thead th {
+  color: #f8fafc;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.maintain-cards-mechanics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.35rem 0.75rem;
+  max-height: 220px;
+  overflow: auto;
+  padding: 0.25rem 0.25rem 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.maintain-cards-mechanic {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+}
+
+.maintain-cards-mechanic-row {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.maintain-cards-mechanic-description {
+  min-height: 2.4rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 0.5rem;
+}
+
+.maintain-cards-preview {
+  max-width: 220px;
+  max-height: 320px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  object-fit: contain;
+  background: #f8fafc;
+}

@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Welcome = lazy(() => import("./components/Welcome/Welcome"));
 const MetaData = lazy(() => import("./components/meta-data/MetaData"));
+const MaintainCards = lazy(() => import("./components/meta-data/MaintainCards/MaintainCards"));
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Welcome />} />
                 <Route path="/manageMetaData" element={<MetaData />} />
+                <Route path="/manageCards" element={<MaintainCards />} />
               </Routes>
             </Suspense>
           </div>

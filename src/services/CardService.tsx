@@ -3,6 +3,7 @@ import { supabase as supabaseImpl } from "../supabase/Client";
 import { HeroClass } from "../dto/HeroClass";
 import { Tribe } from "../dto/Tribe";
 import { Set } from "../dto/Set";
+import type { Card, CardUpsertPayload } from "../dto/Card";
 
 // Utility function to handle RLS blocked operations
 const handleRLSError = <T extends { error: PostgrestError | null; data?: unknown }>(
@@ -26,8 +27,198 @@ const handleRLSError = <T extends { error: PostgrestError | null; data?: unknown
 export class CardService {
   private supabase: typeof supabaseImpl;
 
+  public static readonly CARD_IMAGE_BUCKET = "card-images";
+
   constructor(supabase: typeof supabaseImpl) {
     this.supabase = supabase;
+  }
+
+  private cardSelectQuery() {
+    // card_related_card references card twice (card_id + related_card_id) — PostgREST needs the FK hint (PGRST201).
+    return `
+      *,
+      set:set_id ( id, name ),
+      hero_class:hero_class_id ( id, name ),
+      race_tribe:race_tribe_id ( id, name ),
+      card_mechanic_map ( mechanic ),
+      card_keyword ( keyword ),
+      card_related_card!card_related_card_card_id_fkey ( related_card_id )
+    `;
+  }
+
+  async fetchCards() {
+    return await this.supabase.from("card").select(this.cardSelectQuery()).order("name");
+  }
+
+  async deleteCard(id: string) {
+    const response = await this.supabase.from("card").delete().eq("id", id);
+    return handleRLSError(response);
+  }
+
+  async uploadCardImage(cardId: string, file: File) {
+    const safeName = file.name.replace(/[^\w.-]+/g, "_");
+    const objectPath = `${cardId}/${crypto.randomUUID()}-${safeName}`;
+
+    const upload = await this.supabase.storage
+      .from(CardService.CARD_IMAGE_BUCKET)
+      .upload(objectPath, file, {
+        upsert: true,
+        contentType: file.type || "application/octet-stream",
+      });
+
+    if (upload.error) {
+      return upload;
+    }
+
+    const { data } = this.supabase.storage
+      .from(CardService.CARD_IMAGE_BUCKET)
+      .getPublicUrl(objectPath);
+    return {
+      data: { publicUrl: data.publicUrl, path: objectPath },
+      error: null,
+    };
+  }
+
+  async addCard(payload: CardUpsertPayload, imageFile?: File | null) {
+    const { mechanics, keywords, related_card_ids, ...cardRow } = payload;
+
+    const insertResponse = await this.supabase.from("card").insert([cardRow]).single();
+    const insertHandled = handleRLSError(insertResponse) as {
+      data: Card | null;
+      error: PostgrestError | null;
+    };
+    if (insertHandled.error || !insertHandled.data) {
+      return insertHandled;
+    }
+
+    const created = insertHandled.data;
+    const cardId = created.id;
+
+    const childError = await this.replaceCardChildren(
+      cardId,
+      mechanics,
+      keywords,
+      related_card_ids
+    );
+    if (childError) {
+      await this.supabase.from("card").delete().eq("id", cardId);
+      return { data: null, error: childError };
+    }
+
+    if (imageFile) {
+      const uploadResult = await this.uploadCardImage(cardId, imageFile);
+      if (uploadResult.error) {
+        await this.supabase.from("card").delete().eq("id", cardId);
+        return { data: null, error: uploadResult.error };
+      }
+
+      const publicUrl = (uploadResult.data as { publicUrl: string }).publicUrl;
+      const path = (uploadResult.data as { path: string }).path;
+
+      const updateImage = await this.supabase
+        .from("card")
+        .update({ image_url: publicUrl, image_path: path, updated_at: new Date().toISOString() })
+        .eq("id", cardId)
+        .single();
+
+      const updateHandled = handleRLSError(updateImage);
+      if (updateHandled.error) {
+        await this.supabase.from("card").delete().eq("id", cardId);
+        return { data: null, error: updateHandled.error };
+      }
+
+      return updateHandled;
+    }
+
+    return insertHandled;
+  }
+
+  async updateCard(id: string, patch: CardUpsertPayload, imageFile?: File | null) {
+    const { mechanics, keywords, related_card_ids, ...cardRow } = patch;
+
+    const updateResponse = await this.supabase
+      .from("card")
+      .update({
+        ...cardRow,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .single();
+
+    const updateHandled = handleRLSError(updateResponse);
+    if (updateHandled.error) {
+      return updateHandled;
+    }
+
+    const childError = await this.replaceCardChildren(id, mechanics, keywords, related_card_ids);
+    if (childError) {
+      return { data: null, error: childError };
+    }
+
+    if (imageFile) {
+      const uploadResult = await this.uploadCardImage(id, imageFile);
+      if (uploadResult.error) {
+        return { data: null, error: uploadResult.error };
+      }
+
+      const publicUrl = (uploadResult.data as { publicUrl: string }).publicUrl;
+      const path = (uploadResult.data as { path: string }).path;
+
+      const updateImage = await this.supabase
+        .from("card")
+        .update({ image_url: publicUrl, image_path: path, updated_at: new Date().toISOString() })
+        .eq("id", id)
+        .single();
+
+      return handleRLSError(updateImage);
+    }
+
+    return updateHandled;
+  }
+
+  private async replaceCardChildren(
+    cardId: string,
+    mechanics: CardUpsertPayload["mechanics"],
+    keywords: CardUpsertPayload["keywords"],
+    related_card_ids: CardUpsertPayload["related_card_ids"]
+  ): Promise<PostgrestError | null> {
+    const { error: delMechErr } = await this.supabase
+      .from("card_mechanic_map")
+      .delete()
+      .eq("card_id", cardId);
+    if (delMechErr) return delMechErr;
+
+    if (mechanics.length > 0) {
+      const rows = mechanics.map(mechanic => ({ card_id: cardId, mechanic }));
+      const { error } = await this.supabase.from("card_mechanic_map").insert(rows);
+      if (error) return error;
+    }
+
+    const { error: delKwErr } = await this.supabase
+      .from("card_keyword")
+      .delete()
+      .eq("card_id", cardId);
+    if (delKwErr) return delKwErr;
+
+    if (keywords.length > 0) {
+      const rows = keywords.map(keyword => ({ card_id: cardId, keyword }));
+      const { error } = await this.supabase.from("card_keyword").insert(rows);
+      if (error) return error;
+    }
+
+    const { error: delRelErr } = await this.supabase
+      .from("card_related_card")
+      .delete()
+      .eq("card_id", cardId);
+    if (delRelErr) return delRelErr;
+
+    if (related_card_ids.length > 0) {
+      const rows = related_card_ids.map(related_card_id => ({ card_id: cardId, related_card_id }));
+      const { error } = await this.supabase.from("card_related_card").insert(rows);
+      if (error) return error;
+    }
+
+    return null;
   }
 
   async fetchHeroClasses() {

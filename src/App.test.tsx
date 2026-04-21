@@ -28,6 +28,11 @@ vi.mock("./components/meta-data/MetaData", () => ({
   default: () => React.createElement("div", { "data-testid": "meta-data" }, "MetaData Component"),
 }));
 
+vi.mock("./components/meta-data/MaintainCards/MaintainCards", () => ({
+  default: () =>
+    React.createElement("div", { "data-testid": "manage-cards" }, "Manage Cards Component"),
+}));
+
 vi.mock("react-toastify", () => ({
   ToastContainer: () =>
     React.createElement("div", { "data-testid": "toast-container" }, "Toast Container"),
@@ -56,6 +61,13 @@ describe("App", () => {
     render(<App />);
 
     expect(await screen.findByTestId("meta-data")).toBeInTheDocument();
+  });
+
+  it("renders Manage Cards component on /manageCards path", async () => {
+    window.history.pushState({}, "", "/manageCards");
+    render(<App />);
+
+    expect(await screen.findByTestId("manage-cards")).toBeInTheDocument();
   });
 
   it("has correct layout structure", () => {
