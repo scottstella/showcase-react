@@ -10,7 +10,7 @@ import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 interface MaintainTribesResultsProps {
   isLoading: boolean;
   tribes: Tribe[];
-  deleteTribe: (event: React.MouseEvent<SVGSVGElement>) => void;
+  deleteTribe: (id: number) => void;
   onSelectTribe: (tribe: Tribe) => void;
 }
 
@@ -39,10 +39,9 @@ const MaintainTribesResults = (props: MaintainTribesResultsProps) => {
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
                 icon={faTrashCan}
-                id={tribe.id.toString()}
                 onClick={event => {
                   event.stopPropagation();
-                  props.deleteTribe(event);
+                  props.deleteTribe(tribe.id);
                 }}
                 data-testid="delete-tribe"
               />

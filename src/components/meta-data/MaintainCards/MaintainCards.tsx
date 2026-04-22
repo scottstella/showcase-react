@@ -43,8 +43,6 @@ interface CardFormValues {
   is_collectible: boolean;
   is_token: boolean;
 
-  artist: string;
-
   mechanics: Record<Mechanic, boolean>;
 }
 
@@ -65,11 +63,14 @@ interface MaintainCardsProps {
   pageSizeOptions?: number[];
 }
 
+/** Lowercase slug from card name: spaces to dashes; other non-alphanumeric runs collapse to one dash. */
 function slugify(value: string): string {
   return value
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
 
@@ -170,6 +171,16 @@ function isPostgrestError(error: unknown): error is PostgrestError {
   );
 }
 
+function addCardToastSuccessMessage(hadImageFile: boolean, data: Card | null | undefined): string {
+  if (!hadImageFile) {
+    return "Card saved (no image selected)";
+  }
+  const linked = Boolean(data?.image_path ?? data?.image_url);
+  return linked
+    ? "Card saved; image uploaded and linked"
+    : "Card saved but no image URL on the row (upload or DB update did not persist)";
+}
+
 function serviceErrorForToast(error: unknown): PostgrestError {
   if (isPostgrestError(error)) return error;
 
@@ -195,6 +206,7 @@ function toNullableInt(value: number | ""): number | null {
 }
 
 function toUpsertPayload(values: CardFormValues): CardUpsertPayload {
+  const isSpell = values.card_type === "SPELL";
   return {
     name: values.name,
     slug: values.slug,
@@ -206,15 +218,18 @@ function toUpsertPayload(values: CardFormValues): CardUpsertPayload {
       : null,
     set_id: Number(values.set_id),
     hero_class_id: Number(values.hero_class_id),
-    race_tribe_id: values.race_tribe_id === "" ? null : Number(values.race_tribe_id),
+    race_tribe_id: isSpell
+      ? null
+      : values.race_tribe_id === ""
+        ? null
+        : Number(values.race_tribe_id),
     mana_cost: Number(values.mana_cost),
-    attack: toNullableInt(values.attack),
-    health: toNullableInt(values.health),
-    durability: toNullableInt(values.durability),
+    attack: isSpell ? null : toNullableInt(values.attack),
+    health: isSpell ? null : toNullableInt(values.health),
+    durability: isSpell ? null : toNullableInt(values.durability),
     text: values.text,
     is_collectible: values.is_collectible,
     is_token: values.is_token,
-    artist: values.artist.trim() ? values.artist.trim() : null,
     mechanics: selectedMechanics(values.mechanics),
     keywords: [],
     related_card_ids: [],
@@ -244,7 +259,13 @@ export default function MaintainCards({
   >(emptyMechanicDescriptions());
 
   const [addImageFile, setAddImageFile] = useState<File | null>(null);
+  const [addImageInputKey, setAddImageInputKey] = useState(0);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  /** Always in sync on change — Formik submit can otherwise see a stale `null` file. */
+  const addImageFileRef = useRef<File | null>(null);
+  const editImageFileRef = useRef<File | null>(null);
+  const addImageInputRef = useRef<HTMLInputElement | null>(null);
+  const editImageInputRef = useRef<HTMLInputElement | null>(null);
 
   const addToastRef = useRef<Id | null>(null);
   const deleteToastRef = useRef<Id | null>(null);
@@ -267,7 +288,6 @@ export default function MaintainCards({
     text: "",
     is_collectible: true,
     is_token: false,
-    artist: "",
     mechanics: emptyMechanics(),
   };
 
@@ -278,12 +298,47 @@ export default function MaintainCards({
       onSubmit: (formValues, actions) => addCard(formValues, actions),
     });
 
+  const spellFieldsDisabled = values.card_type === "SPELL";
+
+  const onAddCardTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleChange(e);
+    if (e.target.value === "SPELL") {
+      void setFieldValue("race_tribe_id", "");
+      void setFieldValue("attack", "");
+      void setFieldValue("health", "");
+      void setFieldValue("durability", "");
+    }
+  };
+
   const editFormik = useFormik<CardFormValues>({
     enableReinitialize: true,
     initialValues: initialFormValues,
     validationSchema: cardSchema,
     onSubmit: (formValues, actions) => updateCard(formValues, actions),
   });
+
+  const spellEditFieldsDisabled = editFormik.values.card_type === "SPELL";
+
+  const onEditCardTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    editFormik.handleChange(e);
+    if (e.target.value === "SPELL") {
+      void editFormik.setFieldValue("race_tribe_id", "");
+      void editFormik.setFieldValue("attack", "");
+      void editFormik.setFieldValue("health", "");
+      void editFormik.setFieldValue("durability", "");
+    }
+  };
+
+  useEffect(() => {
+    void setFieldValue("slug", slugify(values.name), false);
+  }, [values.name, setFieldValue]);
+
+  useEffect(() => {
+    if (!isEditModalOpen) return;
+    void editFormik.setFieldValue("slug", slugify(editFormik.values.name), false);
+    // Slug is derived from name only; avoid re-running on every Formik object identity change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- editFormik.values.name, isEditModalOpen
+  }, [isEditModalOpen, editFormik.values.name]);
 
   const pagination = usePagination({
     items: cards,
@@ -349,20 +404,28 @@ export default function MaintainCards({
     payload.keywords = selectedMechanicDescriptors(formValues.mechanics, mechanicDescriptions);
 
     addToastRef.current = toast("Adding record...");
-    const { error } = await cardService.addCard(payload, addImageFile);
-    updateToast(addToastRef, error ? serviceErrorForToast(error) : null, true);
+    const imageToUpload = addImageFileRef.current ?? addImageInputRef.current?.files?.[0] ?? null;
+    const { error, data } = await cardService.addCard(payload, imageToUpload);
+    updateToast(
+      addToastRef,
+      error ? serviceErrorForToast(error) : null,
+      true,
+      addCardToastSuccessMessage(Boolean(imageToUpload), data)
+    );
 
     if (error == null) {
       actions.resetForm();
       setMechanicDescriptions(emptyMechanicDescriptions());
+      addImageFileRef.current = null;
       setAddImageFile(null);
+      setAddImageInputKey(k => k + 1);
       await loadPageData();
     }
   }
 
-  async function deleteCard(e: React.MouseEvent<SVGSVGElement>) {
+  async function deleteCard(id: string) {
     deleteToastRef.current = toast("Deleting record...");
-    const { error } = await cardService.deleteCard(e.currentTarget.id);
+    const { error } = await cardService.deleteCard(id);
     updateToast(deleteToastRef, error, true);
 
     if (error == null) {
@@ -372,13 +435,14 @@ export default function MaintainCards({
 
   function openEditModal(card: Card) {
     setEditingCard(card);
+    editImageFileRef.current = null;
     setEditImageFile(null);
     const mechanicSelections = mechanicSelectionsFromCard(card);
     setEditMechanicDescriptions(mechanicSelections.descriptions);
 
     editFormik.setValues({
       name: card.name,
-      slug: card.slug,
+      slug: slugify(card.name),
       flavor_text: card.flavor_text ?? "",
       card_type: card.card_type,
       rarity: card.rarity,
@@ -393,7 +457,6 @@ export default function MaintainCards({
       text: card.text,
       is_collectible: card.is_collectible,
       is_token: card.is_token,
-      artist: card.artist ?? "",
       mechanics: mechanicSelections.mechanics,
     });
 
@@ -405,6 +468,7 @@ export default function MaintainCards({
     setIsEditModalOpen(false);
     editFormik.resetForm();
     setEditingCard(null);
+    editImageFileRef.current = null;
     setEditImageFile(null);
     setEditMechanicDescriptions(emptyMechanicDescriptions());
   };
@@ -417,13 +481,24 @@ export default function MaintainCards({
 
     setIsUpdating(true);
     updateToastRef.current = toast("Updating record...");
-    const { error } = await cardService.updateCard(editingCard.id, payload, editImageFile);
-    updateToast(updateToastRef, error ? serviceErrorForToast(error) : null, true, "Record updated");
+    const editImageToUpload =
+      editImageFileRef.current ?? editImageInputRef.current?.files?.[0] ?? null;
+    const { error } = await cardService.updateCard(editingCard.id, payload, editImageToUpload);
+    const updateSuccessMessage = editImageToUpload
+      ? "Record updated; image uploaded and linked"
+      : "Record updated";
+    updateToast(
+      updateToastRef,
+      error ? serviceErrorForToast(error) : null,
+      true,
+      updateSuccessMessage
+    );
 
     if (error == null) {
       actions.resetForm();
       setIsEditModalOpen(false);
       setEditingCard(null);
+      editImageFileRef.current = null;
       setEditImageFile(null);
       setEditMechanicDescriptions(emptyMechanicDescriptions());
       await loadPageData();
@@ -431,14 +506,6 @@ export default function MaintainCards({
 
     setIsUpdating(false);
   }
-
-  const onNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    handleBlur(e);
-    if (!values.slug) {
-      const next = slugify(values.name);
-      if (next) void setFieldValue("slug", next);
-    }
-  };
 
   const onMechanicToggle = (mechanic: Mechanic, checked: boolean) => {
     void setFieldValue("mechanics", { ...values.mechanics, [mechanic]: checked });
@@ -477,7 +544,7 @@ export default function MaintainCards({
                     placeholder="Name"
                     value={values.name}
                     onChange={handleChange}
-                    onBlur={onNameBlur}
+                    onBlur={handleBlur}
                     className={errors.name && touched.name ? "error" : ""}
                   />
                   {errors.name && touched.name && <div className="error-msg">{errors.name}</div>}
@@ -491,14 +558,19 @@ export default function MaintainCards({
                     id="slug"
                     name="slug"
                     type="text"
-                    placeholder="Slug"
+                    readOnly
+                    aria-readonly="true"
+                    tabIndex={-1}
+                    data-testid="add-card-slug"
                     value={values.slug}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className={errors.slug && touched.slug ? "error" : ""}
+                    title="Generated from the card name"
+                    className={`maintain-cards-slug-readonly${errors.slug && touched.slug ? " error" : ""}`}
                   />
                   {errors.slug && touched.slug && <div className="error-msg">{errors.slug}</div>}
                 </div>
+                <p className="maintain-cards-slug-hint">
+                  From name: lowercase, spaces become dashes.
+                </p>
               </div>
 
               <div className="form-control">
@@ -550,6 +622,25 @@ export default function MaintainCards({
               </div>
 
               <div className="form-control">
+                <label htmlFor="card_type">Card type</label>
+                <div className="input-container">
+                  <select
+                    id="card_type"
+                    name="card_type"
+                    value={values.card_type}
+                    onChange={onAddCardTypeChange}
+                    onBlur={handleBlur}
+                  >
+                    {CARD_TYPES.map(t => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-control">
                 <label htmlFor="race_tribe_id">Race (tribe)</label>
                 <div className="input-container">
                   <select
@@ -558,30 +649,12 @@ export default function MaintainCards({
                     value={values.race_tribe_id}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    disabled={spellFieldsDisabled}
                   >
                     <option value="">None</option>
                     {tribes.map(t => (
                       <option key={t.id} value={t.id}>
                         {t.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-control">
-                <label htmlFor="card_type">Card type</label>
-                <div className="input-container">
-                  <select
-                    id="card_type"
-                    name="card_type"
-                    value={values.card_type}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                  >
-                    {CARD_TYPES.map(t => (
-                      <option key={t} value={t}>
-                        {t}
                       </option>
                     ))}
                   </select>
@@ -657,6 +730,7 @@ export default function MaintainCards({
                     value={values.attack}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    disabled={spellFieldsDisabled}
                     className={errors.attack && touched.attack ? "error" : ""}
                   />
                   {errors.attack && touched.attack && (
@@ -676,6 +750,7 @@ export default function MaintainCards({
                     value={values.health}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    disabled={spellFieldsDisabled}
                     className={errors.health && touched.health ? "error" : ""}
                   />
                   {errors.health && touched.health && (
@@ -695,6 +770,7 @@ export default function MaintainCards({
                     value={values.durability}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    disabled={spellFieldsDisabled}
                     className={errors.durability && touched.durability ? "error" : ""}
                   />
                   {errors.durability && touched.durability && (
@@ -704,30 +780,28 @@ export default function MaintainCards({
               </div>
 
               <div className="form-control">
-                <label htmlFor="artist">Artist</label>
-                <div className="input-container">
-                  <input
-                    id="artist"
-                    name="artist"
-                    type="text"
-                    placeholder="Artist"
-                    value={values.artist}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              <div className="form-control">
                 <label htmlFor="card_image">Card image</label>
                 <div className="input-container">
                   <input
+                    key={addImageInputKey}
                     id="card_image"
-                    name="card_image"
+                    ref={addImageInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={e => setAddImageFile(e.target.files?.[0] ?? null)}
+                    onChange={e => {
+                      const f = e.target.files?.[0] ?? null;
+                      addImageFileRef.current = f;
+                      setAddImageFile(f);
+                    }}
                   />
                 </div>
+                <div className="maintain-cards-file-name">
+                  {addImageFile?.name ? `Selected: ${addImageFile.name}` : "No file selected"}
+                </div>
+                <p className="maintain-cards-file-hint">
+                  Images upload only when a file is chosen here before you submit. Sign in is
+                  required for storage.
+                </p>
               </div>
             </div>
           </div>
@@ -900,16 +974,23 @@ export default function MaintainCards({
                     id="edit-slug"
                     name="slug"
                     type="text"
-                    placeholder="Slug"
+                    readOnly
+                    aria-readonly="true"
+                    tabIndex={-1}
+                    data-testid="edit-card-slug"
                     value={editFormik.values.slug}
-                    onChange={editFormik.handleChange}
-                    onBlur={editFormik.handleBlur}
-                    className={editFormik.errors.slug && editFormik.touched.slug ? "error" : ""}
+                    title="Generated from the card name"
+                    className={`maintain-cards-slug-readonly${
+                      editFormik.errors.slug && editFormik.touched.slug ? " error" : ""
+                    }`}
                   />
                   {editFormik.errors.slug && editFormik.touched.slug && (
                     <div className="error-msg">{editFormik.errors.slug}</div>
                   )}
                 </div>
+                <p className="maintain-cards-slug-hint">
+                  From name: lowercase, spaces become dashes.
+                </p>
               </div>
 
               <div className="form-control">
@@ -953,6 +1034,25 @@ export default function MaintainCards({
               </div>
 
               <div className="form-control">
+                <label htmlFor="edit-card_type">Card type</label>
+                <div className="input-container">
+                  <select
+                    id="edit-card_type"
+                    name="card_type"
+                    value={editFormik.values.card_type}
+                    onChange={onEditCardTypeChange}
+                    onBlur={editFormik.handleBlur}
+                  >
+                    {CARD_TYPES.map(t => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-control">
                 <label htmlFor="edit-race_tribe_id">Race (tribe)</label>
                 <div className="input-container">
                   <select
@@ -961,30 +1061,12 @@ export default function MaintainCards({
                     value={editFormik.values.race_tribe_id}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
+                    disabled={spellEditFieldsDisabled}
                   >
                     <option value="">None</option>
                     {tribes.map(t => (
                       <option key={t.id} value={t.id}>
                         {t.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-control">
-                <label htmlFor="edit-card_type">Card type</label>
-                <div className="input-container">
-                  <select
-                    id="edit-card_type"
-                    name="card_type"
-                    value={editFormik.values.card_type}
-                    onChange={editFormik.handleChange}
-                    onBlur={editFormik.handleBlur}
-                  >
-                    {CARD_TYPES.map(t => (
-                      <option key={t} value={t}>
-                        {t}
                       </option>
                     ))}
                   </select>
@@ -1056,6 +1138,7 @@ export default function MaintainCards({
                     value={editFormik.values.attack}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
+                    disabled={spellEditFieldsDisabled}
                   />
                 </div>
               </div>
@@ -1071,6 +1154,7 @@ export default function MaintainCards({
                     value={editFormik.values.health}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
+                    disabled={spellEditFieldsDisabled}
                   />
                 </div>
               </div>
@@ -1086,21 +1170,7 @@ export default function MaintainCards({
                     value={editFormik.values.durability}
                     onChange={editFormik.handleChange}
                     onBlur={editFormik.handleBlur}
-                  />
-                </div>
-              </div>
-
-              <div className="form-control">
-                <label htmlFor="edit-artist">Artist</label>
-                <div className="input-container">
-                  <input
-                    id="edit-artist"
-                    name="artist"
-                    type="text"
-                    placeholder="Artist"
-                    value={editFormik.values.artist}
-                    onChange={editFormik.handleChange}
-                    onBlur={editFormik.handleBlur}
+                    disabled={spellEditFieldsDisabled}
                   />
                 </div>
               </div>
@@ -1110,11 +1180,18 @@ export default function MaintainCards({
                 <div className="input-container">
                   <input
                     id="edit-card_image"
-                    name="edit_card_image"
+                    ref={editImageInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={e => setEditImageFile(e.target.files?.[0] ?? null)}
+                    onChange={e => {
+                      const f = e.target.files?.[0] ?? null;
+                      editImageFileRef.current = f;
+                      setEditImageFile(f);
+                    }}
                   />
+                </div>
+                <div className="maintain-cards-file-name">
+                  {editImageFile?.name ? `Selected: ${editImageFile.name}` : "No file selected"}
                 </div>
               </div>
             </div>

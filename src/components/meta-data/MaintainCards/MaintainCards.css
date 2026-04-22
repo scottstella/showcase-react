@@ -218,3 +218,28 @@
   object-fit: contain;
   background: #f8fafc;
 }
+
+.maintain-data.maintain-cards .maintain-cards-slug-readonly {
+  cursor: default;
+  background-color: rgba(247, 250, 252, 0.95);
+  color: #2d3748;
+}
+
+.maintain-data.maintain-cards .maintain-cards-slug-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+.maintain-cards-file-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.maintain-cards-file-name {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  color: #334155;
+}

@@ -25,7 +25,8 @@
     "yup": "^1.7.1"
   },
   "scripts": {
-    "start": "vite --host",
+    "start": "vite",
+    "start:lan": "vite --host",
     "build": "tsc && vite build",
     "serve": "vite preview",
     "dev": "vite",

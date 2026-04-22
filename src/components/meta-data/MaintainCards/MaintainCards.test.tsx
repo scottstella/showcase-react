@@ -48,7 +48,6 @@ describe("MaintainCards", () => {
     is_token: false,
     image_url: null,
     image_path: null,
-    artist: null,
     created_at: "2024-01-01T10:00:00Z",
     updated_at: "2024-01-01T10:00:00Z",
     set: { id: 1, name: "Core" },
@@ -97,9 +96,9 @@ describe("MaintainCards", () => {
     mockService.deleteCard.mockResolvedValue({ error: null, data: null });
   });
 
-  const fillRequiredAddFormFields = () => {
+  const fillRequiredAddFormFields = async () => {
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "New Card" } });
-    fireEvent.change(screen.getByLabelText("Slug"), { target: { value: "new-card" } });
+    await waitFor(() => expect(screen.getByTestId("add-card-slug")).toHaveValue("new-card"));
     fireEvent.change(screen.getByLabelText("Set"), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText("Class"), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText("Mana"), { target: { value: "1" } });
@@ -122,7 +121,7 @@ describe("MaintainCards", () => {
 
     await waitFor(() => expect(screen.getByTestId("add-card-form")).toBeInTheDocument());
 
-    fillRequiredAddFormFields();
+    await fillRequiredAddFormFields();
 
     const mechanics = screen.getByTestId("add-mechanics");
     fireEvent.click(within(mechanics).getAllByRole("checkbox")[0]);
@@ -134,13 +133,17 @@ describe("MaintainCards", () => {
       expect(toast).toHaveBeenCalledWith("Adding record...");
       expect(updateToast).toHaveBeenCalled();
     });
+    expect(mockService.addCard).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "New Card", slug: "new-card" }),
+      null
+    );
   });
 
   it("adds mechanic descriptor text for battlecry", async () => {
     render(<MaintainCards cardService={mockService as unknown as CardService} />);
     await waitFor(() => expect(screen.getByTestId("add-card-form")).toBeInTheDocument());
 
-    fillRequiredAddFormFields();
+    await fillRequiredAddFormFields();
 
     const mechanics = screen.getByTestId("add-mechanics");
     fireEvent.click(within(mechanics).getByLabelText("BATTLECRY"));
@@ -185,6 +188,7 @@ describe("MaintainCards", () => {
         mockCard.id,
         expect.objectContaining({
           name: "Edited Card",
+          slug: "edited-card",
           mechanics: expect.arrayContaining(["BATTLECRY"]),
           keywords: ["BATTLECRY: Deal 3 damage"],
         }),
@@ -207,7 +211,7 @@ describe("MaintainCards", () => {
     render(<MaintainCards cardService={mockService as unknown as CardService} />);
     await waitFor(() => expect(screen.getByTestId("add-card-form")).toBeInTheDocument());
 
-    fillRequiredAddFormFields();
+    await fillRequiredAddFormFields();
     const mechanics = screen.getByTestId("add-mechanics");
     fireEvent.click(within(mechanics).getByLabelText("BATTLECRY"));
     fireEvent.change(screen.getByPlaceholderText("BATTLECRY description"), {

@@ -76,7 +76,7 @@ describe("MaintainSetsResults", () => {
     );
 
     fireEvent.click(screen.getAllByTestId("delete-set")[0]);
-    expect(mockDeleteSet).toHaveBeenCalled();
+    expect(mockDeleteSet).toHaveBeenCalledWith(1);
     expect(mockSelectSet).not.toHaveBeenCalled();
   });
 

@@ -29,7 +29,10 @@ export const cardSchema = yup
       .string()
       .trim()
       .required("Slug is required")
-      .matches(slugRegex, "Slug must be URL-friendly (lowercase letters, numbers, hyphens)"),
+      .matches(
+        slugRegex,
+        "Slug must be URL-friendly (lowercase letters, numbers, hyphens; generated from name)"
+      ),
     flavor_text: yup.string().trim().nullable().optional(),
 
     card_type: yup
@@ -60,8 +63,6 @@ export const cardSchema = yup
     is_collectible: yup.boolean().required(),
     is_token: yup.boolean().required(),
 
-    artist: yup.string().trim().nullable().optional(),
-
     // Form state uses a checkbox map; keywords / related IDs are validated when building the payload.
     mechanics: yup.object(mechanicsFieldShape).required(),
   })
@@ -80,6 +81,11 @@ export const cardSchema = yup
   .test("spell-stats", "Spells must not have attack/health/durability", values => {
     if (!values || values.card_type !== "SPELL") return true;
     return values.attack == null && values.health == null && values.durability == null;
+  })
+  .test("spell-tribe", "Spells cannot have a tribe", values => {
+    if (!values || values.card_type !== "SPELL") return true;
+    const tribeId = values.race_tribe_id as unknown;
+    return tribeId == null || tribeId === "";
   })
   .test("location-stats", "Locations must not have attack/health/durability", values => {
     if (!values || values.card_type !== "LOCATION") return true;

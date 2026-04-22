@@ -109,7 +109,6 @@ test.describe("Meta-data navigation", () => {
             is_token: false,
             image_url: null,
             image_path: null,
-            artist: null,
             created_at: "2024-01-01T10:00:00Z",
             updated_at: "2024-01-01T10:00:00Z",
           }),

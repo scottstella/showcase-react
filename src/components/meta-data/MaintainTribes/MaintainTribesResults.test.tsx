@@ -66,7 +66,7 @@ describe("MaintainTribesResults", () => {
     const deleteButtons = screen.getAllByTestId("delete-tribe");
     fireEvent.click(deleteButtons[0]);
 
-    expect(mockDeleteTribe).toHaveBeenCalled();
+    expect(mockDeleteTribe).toHaveBeenCalledWith(1);
   });
 
   it("calls onSelectTribe when a row is clicked", () => {

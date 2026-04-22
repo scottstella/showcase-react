@@ -28,6 +28,7 @@ describe("CardService", () => {
   let cardService: CardService;
   let mockSelect: ReturnType<typeof vi.fn>;
   let mockDelete: ReturnType<typeof vi.fn>;
+  let mockDeleteSelect: ReturnType<typeof vi.fn>;
   let mockInsert: ReturnType<typeof vi.fn>;
   let mockUpdate: ReturnType<typeof vi.fn>;
   let mockEq: ReturnType<typeof vi.fn>;
@@ -41,11 +42,14 @@ describe("CardService", () => {
     // Set up mock chain
     mockSelect = vi.fn();
     mockDelete = vi.fn();
-    mockInsert = vi.fn().mockImplementation(() => ({ single: mockSingle }));
+    mockInsert = vi.fn().mockImplementation(() => ({
+      select: () => ({ single: mockSingle }),
+      single: mockSingle,
+    }));
     mockUpdate = vi.fn();
     mockOrder = vi.fn();
     mockSingle = vi.fn();
-    mockEq = vi.fn().mockReturnValue({ single: mockSingle });
+    mockEq = vi.fn();
 
     (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from.mockReturnValue({
       select: mockSelect,
@@ -55,6 +59,16 @@ describe("CardService", () => {
     } as MockQueryBuilder);
 
     mockSelect.mockReturnValue({ order: mockOrder });
+    mockDeleteSelect = vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null });
+    mockEq.mockReturnValue({
+      single: mockSingle,
+      select: (columns?: string) => {
+        if (columns !== undefined) {
+          return mockDeleteSelect(columns);
+        }
+        return { single: mockSingle };
+      },
+    });
     mockDelete.mockReturnValue({ eq: mockEq });
     mockUpdate.mockReturnValue({ eq: mockEq });
     // Support both `.delete().eq(...)` and `.update(...).eq(...).single()`
@@ -80,8 +94,8 @@ describe("CardService", () => {
 
   describe("deleteHeroClass", () => {
     it("should delete hero class by id", async () => {
-      const expectedResponse = { data: { id: 1 } };
-      mockEq.mockResolvedValue(expectedResponse);
+      const expectedResponse = { data: [{ id: 1 }], error: null };
+      mockDeleteSelect.mockResolvedValue(expectedResponse);
 
       const result = await cardService.deleteHeroClass(1);
 
@@ -89,6 +103,7 @@ describe("CardService", () => {
         (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
       ).toHaveBeenCalledWith("hero_class");
       expect(mockDelete).toHaveBeenCalled();
+      expect(mockDeleteSelect).toHaveBeenCalledWith("id");
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
     });
@@ -171,8 +186,8 @@ describe("CardService", () => {
 
   describe("deleteTribe", () => {
     it("should delete tribe by id", async () => {
-      const expectedResponse = { data: { id: 1 } };
-      mockEq.mockResolvedValue(expectedResponse);
+      const expectedResponse = { data: [{ id: 1 }], error: null };
+      mockDeleteSelect.mockResolvedValue(expectedResponse);
 
       const result = await cardService.deleteTribe(1);
 
@@ -180,6 +195,7 @@ describe("CardService", () => {
         (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
       ).toHaveBeenCalledWith("tribe");
       expect(mockDelete).toHaveBeenCalled();
+      expect(mockDeleteSelect).toHaveBeenCalledWith("id");
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
     });
@@ -262,8 +278,8 @@ describe("CardService", () => {
 
   describe("deleteSet", () => {
     it("should delete set by id", async () => {
-      const expectedResponse = { data: { id: 1 } };
-      mockEq.mockResolvedValue(expectedResponse);
+      const expectedResponse = { data: [{ id: 1 }], error: null };
+      mockDeleteSelect.mockResolvedValue(expectedResponse);
 
       const result = await cardService.deleteSet(1);
 
@@ -271,12 +287,13 @@ describe("CardService", () => {
         (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
       ).toHaveBeenCalledWith("set");
       expect(mockDelete).toHaveBeenCalled();
+      expect(mockDeleteSelect).toHaveBeenCalledWith("id");
       expect(mockEq).toHaveBeenCalledWith("id", 1);
       expect(result).toEqual(expectedResponse);
     });
 
     it("maps empty delete result to RLS-style error", async () => {
-      mockEq.mockResolvedValue({ data: [], error: null });
+      mockDeleteSelect.mockResolvedValue({ data: [], error: null });
 
       const result = await cardService.deleteSet(9);
 
@@ -395,8 +412,8 @@ describe("CardService", () => {
     });
 
     it("should delete a card by uuid", async () => {
-      const expectedResponse = { data: { id: "abc" } };
-      mockEq.mockResolvedValue(expectedResponse);
+      const expectedResponse = { data: [{ id: "abc" }], error: null };
+      mockDeleteSelect.mockResolvedValue(expectedResponse);
 
       const result = await cardService.deleteCard("abc");
 
@@ -404,12 +421,13 @@ describe("CardService", () => {
         (mockSupabase as unknown as { from: ReturnType<typeof vi.fn> }).from
       ).toHaveBeenCalledWith("card");
       expect(mockDelete).toHaveBeenCalled();
+      expect(mockDeleteSelect).toHaveBeenCalledWith("id");
       expect(mockEq).toHaveBeenCalledWith("id", "abc");
       expect(result).toEqual(expectedResponse);
     });
 
     it("should insert card row then replace child rows", async () => {
-      const created = { id: "11111111-1111-1111-1111-111111111111" };
+      const created = { id: "11111111-1111-1111-1111-111111111111", slug: "test" };
       mockSingle.mockResolvedValueOnce({ data: created, error: null });
 
       mockInsert.mockImplementation((rows: unknown) => {
@@ -417,7 +435,7 @@ describe("CardService", () => {
         if (row && "card_id" in row) {
           return Promise.resolve({ error: null });
         }
-        return { single: mockSingle };
+        return { select: () => ({ single: mockSingle }) };
       });
 
       const payload: CardUpsertPayload = {
@@ -437,7 +455,6 @@ describe("CardService", () => {
         text: "Hi",
         is_collectible: true,
         is_token: false,
-        artist: null,
         mechanics: ["TAUNT"],
         keywords: ["foo"],
         related_card_ids: [],
@@ -449,7 +466,7 @@ describe("CardService", () => {
     });
 
     it("should upload an image after insert when a file is provided", async () => {
-      const created = { id: "11111111-1111-1111-1111-111111111111" };
+      const created = { id: "11111111-1111-1111-1111-111111111111", slug: "test" };
       mockSingle
         .mockResolvedValueOnce({ data: created, error: null })
         .mockResolvedValueOnce({ data: { ...created, image_url: "https://x/y" }, error: null });
@@ -459,10 +476,13 @@ describe("CardService", () => {
         if (row && "card_id" in row) {
           return Promise.resolve({ error: null });
         }
-        return { single: mockSingle };
+        return { select: () => ({ single: mockSingle }) };
       });
 
-      const mockUpload = vi.fn().mockResolvedValue({ data: { path: "p" }, error: null });
+      const mockUpload = vi.fn().mockResolvedValue({
+        data: { path: "11111111-1111-1111-1111-111111111111/test.png", id: "x", fullPath: "x" },
+        error: null,
+      });
       const mockGetPublicUrl = vi
         .fn()
         .mockReturnValue({ data: { publicUrl: "https://example/public" } });
@@ -492,7 +512,6 @@ describe("CardService", () => {
         text: "Hi",
         is_collectible: true,
         is_token: false,
-        artist: null,
         mechanics: [],
         keywords: [],
         related_card_ids: [],
@@ -501,6 +520,11 @@ describe("CardService", () => {
       const result = await cardService.addCard(payload, file);
       expect(result.error).toBeNull();
       expect(mockUpload).toHaveBeenCalled();
+      expect(mockUpload).toHaveBeenCalledWith(
+        `${created.id}/test.png`,
+        file,
+        expect.objectContaining({ upsert: true })
+      );
       expect(mockGetPublicUrl).toHaveBeenCalled();
     });
   });
@@ -516,7 +540,7 @@ describe("CardService", () => {
 
     it("should handle deleteHeroClass error", async () => {
       const error = new Error("Delete failed");
-      mockEq.mockRejectedValue(error);
+      mockDeleteSelect.mockRejectedValue(error);
 
       await expect(cardService.deleteHeroClass(1)).rejects.toThrow("Delete failed");
     });

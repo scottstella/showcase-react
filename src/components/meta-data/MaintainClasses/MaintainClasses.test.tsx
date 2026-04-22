@@ -293,9 +293,6 @@ describe("MaintainClasses", () => {
       expect(updateToast).toHaveBeenCalledWith({ current: "toast-id" }, error, true);
       // Verify the row is still in the table
       expect(screen.getByText("Mage")).toBeInTheDocument();
-      const deleteButton = deleteButtons[0];
-      expect(deleteButton).not.toBeDisabled();
-      expect(deleteButton).toHaveAttribute("id", "1");
     });
   });
 

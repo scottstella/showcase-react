@@ -51,30 +51,69 @@ export class CardService {
   }
 
   async deleteCard(id: string) {
-    const response = await this.supabase.from("card").delete().eq("id", id);
+    const response = await this.supabase.from("card").delete().eq("id", id).select("id");
     return handleRLSError(response);
   }
 
-  async uploadCardImage(cardId: string, file: File) {
-    const safeName = file.name.replace(/[^\w.-]+/g, "_");
-    const objectPath = `${cardId}/${crypto.randomUUID()}-${safeName}`;
+  /** Safe object key segment from card slug (hyphens allowed). */
+  private static slugForStorageKey(slug: string): string {
+    const trimmed = slug
+      .trim()
+      .replace(/[^a-zA-Z0-9_.-]+/g, "_")
+      .replace(/_+/g, "_");
+    const collapsed = trimmed.replace(/^_|_$/g, "");
+    return collapsed || "card";
+  }
+
+  private static extensionFromFile(file: File): string {
+    const match = /\.([a-zA-Z0-9]+)$/.exec(file.name);
+    if (match) return match[1].toLowerCase();
+    if (file.type === "image/png") return "png";
+    if (file.type === "image/jpeg" || file.type === "image/jpg") return "jpg";
+    if (file.type === "image/webp") return "webp";
+    if (file.type === "image/gif") return "gif";
+    if (file.type === "image/svg+xml") return "svg";
+    return "img";
+  }
+
+  async uploadCardImage(cardId: string, slug: string, file: File) {
+    if (!file.size) {
+      return {
+        data: null,
+        error: new Error("Image file is empty"),
+      };
+    }
+
+    const base = CardService.slugForStorageKey(slug);
+    const ext = CardService.extensionFromFile(file);
+    const objectPath = `${cardId}/${base}.${ext}`;
+    const contentType = file.type || "application/octet-stream";
 
     const upload = await this.supabase.storage
       .from(CardService.CARD_IMAGE_BUCKET)
       .upload(objectPath, file, {
         upsert: true,
-        contentType: file.type || "application/octet-stream",
+        contentType,
+        cacheControl: "3600",
       });
 
     if (upload.error) {
       return upload;
     }
 
+    if (!upload.data?.path) {
+      return {
+        data: null,
+        error: new Error("Storage upload returned no path"),
+      };
+    }
+
+    const storedPath = upload.data.path;
     const { data } = this.supabase.storage
       .from(CardService.CARD_IMAGE_BUCKET)
-      .getPublicUrl(objectPath);
+      .getPublicUrl(storedPath);
     return {
-      data: { publicUrl: data.publicUrl, path: objectPath },
+      data: { publicUrl: data.publicUrl, path: storedPath },
       error: null,
     };
   }
@@ -82,7 +121,7 @@ export class CardService {
   async addCard(payload: CardUpsertPayload, imageFile?: File | null) {
     const { mechanics, keywords, related_card_ids, ...cardRow } = payload;
 
-    const insertResponse = await this.supabase.from("card").insert([cardRow]).single();
+    const insertResponse = await this.supabase.from("card").insert([cardRow]).select().single();
     const insertHandled = handleRLSError(insertResponse) as {
       data: Card | null;
       error: PostgrestError | null;
@@ -106,7 +145,7 @@ export class CardService {
     }
 
     if (imageFile) {
-      const uploadResult = await this.uploadCardImage(cardId, imageFile);
+      const uploadResult = await this.uploadCardImage(cardId, created.slug, imageFile);
       if (uploadResult.error) {
         await this.supabase.from("card").delete().eq("id", cardId);
         return { data: null, error: uploadResult.error };
@@ -119,6 +158,7 @@ export class CardService {
         .from("card")
         .update({ image_url: publicUrl, image_path: path, updated_at: new Date().toISOString() })
         .eq("id", cardId)
+        .select()
         .single();
 
       const updateHandled = handleRLSError(updateImage);
@@ -143,6 +183,7 @@ export class CardService {
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
+      .select()
       .single();
 
     const updateHandled = handleRLSError(updateResponse);
@@ -156,7 +197,7 @@ export class CardService {
     }
 
     if (imageFile) {
-      const uploadResult = await this.uploadCardImage(id, imageFile);
+      const uploadResult = await this.uploadCardImage(id, cardRow.slug, imageFile);
       if (uploadResult.error) {
         return { data: null, error: uploadResult.error };
       }
@@ -168,6 +209,7 @@ export class CardService {
         .from("card")
         .update({ image_url: publicUrl, image_path: path, updated_at: new Date().toISOString() })
         .eq("id", id)
+        .select()
         .single();
 
       return handleRLSError(updateImage);
@@ -226,7 +268,7 @@ export class CardService {
   }
 
   async deleteHeroClass(id: number) {
-    const response = await this.supabase.from("hero_class").delete().eq("id", id);
+    const response = await this.supabase.from("hero_class").delete().eq("id", id).select("id");
     return handleRLSError(response);
   }
 
@@ -257,7 +299,7 @@ export class CardService {
   }
 
   async deleteTribe(id: number) {
-    const response = await this.supabase.from("tribe").delete().eq("id", id);
+    const response = await this.supabase.from("tribe").delete().eq("id", id).select("id");
     return handleRLSError(response);
   }
 
@@ -288,7 +330,7 @@ export class CardService {
   }
 
   async deleteSet(id: number) {
-    const response = await this.supabase.from("set").delete().eq("id", id);
+    const response = await this.supabase.from("set").delete().eq("id", id).select("id");
     return handleRLSError(response);
   }
 

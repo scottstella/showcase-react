@@ -109,9 +109,9 @@ export default function MaintainSets({
     }
   }
 
-  async function deleteSet(e: React.MouseEvent<SVGSVGElement>) {
+  async function deleteSet(id: number) {
     deleteToastRef.current = toast("Deleting record...");
-    const { error } = await cardService.deleteSet(Number(e.currentTarget.id));
+    const { error } = await cardService.deleteSet(id);
     updateToast(deleteToastRef, error, true);
 
     if (error == null) {

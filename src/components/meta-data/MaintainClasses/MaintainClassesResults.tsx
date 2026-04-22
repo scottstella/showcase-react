@@ -9,7 +9,7 @@ import type { HeroClass } from "../../../dto/HeroClass";
 interface MaintainClassesResultsProps {
   isLoading: boolean;
   heroClasses: HeroClass[];
-  deleteHeroClass: (event: React.MouseEvent<SVGSVGElement>) => void;
+  deleteHeroClass: (id: number) => void;
   onSelectHeroClass: (heroClass: HeroClass) => void;
 }
 
@@ -38,10 +38,9 @@ const MaintainClassesResults = (props: MaintainClassesResultsProps) => {
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
                 icon="trash-can"
-                id={String(heroClass.id)}
                 onClick={event => {
                   event.stopPropagation();
-                  props.deleteHeroClass(event);
+                  props.deleteHeroClass(heroClass.id);
                 }}
                 data-testid="delete-class"
               />

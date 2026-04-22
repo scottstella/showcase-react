@@ -100,9 +100,9 @@ export default function MaintainTribes({
     }
   }
 
-  async function deleteTribe(e: React.MouseEvent<SVGSVGElement>) {
+  async function deleteTribe(id: number) {
     deleteToastRef.current = toast("Deleting record...");
-    const { error } = await cardService.deleteTribe(Number(e.currentTarget.id));
+    const { error } = await cardService.deleteTribe(id);
     updateToast(deleteToastRef, error, true);
 
     if (error == null) {

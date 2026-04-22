@@ -102,7 +102,6 @@ create table if not exists card (
 
   image_url text,
   image_path text,
-  artist text,
 
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
@@ -143,6 +142,9 @@ create index if not exists card_mana_idx on card (mana_cost);
 
 -- Backward-compat cleanup: older versions stored a redundant is_legendary boolean.
 alter table card drop column if exists is_legendary;
+
+-- Artist is no longer tracked in the app.
+alter table card drop column if exists artist;
 
 create table if not exists card_mechanic_map (
   card_id uuid not null references card(id) on delete cascade,

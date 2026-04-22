@@ -10,7 +10,7 @@ import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 interface MaintainSetsResultsProps {
   isLoading: boolean;
   sets: Set[];
-  deleteSet: (event: React.MouseEvent<SVGSVGElement>) => void;
+  deleteSet: (id: number) => void;
   onSelectSet: (set: Set) => void;
 }
 
@@ -41,10 +41,9 @@ const MaintainSetsResults = (props: MaintainSetsResultsProps) => {
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
                 icon={faTrashCan}
-                id={set.id.toString()}
                 onClick={event => {
                   event.stopPropagation();
-                  props.deleteSet(event);
+                  props.deleteSet(set.id);
                 }}
                 data-testid="delete-set"
               />

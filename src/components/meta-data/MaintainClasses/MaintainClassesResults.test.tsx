@@ -66,7 +66,7 @@ describe("MaintainClassesResults", () => {
     const deleteButtons = screen.getAllByTestId("delete-class");
     fireEvent.click(deleteButtons[0]);
 
-    expect(mockDeleteHeroClass).toHaveBeenCalled();
+    expect(mockDeleteHeroClass).toHaveBeenCalledWith(1);
   });
 
   it("calls onSelectHeroClass when a row is clicked", () => {

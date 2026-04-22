@@ -9,7 +9,7 @@ import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 interface MaintainCardsResultsProps {
   isLoading: boolean;
   cards: Card[];
-  deleteCard: (event: React.MouseEvent<SVGSVGElement>) => void;
+  deleteCard: (id: string) => void;
   onSelectCard: (card: Card) => void;
 }
 
@@ -28,8 +28,6 @@ const MaintainCardsResults = (props: MaintainCardsResultsProps) => {
           <th>Type</th>
           <th>Rarity</th>
           <th>Mana</th>
-          <th>Collectible</th>
-          <th>Token</th>
           <th>Last Updated</th>
         </tr>
       </thead>
@@ -44,10 +42,9 @@ const MaintainCardsResults = (props: MaintainCardsResultsProps) => {
             <td style={{ width: "75px" }}>
               <FontAwesomeIcon
                 icon={faTrashCan}
-                id={card.id}
                 onClick={event => {
                   event.stopPropagation();
-                  props.deleteCard(event);
+                  props.deleteCard(card.id);
                 }}
                 data-testid="delete-card"
               />
@@ -58,8 +55,6 @@ const MaintainCardsResults = (props: MaintainCardsResultsProps) => {
             <td>{card.card_type}</td>
             <td>{card.rarity}</td>
             <td>{card.mana_cost}</td>
-            <td>{card.is_collectible ? "Yes" : "No"}</td>
-            <td>{card.is_token ? "Yes" : "No"}</td>
             <td>{getLastUpdatedString(card.updated_at ?? card.created_at)}</td>
           </tr>
         ))}

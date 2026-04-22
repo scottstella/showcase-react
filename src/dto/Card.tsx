@@ -53,7 +53,6 @@ export interface Card {
 
   image_url: string | null;
   image_path: string | null;
-  artist: string | null;
 
   created_at: string;
   updated_at: string;
@@ -92,7 +91,6 @@ export interface CardUpsertPayload {
 
   image_url?: string | null;
   image_path?: string | null;
-  artist?: string | null;
 
   mechanics: Mechanic[];
   keywords: string[];

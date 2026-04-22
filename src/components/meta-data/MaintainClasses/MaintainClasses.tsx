@@ -99,9 +99,9 @@ export default function MaintainClasses({
     }
   }
 
-  async function deleteHeroClass(e: React.MouseEvent<SVGSVGElement>) {
+  async function deleteHeroClass(id: number) {
     deleteToastRef.current = toast("Deleting record...");
-    const { error } = await cardService.deleteHeroClass(Number(e.currentTarget.id));
+    const { error } = await cardService.deleteHeroClass(id);
     updateToast(deleteToastRef, error, true);
 
     if (error == null) {
