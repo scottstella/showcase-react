@@ -64,7 +64,7 @@ describe("CardService", () => {
       single: mockSingle,
       select: (columns?: string) => {
         if (columns !== undefined) {
-          return mockDeleteSelect(columns);
+          return (mockDeleteSelect as unknown as (value: string) => unknown)(columns);
         }
         return { single: mockSingle };
       },

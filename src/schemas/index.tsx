@@ -50,7 +50,8 @@ export const cardSchema = yup
       .test("spell-school-value", "Invalid spell school", function (val) {
         const type = this.parent.card_type;
         if (type !== "SPELL") return val == null || val === "";
-        return val === "" || (SPELL_SCHOOLS as readonly string[]).includes(val);
+        if (val == null || val === "") return true;
+        return typeof val === "string" && (SPELL_SCHOOLS as readonly string[]).includes(val);
       }),
 
     set_id: yup.number().integer().required("Set is required"),
