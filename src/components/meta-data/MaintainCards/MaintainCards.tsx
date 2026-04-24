@@ -74,6 +74,51 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** UI + payload: which stat rows apply per card type (matches cardSchema). */
+function showTribeField(cardType: string): boolean {
+  return cardType !== "SPELL";
+}
+
+function showAttackField(cardType: string): boolean {
+  return cardType === "MINION" || cardType === "WEAPON" || cardType === "HERO";
+}
+
+function showHealthField(cardType: string): boolean {
+  return cardType === "MINION" || cardType === "HERO";
+}
+
+function showDurabilityField(cardType: string): boolean {
+  return cardType === "WEAPON";
+}
+
+function clearCardStatsHiddenByType(
+  cardType: string,
+  setFieldValue: (field: string, value: string | number) => void
+) {
+  if (cardType === "SPELL") {
+    setFieldValue("race_tribe_id", "");
+    setFieldValue("attack", "");
+    setFieldValue("health", "");
+    setFieldValue("durability", "");
+    return;
+  }
+  setFieldValue("spell_school", "");
+  if (!showAttackField(cardType)) setFieldValue("attack", "");
+  if (!showHealthField(cardType)) setFieldValue("health", "");
+  if (!showDurabilityField(cardType)) setFieldValue("durability", "");
+}
+
+function editStatFieldsFromCard(
+  card: Card
+): Pick<CardFormValues, "attack" | "health" | "durability"> {
+  const t = card.card_type;
+  return {
+    attack: showAttackField(t) ? (card.attack ?? "") : "",
+    health: showHealthField(t) ? (card.health ?? "") : "",
+    durability: showDurabilityField(t) ? (card.durability ?? "") : "",
+  };
+}
+
 function emptyMechanics(): Record<Mechanic, boolean> {
   return MECHANICS.reduce(
     (acc, mechanic) => {
@@ -206,27 +251,25 @@ function toNullableInt(value: number | ""): number | null {
 }
 
 function toUpsertPayload(values: CardFormValues): CardUpsertPayload {
-  const isSpell = values.card_type === "SPELL";
+  const t = values.card_type;
   return {
     name: values.name,
     slug: values.slug,
     flavor_text: values.flavor_text.trim() ? values.flavor_text.trim() : null,
     card_type: values.card_type as CardUpsertPayload["card_type"],
     rarity: values.rarity as CardUpsertPayload["rarity"],
-    spell_school: values.spell_school
-      ? (values.spell_school as CardUpsertPayload["spell_school"])
-      : null,
+    spell_school:
+      t === "SPELL" && values.spell_school
+        ? (values.spell_school as CardUpsertPayload["spell_school"])
+        : null,
     set_id: Number(values.set_id),
     hero_class_id: Number(values.hero_class_id),
-    race_tribe_id: isSpell
-      ? null
-      : values.race_tribe_id === ""
-        ? null
-        : Number(values.race_tribe_id),
+    race_tribe_id:
+      showTribeField(t) && values.race_tribe_id !== "" ? Number(values.race_tribe_id) : null,
     mana_cost: Number(values.mana_cost),
-    attack: isSpell ? null : toNullableInt(values.attack),
-    health: isSpell ? null : toNullableInt(values.health),
-    durability: isSpell ? null : toNullableInt(values.durability),
+    attack: showAttackField(t) ? toNullableInt(values.attack) : null,
+    health: showHealthField(t) ? toNullableInt(values.health) : null,
+    durability: showDurabilityField(t) ? toNullableInt(values.durability) : null,
     text: values.text,
     is_collectible: values.is_collectible,
     is_token: values.is_token,
@@ -298,16 +341,14 @@ export default function MaintainCards({
       onSubmit: (formValues, actions) => addCard(formValues, actions),
     });
 
-  const spellFieldsDisabled = values.card_type === "SPELL";
+  const showSpellSchoolAdd = values.card_type === "SPELL";
 
   const onAddCardTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     handleChange(e);
-    if (e.target.value === "SPELL") {
-      void setFieldValue("race_tribe_id", "");
-      void setFieldValue("attack", "");
-      void setFieldValue("health", "");
-      void setFieldValue("durability", "");
-    }
+    clearCardStatsHiddenByType(
+      e.target.value,
+      (field, value) => void setFieldValue(field, value, false)
+    );
   };
 
   const editFormik = useFormik<CardFormValues>({
@@ -317,16 +358,14 @@ export default function MaintainCards({
     onSubmit: (formValues, actions) => updateCard(formValues, actions),
   });
 
-  const spellEditFieldsDisabled = editFormik.values.card_type === "SPELL";
+  const showSpellSchoolEdit = editFormik.values.card_type === "SPELL";
 
   const onEditCardTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     editFormik.handleChange(e);
-    if (e.target.value === "SPELL") {
-      void editFormik.setFieldValue("race_tribe_id", "");
-      void editFormik.setFieldValue("attack", "");
-      void editFormik.setFieldValue("health", "");
-      void editFormik.setFieldValue("durability", "");
-    }
+    clearCardStatsHiddenByType(
+      e.target.value,
+      (field, value) => void editFormik.setFieldValue(field, value, false)
+    );
   };
 
   useEffect(() => {
@@ -446,14 +485,12 @@ export default function MaintainCards({
       flavor_text: card.flavor_text ?? "",
       card_type: card.card_type,
       rarity: card.rarity,
-      spell_school: card.spell_school ?? "",
+      spell_school: card.card_type === "SPELL" ? (card.spell_school ?? "") : "",
       set_id: card.set_id,
       hero_class_id: card.hero_class_id,
-      race_tribe_id: card.race_tribe_id ?? "",
+      race_tribe_id: showTribeField(card.card_type) ? (card.race_tribe_id ?? "") : "",
       mana_cost: card.mana_cost,
-      attack: card.attack ?? "",
-      health: card.health ?? "",
-      durability: card.durability ?? "",
+      ...editStatFieldsFromCard(card),
       text: card.text,
       is_collectible: card.is_collectible,
       is_token: card.is_token,
@@ -640,26 +677,27 @@ export default function MaintainCards({
                 </div>
               </div>
 
-              <div className="form-control">
-                <label htmlFor="race_tribe_id">Race (tribe)</label>
-                <div className="input-container">
-                  <select
-                    id="race_tribe_id"
-                    name="race_tribe_id"
-                    value={values.race_tribe_id}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    disabled={spellFieldsDisabled}
-                  >
-                    <option value="">None</option>
-                    {tribes.map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))}
-                  </select>
+              {showTribeField(values.card_type) ? (
+                <div className="form-control">
+                  <label htmlFor="race_tribe_id">Tribe</label>
+                  <div className="input-container">
+                    <select
+                      id="race_tribe_id"
+                      name="race_tribe_id"
+                      value={values.race_tribe_id}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    >
+                      <option value="">None</option>
+                      {tribes.map(t => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <div className="form-control">
                 <label htmlFor="rarity">Rarity</label>
@@ -680,25 +718,27 @@ export default function MaintainCards({
                 </div>
               </div>
 
-              <div className="form-control">
-                <label htmlFor="spell_school">Spell school</label>
-                <div className="input-container">
-                  <select
-                    id="spell_school"
-                    name="spell_school"
-                    value={values.spell_school}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                  >
-                    <option value="">None</option>
-                    {SPELL_SCHOOLS.map(s => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+              {showSpellSchoolAdd ? (
+                <div className="form-control">
+                  <label htmlFor="spell_school">Spell school</label>
+                  <div className="input-container">
+                    <select
+                      id="spell_school"
+                      name="spell_school"
+                      value={values.spell_school}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    >
+                      <option value="">None</option>
+                      {SPELL_SCHOOLS.map(s => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <div className="form-control">
                 <label htmlFor="mana_cost">Mana</label>
@@ -719,65 +759,68 @@ export default function MaintainCards({
                 </div>
               </div>
 
-              <div className="form-control">
-                <label htmlFor="attack">Attack</label>
-                <div className="input-container">
-                  <input
-                    id="attack"
-                    name="attack"
-                    type="number"
-                    placeholder="Attack"
-                    value={values.attack}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    disabled={spellFieldsDisabled}
-                    className={errors.attack && touched.attack ? "error" : ""}
-                  />
-                  {errors.attack && touched.attack && (
-                    <div className="error-msg">{errors.attack}</div>
-                  )}
+              {showAttackField(values.card_type) ? (
+                <div className="form-control">
+                  <label htmlFor="attack">Attack</label>
+                  <div className="input-container">
+                    <input
+                      id="attack"
+                      name="attack"
+                      type="number"
+                      placeholder="Attack"
+                      value={values.attack}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={errors.attack && touched.attack ? "error" : ""}
+                    />
+                    {errors.attack && touched.attack && (
+                      <div className="error-msg">{errors.attack}</div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
-              <div className="form-control">
-                <label htmlFor="health">Health</label>
-                <div className="input-container">
-                  <input
-                    id="health"
-                    name="health"
-                    type="number"
-                    placeholder="Health"
-                    value={values.health}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    disabled={spellFieldsDisabled}
-                    className={errors.health && touched.health ? "error" : ""}
-                  />
-                  {errors.health && touched.health && (
-                    <div className="error-msg">{errors.health}</div>
-                  )}
+              {showHealthField(values.card_type) ? (
+                <div className="form-control">
+                  <label htmlFor="health">Health</label>
+                  <div className="input-container">
+                    <input
+                      id="health"
+                      name="health"
+                      type="number"
+                      placeholder="Health"
+                      value={values.health}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={errors.health && touched.health ? "error" : ""}
+                    />
+                    {errors.health && touched.health && (
+                      <div className="error-msg">{errors.health}</div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
-              <div className="form-control">
-                <label htmlFor="durability">Durability</label>
-                <div className="input-container">
-                  <input
-                    id="durability"
-                    name="durability"
-                    type="number"
-                    placeholder="Durability"
-                    value={values.durability}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    disabled={spellFieldsDisabled}
-                    className={errors.durability && touched.durability ? "error" : ""}
-                  />
-                  {errors.durability && touched.durability && (
-                    <div className="error-msg">{errors.durability}</div>
-                  )}
+              {showDurabilityField(values.card_type) ? (
+                <div className="form-control">
+                  <label htmlFor="durability">Durability</label>
+                  <div className="input-container">
+                    <input
+                      id="durability"
+                      name="durability"
+                      type="number"
+                      placeholder="Durability"
+                      value={values.durability}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={errors.durability && touched.durability ? "error" : ""}
+                    />
+                    {errors.durability && touched.durability && (
+                      <div className="error-msg">{errors.durability}</div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <div className="form-control">
                 <label htmlFor="card_image">Card image</label>
@@ -1052,26 +1095,27 @@ export default function MaintainCards({
                 </div>
               </div>
 
-              <div className="form-control">
-                <label htmlFor="edit-race_tribe_id">Race (tribe)</label>
-                <div className="input-container">
-                  <select
-                    id="edit-race_tribe_id"
-                    name="race_tribe_id"
-                    value={editFormik.values.race_tribe_id}
-                    onChange={editFormik.handleChange}
-                    onBlur={editFormik.handleBlur}
-                    disabled={spellEditFieldsDisabled}
-                  >
-                    <option value="">None</option>
-                    {tribes.map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))}
-                  </select>
+              {showTribeField(editFormik.values.card_type) ? (
+                <div className="form-control">
+                  <label htmlFor="edit-race_tribe_id">Tribe</label>
+                  <div className="input-container">
+                    <select
+                      id="edit-race_tribe_id"
+                      name="race_tribe_id"
+                      value={editFormik.values.race_tribe_id}
+                      onChange={editFormik.handleChange}
+                      onBlur={editFormik.handleBlur}
+                    >
+                      <option value="">None</option>
+                      {tribes.map(t => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <div className="form-control">
                 <label htmlFor="edit-rarity">Rarity</label>
@@ -1092,25 +1136,27 @@ export default function MaintainCards({
                 </div>
               </div>
 
-              <div className="form-control">
-                <label htmlFor="edit-spell_school">Spell school</label>
-                <div className="input-container">
-                  <select
-                    id="edit-spell_school"
-                    name="spell_school"
-                    value={editFormik.values.spell_school}
-                    onChange={editFormik.handleChange}
-                    onBlur={editFormik.handleBlur}
-                  >
-                    <option value="">None</option>
-                    {SPELL_SCHOOLS.map(s => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+              {showSpellSchoolEdit ? (
+                <div className="form-control">
+                  <label htmlFor="edit-spell_school">Spell school</label>
+                  <div className="input-container">
+                    <select
+                      id="edit-spell_school"
+                      name="spell_school"
+                      value={editFormik.values.spell_school}
+                      onChange={editFormik.handleChange}
+                      onBlur={editFormik.handleBlur}
+                    >
+                      <option value="">None</option>
+                      {SPELL_SCHOOLS.map(s => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <div className="form-control">
                 <label htmlFor="edit-mana_cost">Mana</label>
@@ -1127,53 +1173,56 @@ export default function MaintainCards({
                 </div>
               </div>
 
-              <div className="form-control">
-                <label htmlFor="edit-attack">Attack</label>
-                <div className="input-container">
-                  <input
-                    id="edit-attack"
-                    name="attack"
-                    type="number"
-                    placeholder="Attack"
-                    value={editFormik.values.attack}
-                    onChange={editFormik.handleChange}
-                    onBlur={editFormik.handleBlur}
-                    disabled={spellEditFieldsDisabled}
-                  />
+              {showAttackField(editFormik.values.card_type) ? (
+                <div className="form-control">
+                  <label htmlFor="edit-attack">Attack</label>
+                  <div className="input-container">
+                    <input
+                      id="edit-attack"
+                      name="attack"
+                      type="number"
+                      placeholder="Attack"
+                      value={editFormik.values.attack}
+                      onChange={editFormik.handleChange}
+                      onBlur={editFormik.handleBlur}
+                    />
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
-              <div className="form-control">
-                <label htmlFor="edit-health">Health</label>
-                <div className="input-container">
-                  <input
-                    id="edit-health"
-                    name="health"
-                    type="number"
-                    placeholder="Health"
-                    value={editFormik.values.health}
-                    onChange={editFormik.handleChange}
-                    onBlur={editFormik.handleBlur}
-                    disabled={spellEditFieldsDisabled}
-                  />
+              {showHealthField(editFormik.values.card_type) ? (
+                <div className="form-control">
+                  <label htmlFor="edit-health">Health</label>
+                  <div className="input-container">
+                    <input
+                      id="edit-health"
+                      name="health"
+                      type="number"
+                      placeholder="Health"
+                      value={editFormik.values.health}
+                      onChange={editFormik.handleChange}
+                      onBlur={editFormik.handleBlur}
+                    />
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
-              <div className="form-control">
-                <label htmlFor="edit-durability">Durability</label>
-                <div className="input-container">
-                  <input
-                    id="edit-durability"
-                    name="durability"
-                    type="number"
-                    placeholder="Durability"
-                    value={editFormik.values.durability}
-                    onChange={editFormik.handleChange}
-                    onBlur={editFormik.handleBlur}
-                    disabled={spellEditFieldsDisabled}
-                  />
+              {showDurabilityField(editFormik.values.card_type) ? (
+                <div className="form-control">
+                  <label htmlFor="edit-durability">Durability</label>
+                  <div className="input-container">
+                    <input
+                      id="edit-durability"
+                      name="durability"
+                      type="number"
+                      placeholder="Durability"
+                      value={editFormik.values.durability}
+                      onChange={editFormik.handleChange}
+                      onBlur={editFormik.handleBlur}
+                    />
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <div className="form-control">
                 <label htmlFor="edit-card_image">Card image</label>

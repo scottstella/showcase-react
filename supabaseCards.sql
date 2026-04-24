@@ -75,6 +75,8 @@ insert into hero_class (name, created_at, updated_at)
 select 'NEUTRAL', timezone('utc', now()), timezone('utc', now())
 where not exists (select 1 from hero_class where name = 'NEUTRAL');
 
+-- Elemental tribe seed lives in `supabaseElementalTribe.sql` so it can be run on its own.
+
 create table if not exists card (
   id uuid primary key default gen_random_uuid(),
 

@@ -45,9 +45,13 @@ export const cardSchema = yup
       .required("Rarity is required"),
     spell_school: yup
       .string()
-      .oneOf([...SPELL_SCHOOLS])
       .nullable()
-      .optional(),
+      .optional()
+      .test("spell-school-value", "Invalid spell school", function (val) {
+        const type = this.parent.card_type;
+        if (type !== "SPELL") return val == null || val === "";
+        return val === "" || (SPELL_SCHOOLS as readonly string[]).includes(val);
+      }),
 
     set_id: yup.number().integer().required("Set is required"),
     hero_class_id: yup.number().integer().required("Class is required"),
@@ -86,6 +90,11 @@ export const cardSchema = yup
     if (!values || values.card_type !== "SPELL") return true;
     const tribeId = values.race_tribe_id as unknown;
     return tribeId == null || tribeId === "";
+  })
+  .test("spell-school-spell-only", "Spell school applies only to spells", values => {
+    if (!values || values.card_type === "SPELL") return true;
+    const s = values.spell_school as unknown;
+    return s == null || s === "";
   })
   .test("location-stats", "Locations must not have attack/health/durability", values => {
     if (!values || values.card_type !== "LOCATION") return true;
