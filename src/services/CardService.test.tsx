@@ -529,6 +529,111 @@ describe("CardService", () => {
     });
   });
 
+  describe("card branch coverage", () => {
+    it("returns an error when uploadCardImage receives an empty file", async () => {
+      const file = new File([], "empty.png", { type: "image/png" });
+
+      const result = await cardService.uploadCardImage("abc", "test-card", file);
+
+      expect(result.data).toBeNull();
+      expect(result.error).toBeInstanceOf(Error);
+      expect((result.error as Error).message).toContain("empty");
+    });
+
+    it("returns an error when storage upload does not return a path", async () => {
+      const upload = vi.fn().mockResolvedValue({ data: {}, error: null });
+      (
+        mockSupabase as unknown as { storage: { from: ReturnType<typeof vi.fn> } }
+      ).storage.from.mockReturnValue({
+        upload,
+        getPublicUrl: vi.fn(),
+      });
+
+      const file = new File(["x"], "card.png", { type: "image/png" });
+      const result = await cardService.uploadCardImage("abc", "test-card", file);
+
+      expect(upload).toHaveBeenCalled();
+      expect(result.data).toBeNull();
+      expect(result.error).toBeInstanceOf(Error);
+      expect((result.error as Error).message).toContain("no path");
+    });
+
+    it("rolls back inserted card when replacing child rows fails", async () => {
+      const created = { id: "11111111-1111-1111-1111-111111111111", slug: "test" };
+      const childError = new PostgrestError({
+        message: "child insert failed",
+        details: "",
+        hint: "",
+        code: "500",
+      });
+
+      const rollbackEq = vi.fn().mockResolvedValue({ error: null });
+      const rollbackDelete = vi.fn().mockReturnValue({ eq: rollbackEq });
+
+      const scopedSupabase = {
+        from: vi.fn((table: string) => {
+          if (table === "card") {
+            return {
+              insert: vi.fn().mockReturnValue({
+                select: () => ({
+                  single: vi.fn().mockResolvedValue({ data: created, error: null }),
+                }),
+              }),
+              delete: rollbackDelete,
+            };
+          }
+          if (table === "card_mechanic_map") {
+            return {
+              delete: vi.fn().mockReturnValue({
+                eq: vi.fn().mockResolvedValue({ error: null }),
+              }),
+              insert: vi.fn().mockResolvedValue({ error: childError }),
+            };
+          }
+          if (table === "card_keyword" || table === "card_related_card") {
+            return {
+              delete: vi.fn().mockReturnValue({
+                eq: vi.fn().mockResolvedValue({ error: null }),
+              }),
+              insert: vi.fn().mockResolvedValue({ error: null }),
+            };
+          }
+          throw new Error(`Unexpected table: ${table}`);
+        }),
+        storage: { from: vi.fn() },
+      } as unknown as SupabaseClient;
+
+      const service = new CardService(scopedSupabase);
+      const payload: CardUpsertPayload = {
+        name: "Test",
+        slug: "test",
+        flavor_text: null,
+        card_type: "MINION",
+        rarity: "COMMON",
+        spell_school: null,
+        set_id: 1,
+        hero_class_id: 1,
+        race_tribe_id: null,
+        mana_cost: 1,
+        attack: 1,
+        health: 1,
+        durability: null,
+        text: "Hi",
+        is_collectible: true,
+        is_token: false,
+        mechanics: ["TAUNT"],
+        keywords: [],
+        related_card_ids: [],
+      };
+
+      const result = await service.addCard(payload, null);
+
+      expect(result.error).toEqual(childError);
+      expect(rollbackDelete).toHaveBeenCalled();
+      expect(rollbackEq).toHaveBeenCalledWith("id", created.id);
+    });
+  });
+
   // Error cases
   describe("error handling", () => {
     it("should handle fetchHeroClasses error", async () => {
